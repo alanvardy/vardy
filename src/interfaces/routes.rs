@@ -1,5 +1,9 @@
-use axum::{Router, http::StatusCode, routing::get};
-use tower_http::services::ServeDir;
+use axum::{
+    Router,
+    http::{HeaderValue, StatusCode, header},
+    routing::get,
+};
+use tower_http::{services::ServeDir, set_header::SetResponseHeader};
 
 use crate::app::state::AppState;
 use crate::interfaces::handlers;
@@ -13,7 +17,14 @@ pub fn routes() -> Router<AppState> {
             get(handlers::dump::web::index).post(handlers::dump::web::create),
         )
         .route("/health", get(|| async { StatusCode::OK }))
-        .nest_service("/static", ServeDir::new("static"))
+        .nest_service(
+            "/static",
+            SetResponseHeader::overriding(
+                ServeDir::new("static"),
+                header::CACHE_CONTROL,
+                HeaderValue::from_static("public, max-age=31536000, immutable"),
+            ),
+        )
 }
 
 /// Router for the dedicated metrics port; owns its own state.
@@ -78,6 +89,23 @@ mod tests {
             .expect("body");
         // Empty registry renders as empty text.
         assert!(String::from_utf8(body.to_vec()).unwrap().is_empty());
+    }
+
+    #[tokio::test]
+    async fn static_files_have_immutable_cache_control() {
+        let addr = start_app().await;
+        let client = test_client();
+        let res = client
+            .get(format!("http://{addr}/static/singlethread-icon.png"))
+            .send()
+            .await
+            .expect("request failed");
+        assert_eq!(res.status(), StatusCode::OK);
+        assert!(
+            res.headers()
+                .get("cache-control")
+                .is_some_and(|v| v.to_str().unwrap().contains("max-age=31536000"))
+        );
     }
 
     #[tokio::test]
