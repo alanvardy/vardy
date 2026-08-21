@@ -3,9 +3,11 @@ use std::net::SocketAddr;
 
 /// Bind a random port, spawn the app, return the bound address.
 pub async fn start_app() -> SocketAddr {
+    let db = crate::app::db::init("sqlite::memory:").await;
+    sqlx::migrate!("./migrations").run(&db).await.expect("migrate");
     let state = crate::app::state::AppState {
         templates: crate::app::templates::init(),
-        db: crate::app::db::init("sqlite::memory:").await,
+        db,
     };
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
         .await
