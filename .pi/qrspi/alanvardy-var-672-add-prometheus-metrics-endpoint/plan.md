@@ -417,7 +417,7 @@ No Rust, Dockerfile, workflow, or health-check changes. (Dockerfile needs no `EX
 ### Verification
 
 #### Automated
-- [ ] None applies — config-only phase. CI's existing deploy flow (`flyctl deploy --remote-only` in `.github/workflows/fly-deploy.yml`) implicitly validates that fly.toml parses.
+- [x] None applies — config-only phase. CI's existing deploy flow (`flyctl deploy --remote-only` in `.github/workflows/fly-deploy.yml`) implicitly validates that fly.toml parses.
 
 #### Manual
 - [ ] After merge-to-main deploy, open the Fly dashboard → vardy app → Metrics tab and confirm it populates. Note design risk: a grace period may apply on first scrape; if empty, wait and re-check before investigating.
