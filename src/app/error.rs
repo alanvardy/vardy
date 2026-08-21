@@ -8,6 +8,7 @@ use axum::{
 #[allow(dead_code)]
 pub enum WebError {
     Template(minijinja::Error),
+    Database(sqlx::Error),
     NotFound,
 }
 
@@ -17,10 +18,20 @@ impl From<minijinja::Error> for WebError {
     }
 }
 
+impl From<sqlx::Error> for WebError {
+    fn from(err: sqlx::Error) -> Self {
+        WebError::Database(err)
+    }
+}
+
 impl IntoResponse for WebError {
     fn into_response(self) -> Response {
         match self {
             WebError::NotFound => (StatusCode::NOT_FOUND, "not found").into_response(),
+            WebError::Database(err) => {
+                eprintln!("database error: {err}");
+                (StatusCode::INTERNAL_SERVER_ERROR, "internal server error").into_response()
+            }
             WebError::Template(err) => {
                 eprintln!("template render error: {err}");
                 (StatusCode::INTERNAL_SERVER_ERROR, "internal server error").into_response()
@@ -44,5 +55,17 @@ mod tests {
         let err = minijinja::Error::new(minijinja::ErrorKind::TemplateNotFound, "nope.html");
         let res = WebError::from(err).into_response();
         assert_eq!(res.status(), StatusCode::INTERNAL_SERVER_ERROR);
+    }
+
+    #[test]
+    fn database_error_is_500() {
+        let res = WebError::from(sqlx::Error::RowNotFound).into_response();
+        assert_eq!(res.status(), StatusCode::INTERNAL_SERVER_ERROR);
+    }
+
+    #[test]
+    fn sqlx_error_converts_via_from() {
+        let err: WebError = sqlx::Error::RowNotFound.into();
+        assert!(matches!(err, WebError::Database(_)));
     }
 }

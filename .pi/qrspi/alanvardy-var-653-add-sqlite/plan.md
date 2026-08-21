@@ -227,16 +227,16 @@ test. The `db` field also carries `#[allow(dead_code)]` (same precedent as
 ### Verification
 
 #### Automated
-- [ ] `cargo nextest run` — the two new `error.rs` unit tests pass alongside
+- [x] `cargo nextest run` — the two new `error.rs` unit tests pass alongside
       all others (keeps Codecov patch coverage ≥ 90%; the 500-mapping branch
       is exercised, the `eprintln!` line is covered by running the test)
-- [ ] `cargo clippy --all-targets --all-features --locked -- -D warnings` —
+- [x] `cargo clippy --all-targets --all-features --locked -- -D warnings` —
       clean (confirms keeping `#[allow(dead_code)]` was correct; remove it
       only if clippy proves the lint no longer fires)
-- [ ] `cargo fmt --all -- --check` — clean
+- [x] `cargo fmt --all -- --check` — clean
 
 #### Manual
-- [ ] None beyond the automated gates (no behavior change on the request path
+- [x] None beyond the automated gates (no behavior change on the request path
       yet; `/` still serves 200 per Phase 1 manual check)
 
 ---
