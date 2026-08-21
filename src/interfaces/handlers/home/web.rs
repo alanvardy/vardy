@@ -1,7 +1,15 @@
-use axum::response::Html;
+use axum::{extract::State, response::Html};
+use minijinja::context;
 
-pub async fn index() -> Html<String> {
-    Html("Hello, world!".to_string())
+use crate::app::error::WebError;
+use crate::app::state::AppState;
+
+pub async fn index(State(state): State<AppState>) -> Result<Html<String>, WebError> {
+    let html = state
+        .templates
+        .get_template("home.html")?
+        .render(context! {})?;
+    Ok(Html(html))
 }
 
 #[cfg(test)]
@@ -24,6 +32,9 @@ mod tests {
                 .get("content-type")
                 .is_some_and(|v| v.to_str().unwrap().contains("text/html"))
         );
-        assert!(res.text().await.unwrap().contains("Hello, world!"));
+        let body = res.text().await.unwrap();
+        assert!(body.contains("<title>Home</title>"));
+        assert!(body.contains("Welcome to vardy"));
+        assert!(body.contains("This is the vardy homepage, rendered with minijinja."));
     }
 }

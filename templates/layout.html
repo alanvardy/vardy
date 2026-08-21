@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Home{% endblock %}</title>
+    <style>
+        :root {
+            --bg: #121212;
+            --surface: #1e1e1e;
+            --text: #e0e0e0;
+            --muted: #9e9e9e;
+            --accent: #7aa2f7;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 48rem;
+            margin: 0 auto;
+            padding: 3rem 1.5rem;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{% block heading %}{% endblock %}</h1>
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
