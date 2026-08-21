@@ -206,6 +206,10 @@ Notes:
   satisfies type inference. If clippy/rustc still balks on the closure
   shape, fall back to a named `fn asset_url_global(file: String) ->
   Result<String, minijinja::Error>` passed by path.
+  **[Phase 2 note]** minijinja 2 exposes this as `add_function`, and the
+  closure returns `Value::from_safe_string(...)` — without it, HTML
+  auto-escape escapes the `/` in the URL (`&#x2f;`), which would break
+  Phase 3's body-substring assertions.
 - Handler contexts stay `context! {}` untouched (design decision 1).
 
 #### 5. Unit tests in `src/app/assets.rs`
@@ -278,9 +282,9 @@ test in Phase 3 alongside the real file, and in Phase 2 use
 ### Verification
 
 #### Automated
-- [ ] `cargo nextest run` passes — all new assets/templates tests green
-- [ ] `cargo clippy --all-targets --all-features --locked -- -D warnings` passes
-- [ ] `cargo fmt --all -- --check` passes
+- [x] `cargo nextest run` passes — all new assets/templates tests green
+- [x] `cargo clippy --all-targets --all-features --locked -- -D warnings` passes
+- [x] `cargo fmt --all -- --check` passes
 
 #### Manual
 - [ ] Temporarily `chmod 000 static/singlethread-icon.png`, run `cargo run` →
