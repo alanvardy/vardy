@@ -12,6 +12,8 @@ pub async fn start_app() -> SocketAddr {
         templates: crate::app::templates::init(),
         db,
         metrics: std::sync::Arc::new(crate::infra::metrics::AppMetrics::new().expect("metrics")),
+        unsplash_api_key: "test-key".into(),
+        unsplash_base_url: "https://api.unsplash.com".into(),
     };
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
         .await
@@ -32,6 +34,8 @@ pub async fn start_app_with_metrics() -> (SocketAddr, SocketAddr) {
         templates: crate::app::templates::init(),
         db: crate::app::db::init("sqlite::memory:").await,
         metrics: std::sync::Arc::new(crate::infra::metrics::AppMetrics::new().expect("metrics")),
+        unsplash_api_key: "test-key".into(),
+        unsplash_base_url: "https://api.unsplash.com".into(),
     };
     let app_listener = tokio::net::TcpListener::bind("127.0.0.1:0")
         .await
