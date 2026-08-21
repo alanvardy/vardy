@@ -314,8 +314,8 @@ deleted. Handler function body is untouched (still `context! {}`).
 ### Verification
 
 #### Automated
-- [ ] `cargo test` passes with the new assertions
-- [ ] `cargo fmt --all -- --check` and clippy command pass
+- [x] `cargo test` passes with the new assertions
+- [x] `cargo fmt --all -- --check` and clippy command pass
 
 #### Manual
 - [ ] `cargo run`, load `/` — greeting, both bio paragraphs, three invite

@@ -34,8 +34,16 @@ mod tests {
         );
         let body = res.text().await.unwrap();
         assert!(body.contains("<title>Home</title>"));
-        assert!(body.contains("Welcome to vardy"));
-        assert!(body.contains("This is the vardy homepage, rendered with minijinja."));
+        assert!(body.contains("Hi!"));
+        assert!(body.contains("My name is Alan Vardy"));
+        assert!(body.contains("high-output individual contributor"));
+        assert!(body.contains("You are invited to"));
+        assert!(body.contains(r#"href="https://www.alanvardy.com""#));
+        assert!(body.contains(r#"href="https://github.com/alanvardy""#));
+        assert!(body.contains(r#"href="https://www.linkedin.com/in/alanvardy/""#));
+        assert!(body.contains(r#"<img class="portrait" src="/static/alanvardy.jpg""#));
+        assert!(body.contains(r#"<img class="wave" src="/static/wave.svg""#));
+        // nav chrome unchanged
         assert!(body.contains(r#"<a href="/">Home</a>"#));
         assert!(body.contains(r#"<a href="/singlethread">SingleThread</a>"#));
     }
