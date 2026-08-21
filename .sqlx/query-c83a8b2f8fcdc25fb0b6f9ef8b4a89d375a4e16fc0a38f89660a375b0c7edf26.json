@@ -1,0 +1,38 @@
+{
+  "db_name": "SQLite",
+  "query": "SELECT id, body AS \"body: serde_json::Value\" FROM dumps WHERE key = ? ORDER BY id",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer",
+        "origin": {
+          "Table": {
+            "table": "dumps",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "name": "body: serde_json::Value",
+        "ordinal": 1,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "dumps",
+            "name": "body"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "c83a8b2f8fcdc25fb0b6f9ef8b4a89d375a4e16fc0a38f89660a375b0c7edf26"
+}
