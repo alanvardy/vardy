@@ -1,0 +1,142 @@
+# This file performs CI testing for Tod using GitHub Actions.
+# It runs tests, checks code quality, and ensures no TODO/FIXME comments are left in the code.
+#
+# Fast path on PRs: plain nextest (no coverage instrumentation).
+# Coverage is collected only on pushes to main.
+
+name: CI
+
+# Run on pull requests for any branch, and on pushes to the default branch only.
+# This avoids duplicate runs when pushing to a branch that has an open PR:
+# branch pushes are covered by pull_request, and main is covered by push.
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+  CARGO_PROFILE_TEST_DEBUG: 0
+  CARGO_PROFILE_RELEASE_LTO: true
+  CARGO_PROFILE_RELEASE_CODEGEN_UNITS: 1
+  SQLX_OFFLINE: true
+  DATABASE_URL: postgres://postgres:postgres@localhost:5432/testdb
+  RUSTFLAGS: "-C link-arg=-fuse-ld=mold"
+
+permissions:
+  contents: read
+  pull-requests: write
+  actions: write
+
+# Optional but recommended: cancel superseded runs on the same ref
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Cargo CI Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis:17-3.5-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install mold linker
+        run: |
+          wget -qO- https://github.com/rui314/mold/releases/download/v2.37.1/mold-2.37.1-x86_64-linux.tar.gz | tar xz
+          echo "$PWD/mold-2.37.1-x86_64-linux/bin" >> $GITHUB_PATH
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: llvm-tools-preview
+
+      - uses: Swatinem/rust-cache@v2
+
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-llvm-cov,nextest
+
+      # PR path: fast, no coverage instrumentation — uses rust-cache
+      - name: Cargo Test (PR — fast, no coverage)
+        if: github.event_name == 'pull_request'
+        run: cargo nextest run --profile ci
+
+      # Main push: full coverage with llvm-cov
+      - name: Cargo Test (main — with coverage)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: cargo llvm-cov nextest --profile ci --all-features --lcov --output-path lcov.info
+
+      - name: Upload coverage to codecov.io
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: codecov/codecov-action@v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: lcov.info
+          disable_search: true
+
+      - name: Upload nextest JUnit test results to Codecov
+        if: ${{ !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
+        uses: codecov/codecov-action@v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: target/nextest/ci/junit.xml
+          disable_search: true
+          report_type: test_results
+          flags: nextest
+          name: nextest-junit
+
+  todos:
+    name: TODO and FIXME
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: ./scripts/lint_string.sh "FIXME "
+      - run: ./scripts/lint_string.sh "FIXME:"
+      - run: ./scripts/lint_string.sh "fixme "
+      - run: ./scripts/lint_string.sh "fixme:"
+      - run: ./scripts/lint_string.sh "dbg!"
+
+  fmt:
+    name: Rust-fmt (Cargo Format)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - run: cargo fmt --all -- --check
+
+  clippy:
+    name: Clippy (Cargo Clippy Lint Check)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install mold linker
+        run: |
+          wget -qO- https://github.com/rui314/mold/releases/download/v2.37.1/mold-2.37.1-x86_64-linux.tar.gz | tar xz
+          echo "$PWD/mold-2.37.1-x86_64-linux/bin" >> $GITHUB_PATH
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - uses: Swatinem/rust-cache@v2
+
+      - run: cargo clippy --all-targets --all-features --locked -- -D warnings

@@ -1,0 +1,87 @@
+name: CodeQL Analysis (Weekly)
+on:
+  schedule:
+    - cron: '26 17 * * 4'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write
+  packages: read
+  actions: read
+
+jobs:
+  analyze:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: actions
+            build-mode: none
+          - language: rust
+            build-mode: none
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # (Optional) Rust toolchain only if you want clippy/fmt in this job; not needed for CodeQL itself.
+      - name: Setup Rust (if needed)
+        if: matrix.language == 'rust'
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy,rustfmt
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4.37.6
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          config-file: .github/workflows/codeql/codeql.yml
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v4.37.6
+        with:
+          category: "/language:${{ matrix.language }}"
+
+  clippy-analyze:
+    name: Run rust-clippy analyzing
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read  # for upload-sarif in private repos to get run status
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: Install required cargo
+        run: cargo install clippy-sarif sarif-fmt
+
+      - name: Run rust-clippy
+        run: |
+          cargo clippy \
+            --all-features \
+            --message-format=json \
+          | clippy-sarif \
+          | tee rust-clippy-results.sarif \
+          | sarif-fmt
+        continue-on-error: true
+
+      - name: Upload analysis results to GitHub
+        uses: github/codeql-action/upload-sarif@v4.37.6
+        with:
+          sarif_file: rust-clippy-results.sarif
+          wait-for-processing: true

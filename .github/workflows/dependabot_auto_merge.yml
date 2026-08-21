@@ -1,0 +1,22 @@
+# This job will only run for pull requests created by Dependabot.
+# It will auto-approve and merge Dependabot PRs for minor/patch updates
+# once all checks and branch protection rules pass.
+
+name: Dependabot Auto Merge
+
+on: [pull_request]
+
+permissions:
+  pull-requests: write
+  contents: write
+
+jobs:
+  auto-merge:
+    if: ${{ github.event_name == 'pull_request'}}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: fastify/github-action-merge-dependabot@v3
+        with:
+          target: 'minor'
+          merge-method: rebase
+          use-github-auto-merge: true

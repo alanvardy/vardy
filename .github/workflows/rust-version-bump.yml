@@ -1,0 +1,63 @@
+# Weekly job that checks for the latest stable Rust release and opens a PR
+# bumping the pinned version in rust-toolchain.toml. Opening a PR (rather than
+# committing to main) lets the full CI suite validate the new compiler first.
+
+name: Update Rust toolchain
+
+on:
+  schedule:
+    - cron: "0 6 * * *" # Daily, 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  bump:
+    name: Bump rust-toolchain.toml
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Resolve latest stable Rust version
+        id: latest
+        run: |
+          rustup update stable >/dev/null 2>&1
+          VER=$(rustup run stable rustc --version | awk '{print $2}')
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+
+      - name: Read current pinned version
+        id: current
+        run: |
+          CUR=$(grep -E '^channel = ' rust-toolchain.toml | sed -E 's/^channel = "(.*)"/\1/')
+          echo "version=$CUR" >> "$GITHUB_OUTPUT"
+
+      - name: Update rust-toolchain.toml
+        if: ${{ steps.latest.outputs.version != steps.current.outputs.version }}
+        run: |
+          sed -i -E "s/^channel = \".*\"/channel = \"${{ steps.latest.outputs.version }}\"/" rust-toolchain.toml
+
+      - name: Create pull request
+        if: ${{ steps.latest.outputs.version != steps.current.outputs.version }}
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.MYTOKEN }}
+          commit-message: "chore: bump Rust to ${{ steps.latest.outputs.version }}"
+          title: "chore: bump Rust to ${{ steps.latest.outputs.version }}"
+          branch: chore/rust-toolchain-bump
+          delete-branch: true
+          labels: dependencies
+          body: |
+            Automated bump of `rust-toolchain.toml`.
+
+            - Previous: `${{ steps.current.outputs.version }}`
+            - New: `${{ steps.latest.outputs.version }}`
+
+            CI on this PR validates the new toolchain (build, clippy, fmt, tests)
+            before merge. The Dockerfile and CI workflows float on stable/latest
+            and honor `rust-toolchain.toml`, so no other changes are required.
