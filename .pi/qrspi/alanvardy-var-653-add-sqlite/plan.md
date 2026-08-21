@@ -401,12 +401,12 @@ are no query macros yet, so `SQLX_OFFLINE` is unnecessary in CI today.
 ### Verification
 
 #### Automated
-- [ ] `docker build -t vardy .` — succeeds (sqlx-cli install + `sqlx migrate
+- [x] `docker build -t vardy .` — succeeds (sqlx-cli install + `sqlx migrate
       run` in both stages complete; this is the slow first build, later runs
       hit the cargo-chef cache layer)
-- [ ] `docker run --rm -p 3000:3000 vardy` in background, then
+- [x] `docker run --rm -p 3000:3000 vardy` in background, then
       `curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/` → `200`
-- [ ] Full CI gate set locally:
+- [x] Full CI gate set locally:
       `cargo nextest run --profile ci`, `cargo fmt --all -- --check`,
       `cargo clippy --all-targets --all-features --locked -- -D warnings`,
       `./scripts/lint_string.sh "FIXME "` / `"FIXME:"` / `"fixme "` /
