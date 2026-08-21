@@ -47,6 +47,23 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn static_homepage_image_is_served() {
+        let addr = start_app().await;
+        let client = test_client();
+        let res = client
+            .get(format!("http://{addr}/static/alanvardy.jpg"))
+            .send()
+            .await
+            .expect("request failed");
+        assert_eq!(res.status(), StatusCode::OK);
+        assert!(
+            res.headers()
+                .get("content-type")
+                .is_some_and(|v| v.to_str().unwrap().contains("image/jpeg"))
+        );
+    }
+
+    #[tokio::test]
     async fn static_stylesheet_is_served() {
         let addr = start_app().await;
         let client = test_client();
