@@ -79,5 +79,4 @@ mod tests {
                 .is_some_and(|v| v.to_str().unwrap().contains("text/css"))
         );
     }
->>>>>>> 1b666f3 (Phase 1: Extract CSS to static/site.css)
 }

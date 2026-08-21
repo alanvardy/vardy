@@ -36,9 +36,9 @@ mod tests {
         assert!(body.contains("<title>Home</title>"));
         assert!(body.contains("Hi!"));
         assert!(body.contains("My name is Alan Vardy"));
+        assert!(body.contains("AI, backend Rust services and Swift applications"));
         assert!(body.contains("high-output individual contributor"));
         assert!(body.contains("You are invited to"));
-        assert!(body.contains(r#"href="https://www.alanvardy.com""#));
         assert!(body.contains(r#"href="https://github.com/alanvardy""#));
         assert!(body.contains(r#"href="https://www.linkedin.com/in/alanvardy/""#));
         assert!(body.contains(r#"<img class="portrait" src="/static/alanvardy.jpg""#));
