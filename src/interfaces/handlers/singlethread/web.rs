@@ -37,7 +37,7 @@ mod tests {
         assert!(body.contains("<title>SingleThread</title>"));
         assert!(body.contains("<h1>SingleThread</h1>"));
         assert!(body.contains("single line of work"));
-        assert!(body.contains(r#"<img src="/static/singlethread-icon.png""#));
+        assert!(body.contains(r#"<img src="/static/singlethread-icon.png?v="#));
         assert!(body.contains(r#"<a href="/">Home</a>"#));
         assert!(body.contains(r#"<a href="/singlethread">SingleThread</a>"#));
     }
