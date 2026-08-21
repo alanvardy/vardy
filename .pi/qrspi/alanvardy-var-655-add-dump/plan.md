@@ -229,7 +229,7 @@ Add `post` to the routing import if not already there from Phase 1 step 7.
 ### Verification
 
 #### Automated
-- [ ] `cargo nextest run` passes — including new inline tests appended to the existing `tests` module in `dump/web.rs`:
+- [x] `cargo nextest run` passes — including new inline tests appended to the existing `tests` module in `dump/web.rs`:
 
 ```rust
     #[tokio::test]
