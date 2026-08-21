@@ -1,12 +1,12 @@
-fn main() {
-    println!("Hello, world! {}", greeting());
+mod app;
+mod interfaces;
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:8080").await?;
+    axum::serve(listener, interfaces::routes::routes().into_make_service()).await?;
+    Ok(())
 }
 
-fn greeting() -> String {
-    "Hello, world!".to_string()
-}
-
-#[test]
-fn test_greeting() {
-    assert_eq!(greeting(), "Hello, world!");
-}
+#[cfg(test)]
+mod test;
