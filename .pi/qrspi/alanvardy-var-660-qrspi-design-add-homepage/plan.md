@@ -397,9 +397,9 @@ a `.container`, `<h1>{% block heading %}{% endblock %}</h1>` and
 ### Verification
 
 #### Automated
-- [ ] `cargo test` passes — 200, `content-type` contains `text/html`, body contains the **composed** markup (`<title>Home</title>`, `Welcome to vardy`, the `.card` content)
-- [ ] `cargo clippy --all-targets --all-features --locked -- -D warnings` passes
-- [ ] `cargo fmt --all -- --check` passes
+- [x] `cargo test` passes — 200, `content-type` contains `text/html`, body contains the **composed** markup (`<title>Home</title>`, `Welcome to vardy`, the `.card` content)
+- [x] `cargo clippy --all-targets --all-features --locked -- -D warnings` passes
+- [x] `cargo fmt --all -- --check` passes
 
 #### Manual
 - [ ] `cargo run`, then `curl http://localhost:8080/` returns `200` `text/html` with the rendered, `extends`-composed `<title>Home</title>` and heading
