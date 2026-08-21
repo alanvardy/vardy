@@ -1,2 +1,18 @@
-fly.toml
+# Git and CI metadata
 .git/
+.github/
+.gitignore
+codecov.yml
+
+# Build artifacts (2.2 GB of compiled objects — never needed in the image)
+/target
+
+# Local development and tooling
+.pi/
+.env_template
+scripts/
+README.md
+DELETEME
+
+# Fly.io injects its own config at deploy time
+fly.toml
