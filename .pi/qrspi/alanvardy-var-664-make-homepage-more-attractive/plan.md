@@ -412,8 +412,8 @@ the existing `--accent` variable instead of orange.
 ### Verification
 
 #### Automated
-- [ ] `cargo test` passes (no Rust/template changes in this phase)
-- [ ] `cargo fmt --all -- --check` and clippy command pass
+- [x] `cargo test` passes (no Rust/template changes in this phase)
+- [x] `cargo fmt --all -- --check` and clippy command pass
 
 #### Manual
 - [ ] Hard refresh `/` at desktop width: bio text and portrait side by side,

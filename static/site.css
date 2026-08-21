@@ -47,3 +47,70 @@ nav a {
 nav a:hover {
     color: var(--accent);
 }
+
+/* Homepage */
+.home .wave {
+    vertical-align: middle;
+    margin-right: 0.5rem;
+}
+
+.home-columns {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.home-text {
+    flex: 3;
+}
+
+.home-portrait {
+    flex: 1;
+}
+
+.portrait {
+    width: 100%;
+    max-width: 200px;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+.section-heading {
+    color: var(--muted);
+    font-size: 1.25rem;
+    margin: 2rem 0 0.75rem;
+}
+
+.invite-list {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 1rem;
+    border-left: 4px solid var(--accent);
+}
+
+.invite-list a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text);
+    text-decoration: none;
+    padding: 0.5rem 0;
+}
+
+.invite-list a:hover {
+    color: var(--accent);
+}
+
+.invite-icon {
+    display: inline-block;
+}
+
+@media (max-width: 48rem) {
+    .home-columns {
+        flex-direction: column;
+    }
+
+    .home-portrait {
+        order: -1; /* portrait above text on narrow screens */
+    }
+}
