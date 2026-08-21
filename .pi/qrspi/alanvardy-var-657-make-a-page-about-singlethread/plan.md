@@ -249,8 +249,8 @@ No Rust template registration needed (`path_loader` reads disk at runtime).
 ### Verification
 
 #### Automated
-- [ ] `cargo test` passes, including new `handlers::singlethread::web::tests::index_serves_ok_html`
-- [ ] All Phase 1 tests still pass
+- [x] `cargo test` passes, including new `handlers::singlethread::web::tests::index_serves_ok_html`
+- [x] All Phase 1 tests still pass
 
 #### Manual
 - [ ] Load `http://localhost:3000/singlethread` — page renders, copy reads well, icon displays at 96px without layout jump

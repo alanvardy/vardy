@@ -7,6 +7,7 @@ use crate::interfaces::handlers;
 pub fn routes() -> Router<AppState> {
     Router::new()
         .route("/", get(handlers::home::web::index))
+        .route("/singlethread", get(handlers::singlethread::web::index))
         .nest_service("/static", ServeDir::new("static"))
 }
 
