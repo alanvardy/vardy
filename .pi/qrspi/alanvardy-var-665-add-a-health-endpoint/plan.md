@@ -122,20 +122,20 @@ it (see verification below).
 ### Verification
 
 #### Automated
-- [ ] TOML parses: run `flyctl deploy --dry-run` if available; otherwise
+- [x] TOML parses: run `flyctl deploy --dry-run` if available; otherwise
       `flyctl config validate`; fallback if flyctl is unavailable or errors
       on auth: `python3 -c "import tomllib; tomllib.load(open('fly.toml','rb'))"`
       (parse-only sanity check)
-- [ ] `rg "PORT" src/` → no hits (nothing reads the removed env var)
-- [ ] Full suite still green: `cargo nextest run` (Phase 1 code untouched,
+- [x] `rg "PORT" src/` → no hits (nothing reads the removed env var)
+- [x] Full suite still green: `cargo nextest run` (Phase 1 code untouched,
       confirms nothing else regressed)
 
 #### Manual
-- [ ] `fly.toml` contains the `[[http_service.checks]]` block with
+- [x] `fly.toml` contains the `[[http_service.checks]]` block with
       `path = "/health"` and the check targets the same port as
       `internal_port = 3000` (Fly checks hit `internal_port` by default;
       they agree by construction)
-- [ ] No leftover `PORT = '8080'` line in `fly.toml`
+- [x] No leftover `PORT = '8080'` line in `fly.toml`
 
 #### Post-merge (cannot be verified locally)
 - [ ] After deploy to main (`.github/workflows/fly-deploy.yml` runs
