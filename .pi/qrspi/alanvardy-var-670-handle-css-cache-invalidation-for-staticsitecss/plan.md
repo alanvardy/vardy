@@ -376,12 +376,12 @@ option (a)).
 ### Verification
 
 #### Automated
-- [ ] `cargo nextest run` passes — all pre-existing body-substring assertions
+- [x] `cargo nextest run` passes — all pre-existing body-substring assertions
       (`<title>Home</title>`, `Welcome to vardy`, `single line of work`,
       nav links, `<img src="/static/singlethread-icon.png"`) still pass
       unchanged, plus the new versioned-URL / no-`<style>` assertions
-- [ ] `cargo clippy --all-targets --all-features --locked -- -D warnings` passes
-- [ ] `cargo fmt --all -- --check` passes
+- [x] `cargo clippy --all-targets --all-features --locked -- -D warnings` passes
+- [x] `cargo fmt --all -- --check` passes
 
 #### Manual
 - [ ] `cargo run`, load `http://localhost:3000/` in a browser: styles render

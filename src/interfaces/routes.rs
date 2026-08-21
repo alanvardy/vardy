@@ -152,5 +152,10 @@ mod tests {
                 .get("content-type")
                 .is_some_and(|v| v.to_str().unwrap().contains("text/css"))
         );
+        assert!(
+            res.headers()
+                .get("cache-control")
+                .is_some_and(|v| v.to_str().unwrap().contains("max-age=31536000"))
+        );
     }
 }
