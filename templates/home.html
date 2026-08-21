@@ -1,8 +1,47 @@
 {% extends "layout.html" %}
 {% block title %}Home{% endblock %}
-{% block heading %}Welcome to vardy{% endblock %}
+{% block heading %}
+<img class="wave" src="/static/wave.svg" alt="Waving hand" width="48" height="48"> Hi!
+{% endblock %}
 {% block content %}
-<div class="card">
-<p>This is the vardy homepage, rendered with minijinja.</p>
+<div class="home">
+  <div class="home-columns">
+    <div class="home-text">
+      <p>
+        My name is Alan Vardy, I am a Senior Developer living on the beautiful
+        West Coast of Canada.
+      </p>
+      <p>
+        I love working remotely on backend Elixir services, and enjoy playing
+        with Rust in my free time. I pride myself on being a
+        high-output individual contributor who leaves code better than he finds
+        it and actively improves the overall health of codebases.
+      </p>
+      <h2 class="section-heading">You are invited to</h2>
+      <ul class="invite-list">
+        <li>
+          <a href="https://www.alanvardy.com" target="_blank">
+            <img class="invite-icon" src="/static/quill.png" alt="" width="32" height="32">
+            Read my blog
+          </a>
+        </li>
+        <li>
+          <a href="https://github.com/alanvardy" target="_blank">
+            <img class="invite-icon" src="/static/github.svg" alt="" width="32" height="32">
+            Take a look at my work on GitHub
+          </a>
+        </li>
+        <li>
+          <a href="https://www.linkedin.com/in/alanvardy/" target="_blank">
+            <img class="invite-icon" src="/static/linkedin.svg" alt="" width="32" height="32">
+            Check out my LinkedIn
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="home-portrait">
+      <img class="portrait" src="/static/alanvardy.jpg" alt="Portrait of Alan Vardy">
+    </div>
+  </div>
 </div>
 {% endblock %}
