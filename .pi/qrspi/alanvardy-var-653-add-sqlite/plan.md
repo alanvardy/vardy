@@ -297,11 +297,11 @@ makes the failure self-explanatory.
 ### Verification
 
 #### Automated
-- [ ] `cargo nextest run` — `app::db::tests::migrations_applied` passes and
+- [x] `cargo nextest run` — `app::db::tests::migrations_applied` passes and
       the suite remains fully parallel (no serial gating introduced)
-- [ ] `cargo clippy --all-targets --all-features --locked -- -D warnings` —
+- [x] `cargo clippy --all-targets --all-features --locked -- -D warnings` —
       clean
-- [ ] `cargo fmt --all -- --check` — clean
+- [x] `cargo fmt --all -- --check` — clean
 
 #### Manual
 - [ ] The app itself never runs migrations at runtime (sqlx-cli does, in

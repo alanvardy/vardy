@@ -30,6 +30,18 @@ pub async fn init(database_url: &str) -> SqlitePool {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use sqlx::Row;
+
+    #[sqlx::test]
+    async fn migrations_applied(pool: SqlitePool) {
+        let row = sqlx::query(
+            "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'placeholder'",
+        )
+        .fetch_one(&pool)
+        .await
+        .expect("placeholder table should exist after migrations");
+        assert_eq!(row.get::<String, _>("name"), "placeholder");
+    }
 
     #[tokio::test]
     async fn init_creates_database_file_and_parent_directory() {
