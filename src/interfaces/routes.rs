@@ -16,6 +16,13 @@ pub fn routes() -> Router<AppState> {
         .nest_service("/static", ServeDir::new("static"))
 }
 
+/// Router for the dedicated metrics port; owns its own state.
+pub fn metrics_router(metrics: std::sync::Arc<crate::infra::metrics::AppMetrics>) -> Router {
+    Router::new()
+        .route("/metrics", get(handlers::metrics::web::metrics_handler))
+        .with_state(metrics)
+}
+
 #[cfg(test)]
 mod tests {
     use crate::test::{start_app, test_client};
@@ -36,6 +43,41 @@ mod tests {
                 .get("content-type")
                 .is_some_and(|v| v.to_str().unwrap().contains("image/png"))
         );
+    }
+
+    #[tokio::test]
+    async fn metrics_router_serves_metrics_endpoint() {
+        use crate::infra::metrics::AppMetrics;
+        use axum::body::Body;
+        use axum::http::{Request, StatusCode};
+        use std::sync::Arc;
+        use tower::ServiceExt;
+
+        let metrics = Arc::new(AppMetrics::new().expect("test metrics"));
+        let router = super::metrics_router(metrics);
+
+        let response = router
+            .oneshot(
+                Request::builder()
+                    .uri("/metrics")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .expect("response");
+        assert_eq!(response.status(), StatusCode::OK);
+        let content_type = response
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or_default()
+            .to_owned();
+        assert!(content_type.contains("text/plain; version=0.0.4"));
+        let body = axum::body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .expect("body");
+        // Empty registry renders as empty text.
+        assert!(String::from_utf8(body.to_vec()).unwrap().is_empty());
     }
 
     #[tokio::test]
