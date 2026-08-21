@@ -6,6 +6,7 @@ use axum::{
 /// The `NotFound` arm is only constructed from unit tests (coverage
 /// hardening); keep it alive for non-test builds.
 #[allow(dead_code)]
+#[derive(Debug)]
 pub enum WebError {
     Template(minijinja::Error),
     Database(sqlx::Error),

@@ -321,19 +321,19 @@ is added now (used by Phase 3) but only exercised by a unit test in this phase; 
 ### Verification
 
 #### Automated
-- [ ] `cargo nextest run` passes
-- [ ] New `#[sqlx::test]` in `web.rs`: `unsplash_pictures_table_exists` — query
+- [x] `cargo nextest run` passes
+- [x] New `#[sqlx::test]` in `web.rs`: `unsplash_pictures_table_exists` — query
   `sqlite_master` for the table name (pattern from `src/app/db.rs:39-48`)
-- [ ] New `#[sqlx::test]`: `insert_picture_returns_row_with_created_at` — call
+- [x] New `#[sqlx::test]`: `insert_picture_returns_row_with_created_at` — call
   `insert_picture`, assert returned `created_at` is non-empty and re-reading via
   `latest_picture` round-trips url/photographer
-- [ ] New integration tests (via `start_app_with`):
+- [x] New integration tests (via `start_app_with`):
   - `unsplash_serves_seeded_row`: insert a row into the returned pool
     (`sqlx::query("INSERT INTO unsplash_pictures (url, photographer) VALUES (?, ?)")`),
     GET `/unsplash` → 200, body contains the seeded url and photographer,
     `content-type: application/json`
   - `unsplash_returns_404_when_empty`: no rows → GET `/unsplash` → 404
-- [ ] `cargo fmt --all -- --check` and clippy command pass
+- [x] `cargo fmt --all -- --check` and clippy command pass
 
 #### Manual
 - [ ] `sqlx migrate run` applies cleanly against `sqlite:data/vardy.db`

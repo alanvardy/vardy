@@ -1,8 +1,15 @@
 use axum::Router;
+use sqlx::SqlitePool;
 use std::net::SocketAddr;
 
 /// Bind a random port, spawn the app, return the bound address.
 pub async fn start_app() -> SocketAddr {
+    start_app_with("https://api.unsplash.com").await.0
+}
+
+/// Like [`start_app`], but with an overridable Unsplash base URL; returns the
+/// bound address and the database pool so tests can seed rows.
+pub async fn start_app_with(unsplash_base_url: &str) -> (SocketAddr, SqlitePool) {
     let db = crate::app::db::init("sqlite::memory:").await;
     sqlx::migrate!("./migrations")
         .run(&db)
@@ -10,10 +17,10 @@ pub async fn start_app() -> SocketAddr {
         .expect("migrate");
     let state = crate::app::state::AppState {
         templates: crate::app::templates::init(),
-        db,
         metrics: std::sync::Arc::new(crate::infra::metrics::AppMetrics::new().expect("metrics")),
         unsplash_api_key: "test-key".into(),
-        unsplash_base_url: "https://api.unsplash.com".into(),
+        unsplash_base_url: unsplash_base_url.into(),
+        db: db.clone(),
     };
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
         .await
@@ -25,7 +32,7 @@ pub async fn start_app() -> SocketAddr {
             .await
             .expect("server");
     });
-    addr
+    (addr, db)
 }
 
 /// Like `start_app`, but also serves the metrics router; returns (app_addr, metrics_addr).
