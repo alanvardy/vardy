@@ -4,12 +4,17 @@
 
 pub struct Env {
     pub unsplash_api_key: String,
+    pub database_url: String,
 }
 
 impl Env {
     pub fn init() -> Env {
         let unsplash_api_key = get_string_env("UNSPLASH_API_KEY");
-        Env { unsplash_api_key }
+        let database_url = get_string_env("DATABASE_URL");
+        Env {
+            unsplash_api_key,
+            database_url,
+        }
     }
 }
 

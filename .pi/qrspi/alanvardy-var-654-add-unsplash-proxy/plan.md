@@ -533,7 +533,7 @@ pub async fn start_unsplash_stub(status: StatusCode) -> UnsplashStub {
 ### Verification
 
 #### Automated
-- [ ] `cargo nextest run` passes — all prior tests green
+- [x] `cargo nextest run` passes — all prior tests green
 - [ ] New integration tests in `web.rs` tests module (each uses
   `start_unsplash_stub(...)` + `start_app_with(stub.base_url)`):
   - `no_row_triggers_fetch_and_insert`: stub 200, no rows → GET → 200, body contains
@@ -548,7 +548,12 @@ pub async fn start_unsplash_stub(status: StatusCode) -> UnsplashStub {
   - `upstream_failure_is_502`: stub 500, no rows → GET → 502
   - `second_request_within_window_is_cached`: stub 200, empty table → two GETs; both
     200 with identical bodies, `call_count` is 1, row count 1
-- [ ] `cargo fmt --all -- --check` and clippy command pass
+- [x] `cargo fmt --all -- --check` and clippy command pass
+
+> Implementation notes: client module is `client.rs` (not `unsplash.rs`) to satisfy
+> clippy `module_inception`; `reqwest` needed the `query` feature added in 0.13;
+> the old `unsplash_returns_404_when_empty` test was removed — Phase 3's read-through
+> flow means an empty table triggers an upstream fetch instead of a deterministic 404.
 
 #### Manual
 - [ ] `set -x UNSPLASH_API_KEY <real-key>; cargo run`

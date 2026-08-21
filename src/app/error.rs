@@ -11,6 +11,7 @@ pub enum WebError {
     Template(minijinja::Error),
     Database(sqlx::Error),
     NotFound,
+    External(String),
 }
 
 impl From<minijinja::Error> for WebError {
@@ -37,6 +38,10 @@ impl IntoResponse for WebError {
                 eprintln!("template render error: {err}");
                 (StatusCode::INTERNAL_SERVER_ERROR, "internal server error").into_response()
             }
+            WebError::External(message) => {
+                eprintln!("external error: {message}");
+                (StatusCode::BAD_GATEWAY, "bad gateway").into_response()
+            }
         }
     }
 }
@@ -62,6 +67,12 @@ mod tests {
     fn database_error_is_500() {
         let res = WebError::from(sqlx::Error::RowNotFound).into_response();
         assert_eq!(res.status(), StatusCode::INTERNAL_SERVER_ERROR);
+    }
+
+    #[test]
+    fn external_error_is_502() {
+        let res = WebError::External("boom".into()).into_response();
+        assert_eq!(res.status(), StatusCode::BAD_GATEWAY);
     }
 
     #[test]
