@@ -17,5 +17,6 @@ RUN cargo build --release --bin vardy
 FROM debian:bookworm-slim AS runtime
 WORKDIR /app
 COPY --from=builder /app/templates ./templates
+COPY --from=builder /app/static ./static
 COPY --from=builder /app/target/release/vardy /usr/local/bin
 ENTRYPOINT ["/usr/local/bin/vardy"]
