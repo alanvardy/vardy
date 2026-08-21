@@ -388,10 +388,10 @@ async fn page_hits_show_up_in_metrics() {
 ### Verification
 
 #### Automated
-- [ ] `cargo nextest run` passes, including new `inc_page_view_increments_counter` and `page_hits_show_up_in_metrics`
-- [ ] All existing tests still pass (both `AppState` construction sites updated — no compile breakage)
-- [ ] `cargo clippy --all-targets --all-features --locked -D warnings` clean
-- [ ] `cargo fmt --check` clean
+- [x] `cargo nextest run` passes, including new `inc_page_view_increments_counter` and `page_hits_show_up_in_metrics`
+- [x] All existing tests still pass (both `AppState` construction sites updated — no compile breakage)
+- [x] `cargo clippy --all-targets --all-features --locked -D warnings` clean
+- [x] `cargo fmt --check` clean
 
 #### Manual
 - [ ] `cargo run`; hit `localhost:3000/` and `localhost:3000/singlethread` a few times; `curl localhost:9090/metrics` shows `page_views_total` with growing counts under correct `page="home"` / `page="singlethread"` labels

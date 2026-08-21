@@ -5,6 +5,7 @@ use crate::app::error::WebError;
 use crate::app::state::AppState;
 
 pub async fn index(State(state): State<AppState>) -> Result<Html<String>, WebError> {
+    state.metrics.inc_page_view("home");
     let html = state
         .templates
         .get_template("home.html")?

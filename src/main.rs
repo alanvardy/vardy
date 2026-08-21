@@ -10,6 +10,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let state = app::state::AppState {
         templates: app::templates::init(),
         db: app::db::init(&database_url).await,
+        metrics: metrics.clone(),
     };
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
     println!("Hosting on http://localhost:3000");
