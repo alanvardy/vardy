@@ -342,7 +342,7 @@ Expect two metadata files (one per macro: the `query_as!` SELECT and the `query!
 ### Verification
 
 #### Automated
-- [ ] Clean-clone simulation: `git stash -u` is too risky — instead verify from a fresh checkout directory:
+- [x] Clean-clone simulation: `git stash -u` is too risky — instead verify from a fresh checkout directory:
   ```fish
   git worktree add /tmp/vardy-clean HEAD
   cd /tmp/vardy-clean
@@ -350,7 +350,7 @@ Expect two metadata files (one per macro: the `query_as!` SELECT and the `query!
   env -u DATABASE_URL SQLX_OFFLINE=true cargo nextest run
   git worktree remove /tmp/vardy-clean
   ```
-- [ ] Full suite still green: `cargo nextest run`
+- [x] Full suite still green: `cargo nextest run`
 
 #### Manual
 - [ ] `docker build -t vardy-dump-test .` succeeds end-to-end (builder stage compiles offline via committed `.sqlx/`; runtime stage applies both migrations via `sqlx migrate run`).
