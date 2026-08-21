@@ -326,8 +326,8 @@ Add the same two substring assertions to `index_serves_ok_html`.
 ### Verification
 
 #### Automated
-- [ ] `cargo test` passes — both `/` and `/singlethread` bodies contain `href="/"…Home</a>` and `href="/singlethread"…SingleThread</a>`
-- [ ] All Phase 1 and Phase 2 tests still pass
+- [x] `cargo test` passes — both `/` and `/singlethread` bodies contain `href="/"…Home</a>` and `href="/singlethread"…SingleThread</a>`
+- [x] All Phase 1 and Phase 2 tests still pass
 
 #### Manual
 - [ ] Click Home ↔ SingleThread in the browser; navigation works both directions

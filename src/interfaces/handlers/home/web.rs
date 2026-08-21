@@ -36,5 +36,7 @@ mod tests {
         assert!(body.contains("<title>Home</title>"));
         assert!(body.contains("Welcome to vardy"));
         assert!(body.contains("This is the vardy homepage, rendered with minijinja."));
+        assert!(body.contains(r#"<a href="/">Home</a>"#));
+        assert!(body.contains(r#"<a href="/singlethread">SingleThread</a>"#));
     }
 }
