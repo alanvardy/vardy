@@ -12,7 +12,7 @@ pub fn routes() -> Router<AppState> {
     Router::new()
         .route("/", get(handlers::home::web::index))
         .route("/singlethread", get(handlers::singlethread::web::index))
-        .route("/unsplash", get(handlers::unsplash::web::index))
+        .route("/unsplash", get(handlers::unsplash::json::index))
         .route(
             "/dump/{key}",
             get(handlers::dump::web::index).post(handlers::dump::web::create),
