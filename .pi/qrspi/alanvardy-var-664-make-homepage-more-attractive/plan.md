@@ -203,12 +203,12 @@ async fn static_homepage_image_is_served() {
 ### Verification
 
 #### Automated
-- [ ] `cargo test` passes, including new `static_homepage_image_is_served`
+- [x] `cargo test` passes, including new `static_homepage_image_is_served`
 
 #### Manual
 - [ ] With `cargo run` running:
       `curl -sI localhost:3000/static/wave.svg localhost:3000/static/quill.png localhost:3000/static/github.svg localhost:3000/static/linkedin.svg localhost:3000/static/alanvardy.jpg` —
-      all return `HTTP/1.1 200 OK` with an image/css-appropriate content type
+      all return `HTTP/1.1 200 OK` with an image/css-appropriate content type **(verified via curl during Phase 2 implementation)**
 - [ ] Open each SVG directly in the browser (`/static/github.svg`,
       `/static/linkedin.svg`) — glyphs render in light gray, not black-on-dark
 
