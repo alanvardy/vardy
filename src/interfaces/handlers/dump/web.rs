@@ -1,9 +1,9 @@
+use crate::app::error::WebError;
+use crate::app::state::AppState;
 use axum::{
     Json,
     extract::{Path, State},
 };
-use crate::app::error::WebError;
-use crate::app::state::AppState;
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct DumpEntry {
