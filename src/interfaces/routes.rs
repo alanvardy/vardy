@@ -45,4 +45,22 @@ mod tests {
             .expect("request to /health should succeed");
         assert_eq!(res.status(), StatusCode::OK);
     }
+
+    #[tokio::test]
+    async fn static_stylesheet_is_served() {
+        let addr = start_app().await;
+        let client = test_client();
+        let res = client
+            .get(format!("http://{addr}/static/site.css"))
+            .send()
+            .await
+            .expect("request failed");
+        assert_eq!(res.status(), StatusCode::OK);
+        assert!(
+            res.headers()
+                .get("content-type")
+                .is_some_and(|v| v.to_str().unwrap().contains("text/css"))
+        );
+    }
+>>>>>>> 1b666f3 (Phase 1: Extract CSS to static/site.css)
 }
