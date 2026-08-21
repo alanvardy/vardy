@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
-# Load .env if present; otherwise fall back to the .env_template defaults.
-if [ -f .env ]; then
-    set -a; source .env; set +a
-else
-    export DATABASE_URL="${DATABASE_URL:-sqlite:data/vardy.db}"
-fi
+# Load DATABASE_URL from .env.
+set -a; source .env; set +a
 
 echo "🎨  FORMAT" &&
 cargo fmt --all &&
