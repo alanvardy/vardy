@@ -132,6 +132,37 @@ nav a:hover {
     border: 1px solid #333;
 }
 
+.st-shots {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.st-shot {
+    margin: 0;
+    flex: 1 1 10rem;
+    max-width: 14rem;
+}
+
+.st-shot img {
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+.st-watch-pair {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+}
+
+.st-watch-pair img {
+    width: 100%;
+    max-width: 12rem;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
 @media (max-width: 48rem) {
     .home-columns {
         flex-direction: column;
