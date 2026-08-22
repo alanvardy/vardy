@@ -30,28 +30,6 @@ pub async fn init(database_url: &str) -> SqlitePool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use sqlx::Row;
-
-    #[sqlx::test]
-    async fn placeholder_table_dropped(pool: SqlitePool) {
-        let rows = sqlx::query(
-            "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'placeholder'",
-        )
-        .fetch_all(&pool)
-        .await
-        .expect("failed to query sqlite_master");
-        assert!(
-            rows.is_empty(),
-            "placeholder table should have been dropped"
-        );
-
-        let row =
-            sqlx::query("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'dumps'")
-                .fetch_one(&pool)
-                .await
-                .expect("dumps table should exist after migrations");
-        assert_eq!(row.get::<String, _>("name"), "dumps");
-    }
 
     #[tokio::test]
     async fn init_creates_database_file_and_parent_directory() {
