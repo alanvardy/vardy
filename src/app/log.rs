@@ -1,5 +1,14 @@
 use std::io::{self, Write};
+
+use axum::extract::{MatchedPath, Request};
+use tower_http::{
+    classify::{ServerErrorsAsFailures, SharedClassifier},
+    trace::{DefaultOnRequest, DefaultOnResponse, TraceLayer},
+};
+use tracing::{Level, Span};
 use tracing_subscriber::{EnvFilter, fmt};
+
+type MakeSpanFn = fn(&Request) -> Span;
 
 /// Writer that silently drops `BrokenPipe` errors on stderr instead of
 /// panicking. On Unix, stderr is often a pipe (journald, Fly.io capture,
@@ -46,4 +55,27 @@ pub fn init() {
         .with_env_filter(filter)
         .with_writer(StderrWriter)
         .init();
+}
+
+// Log the matched route (e.g. `/dump/{key}`) rather than the concrete path
+// so per-request logs stay low cardinality.
+pub fn trace_layer() -> TraceLayer<SharedClassifier<ServerErrorsAsFailures>, MakeSpanFn> {
+    TraceLayer::new_for_http()
+        .make_span_with(make_span as MakeSpanFn)
+        .on_request(DefaultOnRequest::new().level(Level::INFO))
+        .on_response(DefaultOnResponse::new().level(Level::INFO))
+}
+
+fn make_span(request: &Request) -> Span {
+    let path = request
+        .extensions()
+        .get::<MatchedPath>()
+        .map(MatchedPath::as_str)
+        .unwrap_or_else(|| request.uri().path());
+
+    tracing::info_span!(
+        "http_request",
+        method = %request.method(),
+        path = %path,
+    )
 }

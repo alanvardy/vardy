@@ -31,6 +31,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             listener,
             interfaces::routes::routes()
                 .with_state(state)
+                .layer(app::log::trace_layer())
                 .into_make_service_with_connect_info::<std::net::SocketAddr>(),
         ),
         axum::serve(
