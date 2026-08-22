@@ -1,5 +1,9 @@
 use std::sync::Arc;
 
+/// Sanctioned surface for infra types consumed by `interfaces`; do not
+/// import from `crate::infra` outside `src/app` and `main.rs`.
+pub use crate::infra::metrics::AppMetrics;
+
 use crate::app::env::Env;
 
 #[derive(Clone)]
