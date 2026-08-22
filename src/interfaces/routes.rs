@@ -10,10 +10,10 @@ use crate::app::error::WebError;
 use crate::app::state::AppState;
 use crate::interfaces::handlers;
 
-/// Prove data-layer liveness: acquire from the pool and run a trivial query.
-/// Any failure flows through `WebError::Database` → logged + Sentry-captured 500.
+/// Prove data-layer liveness via the app-layer ping. Any failure flows
+/// through `WebError::Database` → logged + Sentry-captured 500.
 async fn health(State(state): State<AppState>) -> Result<StatusCode, WebError> {
-    sqlx::query("SELECT 1").execute(&state.db).await?;
+    crate::app::db::ping(&state.db).await?;
     Ok(StatusCode::OK)
 }
 

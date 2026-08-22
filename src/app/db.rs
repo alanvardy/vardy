@@ -33,6 +33,11 @@ pub async fn migrate(pool: &SqlitePool) -> Result<(), sqlx::migrate::MigrateErro
     sqlx::migrate!("./migrations").run(pool).await
 }
 
+/// Trivial liveness probe: acquire from the pool and run a trivial query.
+pub async fn ping(pool: &SqlitePool) -> Result<(), sqlx::Error> {
+    sqlx::query("SELECT 1").execute(pool).await.map(|_| ())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
