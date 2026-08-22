@@ -36,8 +36,8 @@ mod tests {
         let body = res.text().await.unwrap();
         assert!(body.contains("<title>SingleThread</title>"));
         assert!(body.contains("<h1>SingleThread</h1>"));
-        assert!(body.contains("single line of work"));
-        assert!(body.contains(r#"<img src="/static/singlethread-icon.png?v="#));
+        assert!(body.contains("one thing at a time"));
+        assert!(body.contains(r#"<img src="/static/singlethread-shot-main.jpg?v="#));
         assert!(body.contains(r#"<a href="/">Home</a>"#));
         assert!(body.contains(r#"<a href="/singlethread">SingleThread</a>"#));
     }
