@@ -13,9 +13,7 @@ cargo clippy --all-targets --all-features --locked -- -D warnings &&
 echo "🧪  TEST" &&
 cargo nextest run &&
 echo "🔎  FORGOTTEN TODOS" &&
-# Requires ripgrep
-if rg -i -s -g '*.rs' 'FIXME|fixme|dbg!|DEBUG:|FIXTURE:|TODO\s|todo\s' src; then
-    exit 1
-fi
+# Requires ripgrep; invert so no-match (clean) continues the chain
+! rg -i -s -g '*.rs' 'FIXME|fixme|dbg!|DEBUG:|FIXTURE:|TODO\s|todo\s' src &&
 echo "" &&
 echo "🎉  SUCCESS"
