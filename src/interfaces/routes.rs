@@ -122,6 +122,39 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn singlethread_screenshots_are_served_with_immutable_caching() {
+        let addr = start_app().await;
+        let client = test_client();
+        let cases = [
+            ("/static/singlethread-shot-main.jpg", "image/jpeg"),
+            ("/static/singlethread-shot-settings.jpg", "image/jpeg"),
+            ("/static/singlethread-shot-swipe.jpg", "image/jpeg"),
+            ("/static/singlethread-watch-list.png", "image/png"),
+            ("/static/singlethread-watch-detail.png", "image/png"),
+        ];
+        for (path, content_type) in cases {
+            let res = client
+                .get(format!("http://{addr}{path}"))
+                .send()
+                .await
+                .unwrap_or_else(|_| panic!("request failed for {path}"));
+            assert_eq!(res.status(), StatusCode::OK, "{path}");
+            assert!(
+                res.headers()
+                    .get("content-type")
+                    .is_some_and(|v| v.to_str().unwrap().contains(content_type)),
+                "{path}"
+            );
+            assert!(
+                res.headers()
+                    .get("cache-control")
+                    .is_some_and(|v| v.to_str().unwrap().contains("max-age=31536000")),
+                "{path}"
+            );
+        }
+    }
+
+    #[tokio::test]
     async fn static_homepage_image_is_served() {
         let addr = start_app().await;
         let client = test_client();
