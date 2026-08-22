@@ -413,7 +413,7 @@ doesn't touch apostrophes, so `body.contains(...)` matches raw template text.
 
 ### Verification
 #### Automated
-- [ ] `./scripts/test.sh` passes (fmt, sqlx prepare check, clippy, tests, TODO grep)
+- [x] `./scripts/test.sh` passes (fmt, sqlx prepare check, clippy, tests, TODO grep)
 
 #### Manual
 - [ ] Read rendered `/singlethread` top-to-bottom against "Frozen copy" — every paragraph, bullet, and heading present verbatim
