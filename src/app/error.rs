@@ -32,10 +32,12 @@ impl IntoResponse for WebError {
             WebError::NotFound => (StatusCode::NOT_FOUND, "not found").into_response(),
             WebError::Database(err) => {
                 tracing::error!(error = ?err, "database error");
+                sentry::capture_error(&err);
                 (StatusCode::INTERNAL_SERVER_ERROR, "internal server error").into_response()
             }
             WebError::Template(err) => {
                 tracing::error!(error = ?err, "template render error");
+                sentry::capture_error(&err);
                 (StatusCode::INTERNAL_SERVER_ERROR, "internal server error").into_response()
             }
             WebError::External(message) => {
