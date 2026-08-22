@@ -217,9 +217,9 @@ use crate::domain::picture::Picture;
 
 ### Verification
 #### Automated
-- [ ] `./scripts/test.sh` passes
-- [ ] `cargo nextest run -E 'test(unsplash)'` — all json.rs tests green, especially `upstream_failure_is_502` (asserts status 502 **and** body `"bad gateway"`)
-- [ ] `rg -n 'crate::app' src/infra/` returns no hits
+- [x] `./scripts/test.sh` passes
+- [x] `cargo nextest run -E 'test(unsplash)'` — all json.rs tests green, especially `upstream_failure_is_502` (asserts status 502 **and** body `"bad gateway"`)
+- [x] `rg -n 'crate::app' src/infra/` returns no hits
 
 #### Manual
 - [ ] Confirm `Picture` is defined only in `src/domain/picture.rs` (`rg -n 'pub struct Picture' src/` → one hit)

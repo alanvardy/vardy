@@ -1,4 +1,4 @@
-use crate::app::{error::WebError, picture::Picture};
+use crate::domain::picture::Picture;
 use reqwest::Client;
 use serde::Deserialize;
 
@@ -18,23 +18,29 @@ struct RandomPhotoUser {
     name: String,
 }
 
+/// Failure talking to the Unsplash API; translated into
+/// `WebError::External` (HTTP 502) at the app layer.
+#[derive(Debug)]
+pub struct UnsplashError(pub String);
+
 /// Fetch a random nature photo from the Unsplash API.
-/// Non-2xx status or parse failure maps to `WebError::External` (HTTP 502).
+/// Non-2xx status or parse failure maps to `WebError::External` (HTTP 502)
+/// via `From<UnsplashError>`.
 pub async fn fetch_random(
     client: &Client,
     base_url: &str,
     api_key: &str,
-) -> Result<Picture, WebError> {
+) -> Result<Picture, UnsplashError> {
     let response = client
         .get(format!("{base_url}/photos/random"))
         .query(&[("query", "nature")])
         .header("Authorization", format!("Client-ID {api_key}"))
         .send()
         .await
-        .map_err(|e| WebError::External(format!("unsplash request failed: {e}")))?;
+        .map_err(|e| UnsplashError(format!("unsplash request failed: {e}")))?;
 
     if !response.status().is_success() {
-        return Err(WebError::External(format!(
+        return Err(UnsplashError(format!(
             "unsplash returned status {}",
             response.status()
         )));
@@ -43,7 +49,7 @@ pub async fn fetch_random(
     let body: RandomPhotoResponse = response
         .json()
         .await
-        .map_err(|e| WebError::External(format!("unsplash response parse failed: {e}")))?;
+        .map_err(|e| UnsplashError(format!("unsplash response parse failed: {e}")))?;
 
     Ok(Picture {
         url: body.urls.regular,

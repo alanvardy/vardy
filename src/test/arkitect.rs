@@ -26,6 +26,8 @@ mod tests {
             .it_must_not_depend_on(&["vardy::app", "vardy::infra", "vardy::interfaces"])
             .rules_for_module("vardy::app")
             .it_must_not_depend_on(&["vardy::interfaces"])
+            .rules_for_module("vardy::infra")
+            .it_must_not_depend_on(&["vardy::app", "vardy::interfaces"])
             .build();
 
         let result = Arkitect::ensure_that(project).complies_with(rules);
