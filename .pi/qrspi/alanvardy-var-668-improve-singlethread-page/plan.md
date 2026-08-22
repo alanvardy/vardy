@@ -309,7 +309,7 @@ assert!(body.contains(r#"<img src="/static/singlethread-watch-detail.png?v="#));
 
 ### Verification
 #### Automated
-- [ ] `./scripts/test.sh` passes
+- [x] `./scripts/test.sh` passes
 
 #### Manual
 - [ ] `/singlethread` shows three rounded-corner bordered phone screenshots in a row

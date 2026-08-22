@@ -38,6 +38,10 @@ mod tests {
         assert!(body.contains("<h1>SingleThread</h1>"));
         assert!(body.contains("one thing at a time"));
         assert!(body.contains(r#"<img src="/static/singlethread-shot-main.jpg?v="#));
+        assert!(body.contains(r#"<img src="/static/singlethread-shot-settings.jpg?v="#));
+        assert!(body.contains(r#"<img src="/static/singlethread-shot-swipe.jpg?v="#));
+        assert!(body.contains(r#"<img src="/static/singlethread-watch-list.png?v="#));
+        assert!(body.contains(r#"<img src="/static/singlethread-watch-detail.png?v="#));
         assert!(body.contains(r#"<a href="/">Home</a>"#));
         assert!(body.contains(r#"<a href="/singlethread">SingleThread</a>"#));
     }
