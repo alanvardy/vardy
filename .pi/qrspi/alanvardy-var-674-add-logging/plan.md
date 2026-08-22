@@ -260,7 +260,7 @@ the test harness servers, which call `routes()` directly.
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` passes (tests never attach the layer → no span
+- [x] `./scripts/test.sh` passes (tests never attach the layer → no span
       noise in test output)
 
 #### Manual
