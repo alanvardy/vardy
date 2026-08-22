@@ -13,9 +13,8 @@ pub async fn index(State(state): State<AppState>) -> Result<Json<Picture>, WebEr
     {
         return Ok(Json(picture));
     }
-    let client = reqwest::Client::new();
     let picture = fetch_random(
-        &client,
+        &state.http,
         &state.unsplash_base_url,
         &state.env.unsplash_api_key,
     )
