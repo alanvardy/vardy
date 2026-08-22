@@ -1,3 +1,5 @@
+mod arkitect;
+
 use axum::{Json, Router, http::StatusCode, response::IntoResponse, routing::get};
 use serde_json::json;
 use sqlx::SqlitePool;

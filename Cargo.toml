@@ -21,3 +21,5 @@ chrono = "0.4"
 
 [dev-dependencies]
 tower = "0.5"
+rust_arkitect = "0.3.7"
+syn = { version = "2", features = ["full", "visit"] }
