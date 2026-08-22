@@ -17,6 +17,11 @@ RUN cargo build --release --bin vardy
 
 # We do not need the Rust toolchain to run the binary!
 FROM debian:bookworm-slim AS runtime
+# The binary links OpenSSL dynamically (reqwest/native-tls) and needs CA roots
+# for outbound HTTPS; bookworm-slim ships neither.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libssl3 ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=builder /usr/local/cargo/bin/sqlx /usr/local/bin/sqlx
 COPY --from=builder /app/migrations ./migrations
