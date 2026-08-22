@@ -1,5 +1,6 @@
 pub mod assets;
 pub mod db;
+pub mod dump;
 pub mod env;
 pub mod error;
 pub mod log;

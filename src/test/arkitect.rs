@@ -30,6 +30,9 @@ mod tests {
             .it_must_not_depend_on(&["vardy::app", "vardy::interfaces"])
             .rules_for_module("vardy::interfaces")
             .it_must_not_depend_on(&["vardy::infra"])
+            .and_it(Box::new(MustNotDependOnExceptTestsBuilder {
+                forbidden: vec!["sqlx".to_string()],
+            }))
             .build();
 
         let result = Arkitect::ensure_that(project).complies_with(rules);

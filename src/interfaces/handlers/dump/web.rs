@@ -1,3 +1,4 @@
+use crate::app::dump::{self, DumpEntry};
 use crate::app::error::WebError;
 use crate::app::state::AppState;
 use axum::{
@@ -6,23 +7,11 @@ use axum::{
     http::StatusCode,
 };
 
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
-pub struct DumpEntry {
-    pub id: i64,
-    pub body: serde_json::Value,
-}
-
 pub async fn index(
     Path(key): Path<String>,
     State(state): State<AppState>,
 ) -> Result<Json<Vec<DumpEntry>>, WebError> {
-    let entries = sqlx::query_as!(
-        DumpEntry,
-        r#"SELECT id, body AS "body: serde_json::Value" FROM dumps WHERE key = ? ORDER BY id"#,
-        key
-    )
-    .fetch_all(&state.db)
-    .await?;
+    let entries = dump::list(&state.db, &key).await?;
     Ok(Json(entries))
 }
 
@@ -32,13 +21,7 @@ pub async fn create(
     Json(body): Json<serde_json::Value>,
 ) -> Result<StatusCode, WebError> {
     let serialized = serde_json::to_string(&body).expect("serializing Value cannot fail");
-    sqlx::query!(
-        "INSERT INTO dumps (key, body) VALUES (?, ?)",
-        key,
-        serialized
-    )
-    .execute(&state.db)
-    .await?;
+    dump::create(&state.db, &key, &serialized).await?;
     Ok(StatusCode::CREATED)
 }
 
@@ -85,8 +68,7 @@ mod tests {
             .await
             .expect("request failed");
         assert_eq!(res.status(), StatusCode::OK);
-        let entries: Vec<crate::interfaces::handlers::dump::web::DumpEntry> =
-            res.json().await.unwrap();
+        let entries: Vec<crate::app::dump::DumpEntry> = res.json().await.unwrap();
         assert_eq!(entries.len(), 1);
         assert_eq!(entries[0].id, 1);
         assert_eq!(entries[0].body, payload);
@@ -109,8 +91,7 @@ mod tests {
             .send()
             .await
             .expect("request failed");
-        let entries: Vec<crate::interfaces::handlers::dump::web::DumpEntry> =
-            res.json().await.unwrap();
+        let entries: Vec<crate::app::dump::DumpEntry> = res.json().await.unwrap();
         assert_eq!(entries.len(), 3);
         assert_eq!(
             entries
