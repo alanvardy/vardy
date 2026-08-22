@@ -282,9 +282,9 @@ use crate::app::picture::{self, fetch_random};
 
 ### Verification
 #### Automated
-- [ ] `./scripts/test.sh` passes
-- [ ] `cargo nextest run -E 'test(metrics)'` green (page hits still reported; `metrics_router_serves_metrics_endpoint` still passes)
-- [ ] `rg -n 'crate::infra' src/interfaces/` returns no hits
+- [x] `./scripts/test.sh` passes
+- [x] `cargo nextest run -E 'test(metrics)'` green (page hits still reported; `metrics_router_serves_metrics_endpoint` still passes)
+- [x] `rg -n 'crate::infra' src/interfaces/` returns no hits
 
 #### Manual
 - [ ] `curl localhost:9090/metrics` on a locally booted server still shows `page_views_total`

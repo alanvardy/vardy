@@ -1,3 +1,7 @@
+/// Sanctioned re-export: the Unsplash fetch is implemented in `infra`
+/// but `interfaces` must reach it only through `app`.
+pub use crate::infra::unsplash::fetch_random;
+
 use crate::domain::picture::Picture;
 use sqlx::SqlitePool;
 

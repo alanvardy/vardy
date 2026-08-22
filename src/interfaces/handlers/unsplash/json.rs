@@ -1,8 +1,7 @@
 use crate::app::error::WebError;
-use crate::app::picture::{self};
+use crate::app::picture::{self, fetch_random};
 use crate::app::state::AppState;
 use crate::domain::picture::Picture;
-use crate::infra::unsplash::fetch_random;
 use axum::{Json, extract::State};
 use chrono::{Duration, Utc};
 

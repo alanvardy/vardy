@@ -29,7 +29,7 @@ pub fn routes() -> Router<AppState> {
 }
 
 /// Router for the dedicated metrics port; owns its own state.
-pub fn metrics_router(metrics: std::sync::Arc<crate::infra::metrics::AppMetrics>) -> Router {
+pub fn metrics_router(metrics: std::sync::Arc<crate::app::state::AppMetrics>) -> Router {
     Router::new()
         .route("/metrics", get(handlers::metrics::web::metrics_handler))
         .with_state(metrics)
@@ -59,7 +59,7 @@ mod tests {
 
     #[tokio::test]
     async fn metrics_router_serves_metrics_endpoint() {
-        use crate::infra::metrics::AppMetrics;
+        use crate::app::state::AppMetrics;
         use axum::body::Body;
         use axum::http::{Request, StatusCode};
         use std::sync::Arc;
