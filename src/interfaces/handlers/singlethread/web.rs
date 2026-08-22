@@ -36,7 +36,13 @@ mod tests {
         let body = res.text().await.unwrap();
         assert!(body.contains("<title>SingleThread</title>"));
         assert!(body.contains("<h1>SingleThread</h1>"));
-        assert!(body.contains("one thing at a time"));
+        assert!(body.contains("Your brain does one thing at a time")); // hero tagline
+        assert!(body.contains("One at a time.")); // first bullet lead-in
+        assert!(body.contains("Why it helps"));
+        assert!(body.contains("Everything you need, nothing you don't"));
+        assert!(body.contains("Thoughtful by design"));
+        assert!(body.contains("Built for quiet productivity"));
+        assert!(body.contains("Your reminders. One at a time. In order. At your pace."));
         assert!(body.contains(r#"<img src="/static/singlethread-shot-main.jpg?v="#));
         assert!(body.contains(r#"<img src="/static/singlethread-shot-settings.jpg?v="#));
         assert!(body.contains(r#"<img src="/static/singlethread-shot-swipe.jpg?v="#));

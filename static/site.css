@@ -163,6 +163,21 @@ nav a:hover {
     border: 1px solid #333;
 }
 
+.st-list li::marker {
+    color: var(--accent); /* accent bullets, token-based */
+}
+
+.st-list li strong {
+    color: var(--text);
+}
+
+.st-closing {
+    font-size: 1.25rem;
+    color: var(--accent);
+    text-align: center;
+    margin-top: 3rem;
+}
+
 @media (max-width: 48rem) {
     .home-columns {
         flex-direction: column;
