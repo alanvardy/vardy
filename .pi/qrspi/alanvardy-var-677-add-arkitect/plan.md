@@ -378,9 +378,9 @@ The `query!` macros moved files, so `.sqlx/` cache entries must be regenerated �
 
 ### Verification
 #### Automated
-- [ ] `./scripts/test.sh` passes (its sqlx-prepare step refreshes `.sqlx/` for the moved macros)
-- [ ] `cargo nextest run -E 'test(dump)'` — all four dump tests green, asserting both status and body (`[]`, round-trip payload, accumulation order, 400 on bad JSON)
-- [ ] `rg -n 'sqlx' src/interfaces/` shows hits only inside `#[cfg(test)]` blocks
+- [x] `./scripts/test.sh` passes (its sqlx-prepare step refreshes `.sqlx/` for the moved macros)
+- [x] `cargo nextest run -E 'test(dump)'` — all four dump tests green, asserting both status and body (`[]`, round-trip payload, accumulation order, 400 on bad JSON)
+- [x] `rg -n 'sqlx' src/interfaces/` shows hits only inside `#[cfg(test)]` blocks
 
 #### Manual
 - [ ] `git diff .sqlx/` shows regenerated metadata for the two moved queries (and no deleted entries for still-existing queries)
