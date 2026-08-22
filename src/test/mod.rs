@@ -31,6 +31,7 @@ pub async fn start_app_with(unsplash_base_url: &str) -> (SocketAddr, SqlitePool)
     let state = crate::app::state::AppState {
         templates: crate::app::templates::init(),
         metrics: Arc::new(crate::infra::metrics::AppMetrics::new().expect("metrics")),
+        http: reqwest::Client::new(),
         env: Arc::new(env),
         unsplash_base_url: unsplash_base_url.into(),
         db: db.clone(),
@@ -61,6 +62,7 @@ pub async fn start_app_with_metrics() -> (SocketAddr, SocketAddr) {
         db: crate::app::db::init(&env.database_url).await,
         env: Arc::new(env),
         metrics: Arc::new(crate::infra::metrics::AppMetrics::new().expect("metrics")),
+        http: reqwest::Client::new(),
         unsplash_base_url: "https://api.unsplash.com".into(),
     };
     let app_listener = tokio::net::TcpListener::bind("127.0.0.1:0")

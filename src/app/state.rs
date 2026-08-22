@@ -12,6 +12,8 @@ pub struct AppState {
     pub db: sqlx::SqlitePool,
     pub env: Arc<Env>,
     pub metrics: std::sync::Arc<crate::infra::metrics::AppMetrics>,
+    /// Shared outbound HTTP client, built once in `main.rs`.
+    pub http: reqwest::Client,
     /// Overridable so tests can point at a local stub server.
     pub unsplash_base_url: Arc<str>,
 }
