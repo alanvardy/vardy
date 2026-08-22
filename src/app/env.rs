@@ -5,10 +5,8 @@
 pub struct Env {
     pub unsplash_api_key: String,
     pub database_url: String,
-    // Read by Sentry init, added in a follow-up change
-    #[allow(dead_code)]
+    // Read by Sentry init
     pub sentry_dsn: String,
-    #[allow(dead_code)]
     pub enable_sentry: bool,
 }
 
