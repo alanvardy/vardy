@@ -266,7 +266,7 @@ integration tests).
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` passes — existing `error.rs` tests (`template_error_is_500`, `database_error_is_500`, etc.) assert unchanged status mapping
+- [x] `./scripts/test.sh` passes — existing `error.rs` tests (`template_error_is_500`, `database_error_is_500`, etc.) assert unchanged status mapping
 
 #### Manual
 - [ ] With Sentry enabled, force a 500 (e.g. temporarily rename a template `init()` loads or break a query), hit the endpoint, confirm the captured `minijinja::Error`/`sqlx::Error` event appears in Sentry; response body is still plain-text `internal server error` with status 500; revert the breakage
