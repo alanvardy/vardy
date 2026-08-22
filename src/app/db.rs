@@ -33,14 +33,24 @@ mod tests {
     use sqlx::Row;
 
     #[sqlx::test]
-    async fn migrations_applied(pool: SqlitePool) {
-        let row = sqlx::query(
+    async fn placeholder_table_dropped(pool: SqlitePool) {
+        let rows = sqlx::query(
             "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'placeholder'",
         )
-        .fetch_one(&pool)
+        .fetch_all(&pool)
         .await
-        .expect("placeholder table should exist after migrations");
-        assert_eq!(row.get::<String, _>("name"), "placeholder");
+        .expect("failed to query sqlite_master");
+        assert!(
+            rows.is_empty(),
+            "placeholder table should have been dropped"
+        );
+
+        let row =
+            sqlx::query("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'dumps'")
+                .fetch_one(&pool)
+                .await
+                .expect("dumps table should exist after migrations");
+        assert_eq!(row.get::<String, _>("name"), "dumps");
     }
 
     #[tokio::test]
