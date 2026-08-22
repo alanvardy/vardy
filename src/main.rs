@@ -5,10 +5,14 @@ mod domain;
 mod infra;
 mod interfaces;
 
+use tracing::info;
+
 const UNSPLASH_BASE_URL: &str = "https://api.unsplash.com";
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    app::log::init();
+
     let env = app::env::Env::init();
     let metrics = Arc::new(infra::metrics::AppMetrics::new()?);
     let state = app::state::AppState {
@@ -19,8 +23,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         unsplash_base_url: UNSPLASH_BASE_URL.into(),
     };
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
-    println!("Hosting on http://localhost:3000");
+    info!("Hosting on http://localhost:3000");
     let metrics_listener = tokio::net::TcpListener::bind("0.0.0.0:9090").await?;
+    info!("Metrics listening on http://localhost:9090");
     tokio::try_join!(
         axum::serve(
             listener,
