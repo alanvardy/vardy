@@ -31,15 +31,15 @@ impl IntoResponse for WebError {
         match self {
             WebError::NotFound => (StatusCode::NOT_FOUND, "not found").into_response(),
             WebError::Database(err) => {
-                eprintln!("database error: {err}");
+                tracing::error!(error = ?err, "database error");
                 (StatusCode::INTERNAL_SERVER_ERROR, "internal server error").into_response()
             }
             WebError::Template(err) => {
-                eprintln!("template render error: {err}");
+                tracing::error!(error = ?err, "template render error");
                 (StatusCode::INTERNAL_SERVER_ERROR, "internal server error").into_response()
             }
             WebError::External(message) => {
-                eprintln!("external error: {message}");
+                tracing::error!(error = %message, "external error");
                 (StatusCode::BAD_GATEWAY, "bad gateway").into_response()
             }
         }

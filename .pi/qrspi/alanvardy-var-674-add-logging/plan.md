@@ -318,7 +318,7 @@ impl IntoResponse for WebError {
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` passes
+- [x] `./scripts/test.sh` passes
 
 #### Manual
 - [ ] `cargo run`; temporarily `mv templates templates.bak`, then
