@@ -225,7 +225,7 @@ what keeps tests Sentry-free. No changes to `start_app()` / test helpers.
 - [x] `cargo tree -i sentry` resolves to 0.49.x with `sentry-panic` present
 
 #### Manual
-- [ ] With real DSN in `.env`, `ENABLE_SENTRY=true`: run app, temporarily add `panic!("sentry test")` in a handler, curl that route, confirm the panic event appears in the Sentry dashboard (with release name set); revert the panic
+- [x] With real DSN in `.env`, `ENABLE_SENTRY=true`: run app, temporarily add `panic!("sentry test")` in a handler, curl that route, confirm the panic event appears in the Sentry dashboard (with release name set); revert the panic — **confirmed by user**
 - [ ] With `ENABLE_SENTRY=false`: same panic does **not** appear in Sentry (no client initialized)
 - [ ] Broken-pipe filter: kill the process's stderr consumer (e.g. pipe to a closed `head`) and trigger a broken-pipe panic — no Sentry event, process exits normally
 
