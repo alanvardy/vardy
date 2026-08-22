@@ -18,10 +18,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .enable_sentry
         .then(|| infra::sentry::init(&env.sentry_dsn));
     let metrics = Arc::new(infra::metrics::AppMetrics::new()?);
+    let http = reqwest::Client::new();
     let state = app::state::AppState {
         templates: app::templates::init(),
         db: app::db::init(&env.database_url).await,
         metrics: metrics.clone(),
+        http,
         env: Arc::new(env),
         unsplash_base_url: UNSPLASH_BASE_URL.into(),
     };

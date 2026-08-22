@@ -433,9 +433,9 @@ let picture = fetch_random(&state.http, &state.unsplash_base_url, &state.env.uns
 
 ### Verification
 #### Automated
-- [ ] `./scripts/test.sh` passes
-- [ ] `cargo nextest run -E 'test(unsplash)'` green — stub tests (`no_row_triggers_fetch_and_insert`, `second_request_within_window_is_cached`, `stale_row_triggers_refetch`) prove the shared client works end to end
-- [ ] `rg -n 'reqwest' src/interfaces/` shows hits only inside `#[cfg(test)]` blocks
+- [x] `./scripts/test.sh` passes
+- [x] `cargo nextest run -E 'test(unsplash)'` green — stub tests (`no_row_triggers_fetch_and_insert`, `second_request_within_window_is_cached`, `stale_row_triggers_refetch`) prove the shared client works end to end
+- [x] `rg -n 'reqwest' src/interfaces/` shows hits only inside `#[cfg(test)]` blocks
 
 #### Manual (deliberate-violation sanity check, then revert)
 - [ ] Temporarily add `use crate::app::error::WebError;` under `src/infra/unsplash.rs` → `cargo nextest run -E 'test(architectural)'` **fails** (infra must_not_depend_on app)
