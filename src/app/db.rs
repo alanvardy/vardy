@@ -53,8 +53,8 @@ mod tests {
         let pool = init(&url).await;
         migrate(&pool).await.expect("migration should succeed");
 
-        // Happy path: a table from each meaningful migration exists.
-        for table in ["placeholder", "dumps", "unsplash_pictures"] {
+        // Happy path: every surviving schema table exists.
+        for table in ["dumps", "unsplash_pictures"] {
             let count: i64 = sqlx::query_scalar(
                 "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?",
             )

@@ -254,10 +254,10 @@ Do **not** touch `.sqlx` — it is required in the context for offline query com
 ### Verification
 
 #### Automated
-- [ ] `gh workflow list` shows both workflows enabled
-- [ ] Pushing this feature branch creates **no** Fly Deploy run (deploy no longer has any push trigger); `gh run list --workflow=fly-deploy.yml` confirms
-- [ ] YAML sanity: `python3 -c "import yaml,sys; yaml.safe_load(open('.github/workflows/fly-deploy.yml'))"` exits 0
-- [ ] Build-context check with a stray `.env` present (from repo root):
+- [x] `gh workflow list` shows both workflows enabled
+- [x] Pushing this feature branch creates **no** Fly Deploy run (deploy no longer has any push trigger); `gh run list --workflow=fly-deploy.yml` confirms
+- [x] YAML sanity: `python3 -c "import yaml,sys; yaml.safe_load(open('.github/workflows/fly-deploy.yml'))"` exits 0 (validated via `ruby -ryaml` — python3 has no pyyaml module installed)
+- [x] Build-context check with a stray `.env` present (from repo root):
       `touch .env; tar --exclude-from=.dockerignore -cf - . | tar -tf - | grep -c '^\.env$'` → `0`;
       then `rm .env`
 
