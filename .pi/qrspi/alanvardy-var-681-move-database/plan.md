@@ -133,8 +133,10 @@ which must exist, stays accurate and untouched.)
 
 ### Verification
 #### Automated
-- [ ] `grep -rn "data/vardy.db\|/data" --exclude-dir=.git --exclude-dir=.pi --exclude-dir=target .` returns nothing live
-- [ ] Final gate before commit: full `./scripts/test.sh` re-run passes
+- [x] `grep -rn "data/vardy.db\|/data" --exclude-dir=.git --exclude-dir=.pi --exclude-dir=target .` returns nothing live
+      (adapted to `grep -rnE "data/vardy\.db|sqlite:data|/data[^-]|mkdir -p data"` —
+      the literal check false-positives on the Sentry docs URL in `src/infra/sentry.rs`)
+- [x] Final gate before commit: full `./scripts/test.sh` re-run passes
 
 #### Manual
 - [ ] Read README.md and AGENTS.md — new wording says "set in `.env`", not

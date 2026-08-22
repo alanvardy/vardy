@@ -38,8 +38,8 @@
 - Run `./scripts/test.sh` to format, refresh sqlx offline metadata, type-
   check, lint, run tests, and grep for forgotten TODOs. It loads
   `DATABASE_URL` from `.env`, which must exist.
-- The local database is SQLite at `sqlite:data/vardy.db` (created on first
-  boot; the `data/` directory is created automatically)
+- The local database is SQLite at `sqlite:test.db`, set in `.env` (created on
+  first boot; gitignored)
 - Compile-time-checked query macros (`query!` etc.) need either a reachable
   `DATABASE_URL` or committed offline metadata: set `SQLX_OFFLINE=true` and
   refresh metadata with `cargo sqlx prepare` after schema changes
