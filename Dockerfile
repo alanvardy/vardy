@@ -28,7 +28,5 @@ COPY --from=builder /app/migrations ./migrations
 COPY --from=builder /app/templates ./templates
 COPY --from=builder /app/static ./static
 COPY --from=builder /app/target/release/vardy /usr/local/bin
-ENV DATABASE_URL=sqlite:test.db
-RUN sqlx database create
-RUN sqlx migrate run
+ENV DATABASE_URL=sqlite:data/vardy.db
 ENTRYPOINT ["/usr/local/bin/vardy"]
