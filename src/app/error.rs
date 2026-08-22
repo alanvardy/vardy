@@ -26,6 +26,12 @@ impl From<sqlx::Error> for WebError {
     }
 }
 
+impl From<crate::infra::unsplash::UnsplashError> for WebError {
+    fn from(err: crate::infra::unsplash::UnsplashError) -> Self {
+        WebError::External(err.0)
+    }
+}
+
 impl IntoResponse for WebError {
     fn into_response(self) -> Response {
         match self {

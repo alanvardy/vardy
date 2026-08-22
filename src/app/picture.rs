@@ -1,14 +1,5 @@
-use serde::Serialize;
+use crate::domain::picture::Picture;
 use sqlx::SqlitePool;
-
-/// A picture served by the `/unsplash` endpoint, persisted in the
-/// `unsplash_pictures` table.
-#[derive(Serialize, sqlx::FromRow)]
-pub struct Picture {
-    pub url: String,
-    pub photographer: String,
-    pub created_at: String,
-}
 
 pub async fn latest(pool: &SqlitePool) -> sqlx::Result<Option<Picture>> {
     let picture = sqlx::query_as::<_, Picture>(
