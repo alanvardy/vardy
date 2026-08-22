@@ -18,6 +18,8 @@ pub async fn start_app_with(unsplash_base_url: &str) -> (SocketAddr, SqlitePool)
     let env = Env {
         unsplash_api_key: "test-key".into(),
         database_url: "sqlite::memory:".into(),
+        sentry_dsn: "test-dsn".into(),
+        enable_sentry: false,
     };
     let db = crate::app::db::init(&env.database_url).await;
     sqlx::migrate!("./migrations")
@@ -49,6 +51,8 @@ pub async fn start_app_with_metrics() -> (SocketAddr, SocketAddr) {
     let env = Env {
         unsplash_api_key: "test-key".into(),
         database_url: "sqlite::memory:".into(),
+        sentry_dsn: "test-dsn".into(),
+        enable_sentry: false,
     };
     let state = crate::app::state::AppState {
         templates: crate::app::templates::init(),

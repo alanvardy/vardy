@@ -132,7 +132,7 @@ SENTRY_DSN=XXXX
 - [ ] `set -x SENTRY_DSN test; set -x ENABLE_SENTRY false; cargo run` boots and hosts on port 3000 (fish: use `env SENTRY_DSN=test ENABLE_SENTRY=false cargo run` if preferred)
 - [ ] `env -u SENTRY_DSN cargo run` panics with `SENTRY_DSN must be set and non-empty` **before** the "Hosting on http://localhost:3000" line (no port bound)
 - [ ] `env SENTRY_DSN=x ENABLE_SENTRY=maybe cargo run` panics with `ENABLE_SENTRY must be 'true' or 'false'`
-- [ ] With `DATABASE_URL` unset, app still boots against `sqlite:data/vardy.db` (fallback preserved)
+- ~~[ ] With `DATABASE_URL` unset, app still boots against `sqlite:data/vardy.db` (fallback preserved)~~ — **dropped (deviation, user-approved)**: main gained an Unsplash feature whose own `Env` made `DATABASE_URL` required (fail-fast). Rebase merged both; `DATABASE_URL` now panics if unset, matching Option A.
 
 ---
 
@@ -221,8 +221,8 @@ what keeps tests Sentry-free. No changes to `start_app()` / test helpers.
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` passes
-- [ ] `cargo tree -i sentry` resolves to 0.49.x with `sentry-panic` present
+- [x] `./scripts/test.sh` passes
+- [x] `cargo tree -i sentry` resolves to 0.49.x with `sentry-panic` present
 
 #### Manual
 - [ ] With real DSN in `.env`, `ENABLE_SENTRY=true`: run app, temporarily add `panic!("sentry test")` in a handler, curl that route, confirm the panic event appears in the Sentry dashboard (with release name set); revert the panic

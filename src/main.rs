@@ -14,6 +14,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     app::log::init();
 
     let env = app::env::Env::init();
+    let _guard = env
+        .enable_sentry
+        .then(|| infra::sentry::init(&env.sentry_dsn));
     let metrics = Arc::new(infra::metrics::AppMetrics::new()?);
     let state = app::state::AppState {
         templates: app::templates::init(),
