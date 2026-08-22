@@ -83,9 +83,11 @@ widen to `test.db*` later if it annoys.)
 
 ### Verification
 #### Automated
-- [ ] `docker build .` succeeds (offline build via `SQLX_OFFLINE=true`)
-- [ ] `git status --porcelain` shows no untracked `data/` entries
-- [ ] `grep -n "data" Dockerfile .gitignore` returns nothing
+- [x] `docker build .` succeeds (offline build via `SQLX_OFFLINE=true`)
+- [x] `git status --porcelain` shows no untracked `data/` entries
+- [x] `grep -n "data" Dockerfile .gitignore` returns nothing
+      (adapted to `grep -nE "data/vardy\.db|/data|mkdir -p data"` — the
+      literal check false-positives on `RUN sqlx database create`)
 
 #### Manual
 - [ ] Note during any local run whether `test.db-wal` / `test.db-shm` show up
