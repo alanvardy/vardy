@@ -196,8 +196,8 @@ Route path, method, and port are unchanged — description-only edit, within the
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` passes
-- [ ] `cargo test --lib interfaces::routes::tests` green — both health tests (200 happy, 500-with-body sad)
+- [x] `./scripts/test.sh` passes
+- [x] `cargo test --lib interfaces::routes::tests` green — both health tests (200 happy, 500-with-body sad)
 
 #### Manual
 - [ ] With app running: `curl -i localhost:3000/health` → `200`

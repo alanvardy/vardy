@@ -41,9 +41,8 @@ Stores a JSON payload under `key`. Entries accumulate per key.
 
 ### GET /health
 
-Health check.
-
-- Response: `200 OK`
+Health check. Runs `SELECT 1` against the database pool; returns `200` when
+the data layer responds, `500` (via the standard error path) otherwise.
 
 ---
 

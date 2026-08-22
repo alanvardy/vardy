@@ -1,12 +1,21 @@
 use axum::{
     Router,
+    extract::State,
     http::{HeaderValue, StatusCode, header},
     routing::get,
 };
 use tower_http::{services::ServeDir, set_header::SetResponseHeader};
 
+use crate::app::error::WebError;
 use crate::app::state::AppState;
 use crate::interfaces::handlers;
+
+/// Prove data-layer liveness: acquire from the pool and run a trivial query.
+/// Any failure flows through `WebError::Database` → logged + Sentry-captured 500.
+async fn health(State(state): State<AppState>) -> Result<StatusCode, WebError> {
+    sqlx::query("SELECT 1").execute(&state.db).await?;
+    Ok(StatusCode::OK)
+}
 
 pub fn routes() -> Router<AppState> {
     Router::new()
@@ -17,7 +26,7 @@ pub fn routes() -> Router<AppState> {
             "/dump/{key}",
             get(handlers::dump::web::index).post(handlers::dump::web::create),
         )
-        .route("/health", get(|| async { StatusCode::OK }))
+        .route("/health", get(health))
         .nest_service(
             "/static",
             SetResponseHeader::overriding(
@@ -111,7 +120,7 @@ mod tests {
 
     #[tokio::test]
     async fn health_returns_200() {
-        let addr = start_app().await;
+        let (addr, _pool) = crate::test::start_app_with("https://api.unsplash.com").await;
         let client = test_client();
         let res = client
             .get(format!("http://{addr}/health"))
@@ -119,6 +128,21 @@ mod tests {
             .await
             .expect("request to /health should succeed");
         assert_eq!(res.status(), StatusCode::OK);
+        assert_eq!(res.text().await.unwrap(), ""); // bare StatusCode body
+    }
+
+    #[tokio::test]
+    async fn health_returns_500_when_database_is_dead() {
+        let (addr, pool) = crate::test::start_app_with("https://api.unsplash.com").await;
+        pool.close().await; // kill the data layer behind the running server
+        let client = test_client();
+        let res = client
+            .get(format!("http://{addr}/health"))
+            .send()
+            .await
+            .expect("request to /health should complete");
+        assert_eq!(res.status(), StatusCode::INTERNAL_SERVER_ERROR);
+        assert_eq!(res.text().await.unwrap(), "internal server error");
     }
 
     #[tokio::test]
