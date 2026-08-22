@@ -9,6 +9,7 @@ codecov.yml
 
 # Local development and tooling
 .pi/
+.env
 .env_template
 scripts/
 README.md
