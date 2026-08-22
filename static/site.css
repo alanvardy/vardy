@@ -105,6 +105,33 @@ nav a:hover {
     display: inline-block;
 }
 
+/* SingleThread */
+.st-hero {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.st-hero-text {
+    flex: 1;
+}
+
+.st-tagline {
+    font-size: 1.25rem;
+    color: var(--muted);
+}
+
+.st-hero-shot {
+    flex: 0 0 16rem;
+    max-width: 16rem;
+}
+
+.st-hero-shot img {
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
 @media (max-width: 48rem) {
     .home-columns {
         flex-direction: column;
@@ -112,5 +139,14 @@ nav a:hover {
 
     .home-portrait {
         order: -1; /* portrait above text on narrow screens */
+    }
+
+    .st-hero {
+        flex-direction: column;
+    }
+
+    .st-hero-shot {
+        order: -1; /* screenshot above text on narrow screens */
+        flex: none;
     }
 }

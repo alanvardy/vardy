@@ -210,7 +210,7 @@ assert!(body.contains(r#"<img src="/static/singlethread-shot-main.jpg?v="#));
 
 ### Verification
 #### Automated
-- [ ] `./scripts/test.sh` passes
+- [x] `./scripts/test.sh` passes
 
 #### Manual
 - [ ] `cargo run`, open `/singlethread`: hero shows tagline text left, main screenshot right
