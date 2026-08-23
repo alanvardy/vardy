@@ -50,5 +50,10 @@ mod tests {
         assert!(body.contains(r#"<img src="/static/singlethread-watch-detail.png?v="#));
         assert!(body.contains(r#"<a href="/">Home</a>"#));
         assert!(body.contains(r#"<a href="/singlethread">SingleThread</a>"#));
+        // no legacy component classes remain on this page (checked at class-name
+        // boundaries so utility substrings like "list-disc" don't false-positive)
+        assert!(!body.contains("\"st-"));
+        assert!(!body.contains(" st-"));
+        assert!(!body.contains("section-heading"));
     }
 }
