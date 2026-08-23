@@ -7,13 +7,16 @@
     <link rel="stylesheet" href="{{ asset_url('site.css') }}">
 </head>
 <body>
+    <div class="wallpaper" aria-hidden="true" {% if wallpaper_url %}style="background-image: url('{{ wallpaper_url }}')"{% endif %}></div>
     <nav>
         <a href="/">Home</a>
         <a href="/singlethread">SingleThread</a>
     </nav>
-    <div class="container">
-        <h1>{% block heading %}{% endblock %}</h1>
-        {% block content %}{% endblock %}
-    </div>
+    <main class="page">
+        <div class="container">
+            <h1>{% block heading %}{% endblock %}</h1>
+            {% block content %}{% endblock %}
+        </div>
+    </main>
 </body>
 </html>

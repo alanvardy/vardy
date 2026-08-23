@@ -18,6 +18,7 @@
     --color-muted: #a8a29e;
     --color-accent: #fb923c;
     --color-accent-strong: #fdba74;
+    --color-border: #3d3833;
 }
 
 /* Global element defaults for layout.html chrome (shared across pages) */
@@ -34,10 +35,27 @@
         line-height: 1.6;
     }
 
+    .wallpaper {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        background-color: var(--color-bg);
+        background-size: cover;
+        background-position: center;
+    }
+
+    .page {
+        min-height: 100vh;
+    }
+
     .container {
         max-width: 48rem;
-        margin: 0 auto;
-        padding: 3rem 1.5rem;
+        margin: 3rem auto;
+        padding: 3rem 2rem;
+        /* Opaque panel so page text stays readable over the wallpaper */
+        background: var(--color-bg);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
     }
 
     nav {
@@ -45,7 +63,7 @@
         gap: 1.5rem;
         padding: 0.75rem 1.5rem;
         background: var(--color-surface);
-        border-bottom: 1px solid #3d3833;
+        border-bottom: 1px solid var(--color-border);
     }
 
     nav a {
