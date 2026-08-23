@@ -2,8 +2,27 @@
 /// but `interfaces` must reach it only through `app`.
 pub use crate::infra::unsplash::fetch_random;
 
+use crate::app::error::WebError;
+use crate::app::state::AppState;
 use crate::domain::picture::Picture;
 use sqlx::SqlitePool;
+
+/// Latest picture from the database cache, refreshed from Unsplash when
+/// older than [`MAX_AGE_HOURS`] hours.
+pub async fn current(state: &AppState) -> Result<Picture, WebError> {
+    if let Some(picture) = latest(&state.db).await?
+        && !&picture.is_stale()
+    {
+        return Ok(picture);
+    }
+    let picture = fetch_random(
+        &state.http,
+        &state.unsplash_base_url,
+        &state.env.unsplash_api_key,
+    )
+    .await?;
+    Ok(create(&state.db, &picture).await?)
+}
 
 pub async fn latest(pool: &SqlitePool) -> sqlx::Result<Option<Picture>> {
     let picture = sqlx::query_as::<_, Picture>(

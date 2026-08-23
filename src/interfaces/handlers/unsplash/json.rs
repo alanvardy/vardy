@@ -1,32 +1,11 @@
 use crate::app::error::WebError;
-use crate::app::picture::{self, fetch_random};
+use crate::app::picture;
 use crate::app::state::AppState;
 use crate::domain::picture::Picture;
 use axum::{Json, extract::State};
-use chrono::{Duration, Utc};
-
-const MAX_AGE_HOURS: i64 = 6;
 
 pub async fn index(State(state): State<AppState>) -> Result<Json<Picture>, WebError> {
-    if let Some(picture) = picture::latest(&state.db).await?
-        && !is_stale(&picture)
-    {
-        return Ok(Json(picture));
-    }
-    let picture = fetch_random(
-        &state.http,
-        &state.unsplash_base_url,
-        &state.env.unsplash_api_key,
-    )
-    .await?;
-    let picture = picture::create(&state.db, &picture).await?;
-    Ok(Json(picture))
-}
-
-fn is_stale(picture: &Picture) -> bool {
-    chrono::NaiveDateTime::parse_from_str(&picture.created_at, "%Y-%m-%d %H:%M:%S")
-        .map(|created_at| Utc::now().naive_utc() - created_at > Duration::hours(MAX_AGE_HOURS))
-        .unwrap_or(true) // unparseable timestamp → treat as stale, force refresh
+    Ok(Json(picture::current(&state).await?))
 }
 
 #[cfg(test)]
@@ -35,6 +14,16 @@ mod tests {
 
     use super::*;
     use crate::test::{start_app_with, start_unsplash_stub, test_client};
+
+    /// The shared test harness seeds a fresh cached picture so page renders
+    /// never hit the network; these tests need specific cache states, so they
+    /// clear the table first.
+    async fn clear_pictures(db: &SqlitePool) {
+        sqlx::query("DELETE FROM unsplash_pictures")
+            .execute(db)
+            .await
+            .expect("clear pictures");
+    }
 
     #[sqlx::test]
     async fn unsplash_pictures_table_exists(pool: SqlitePool) {
@@ -71,6 +60,7 @@ mod tests {
     #[tokio::test]
     async fn unsplash_serves_seeded_row() {
         let (addr, db) = start_app_with("https://api.unsplash.com").await;
+        clear_pictures(&db).await;
         sqlx::query("INSERT INTO unsplash_pictures (url, photographer) VALUES (?, ?)")
             .bind("https://example.com/seeded.jpg")
             .bind("Seeded Photographer")
@@ -99,6 +89,7 @@ mod tests {
     async fn no_row_triggers_fetch_and_insert() {
         let stub = start_unsplash_stub(axum::http::StatusCode::OK).await;
         let (addr, db) = start_app_with(&stub.base_url).await;
+        clear_pictures(&db).await;
 
         let res = test_client()
             .get(format!("http://{addr}/unsplash"))
@@ -122,6 +113,7 @@ mod tests {
     async fn fresh_row_does_not_call_upstream() {
         let stub = start_unsplash_stub(axum::http::StatusCode::OK).await;
         let (addr, db) = start_app_with(&stub.base_url).await;
+        clear_pictures(&db).await;
         sqlx::query(
             "INSERT INTO unsplash_pictures (url, photographer) \
              VALUES ('https://example.com/fresh.jpg', 'Fresh Photographer')",
@@ -152,6 +144,7 @@ mod tests {
     async fn stale_row_triggers_refetch() {
         let stub = start_unsplash_stub(axum::http::StatusCode::OK).await;
         let (addr, db) = start_app_with(&stub.base_url).await;
+        clear_pictures(&db).await;
         sqlx::query(
             "INSERT INTO unsplash_pictures (url, photographer, created_at) \
              VALUES ('https://example.com/stale.jpg', 'Stale Photographer', \
@@ -182,7 +175,8 @@ mod tests {
     #[tokio::test]
     async fn upstream_failure_is_502() {
         let stub = start_unsplash_stub(axum::http::StatusCode::INTERNAL_SERVER_ERROR).await;
-        let (addr, _db) = start_app_with(&stub.base_url).await;
+        let (addr, db) = start_app_with(&stub.base_url).await;
+        clear_pictures(&db).await;
 
         let res = test_client()
             .get(format!("http://{addr}/unsplash"))
@@ -198,6 +192,7 @@ mod tests {
     async fn second_request_within_window_is_cached() {
         let stub = start_unsplash_stub(axum::http::StatusCode::OK).await;
         let (addr, db) = start_app_with(&stub.base_url).await;
+        clear_pictures(&db).await;
         let client = test_client();
 
         let first = client
@@ -233,6 +228,7 @@ mod tests {
         let stub = start_unsplash_stub(axum::http::StatusCode::OK).await;
         let (addr, _pool) =
             crate::test::start_app_with_rate_limits(&stub.base_url, 1, 1_000_000).await; // global effectively disabled
+        clear_pictures(&_pool).await;
         let client = test_client();
         // UNSPLASH_TIER_BURST = 5; fire 20 concurrent GETs: mix of 200 and 429
         let handles: Vec<_> = (0..20)

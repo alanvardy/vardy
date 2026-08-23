@@ -44,6 +44,7 @@ async fn serve_app(unsplash_base_url: &str, per_ms: u64, burst: u32) -> (SocketA
         .run(&db)
         .await
         .expect("migrate");
+    seed_wallpaper(&db).await;
     let state = crate::app::state::AppState {
         templates: crate::app::templates::init(),
         metrics: Arc::new(crate::infra::metrics::AppMetrics::new().expect("metrics")),
@@ -85,7 +86,15 @@ pub async fn start_app_with_metrics() -> (SocketAddr, SocketAddr) {
     };
     let state = crate::app::state::AppState {
         templates: crate::app::templates::init(),
-        db: crate::app::db::init(&env.database_url).await,
+        db: {
+            let db = crate::app::db::init(&env.database_url).await;
+            sqlx::migrate!("./migrations")
+                .run(&db)
+                .await
+                .expect("migrate");
+            seed_wallpaper(&db).await;
+            db
+        },
         env: Arc::new(env),
         metrics: Arc::new(crate::infra::metrics::AppMetrics::new().expect("metrics")),
         http: reqwest::Client::new(),
@@ -119,6 +128,18 @@ pub async fn start_app_with_metrics() -> (SocketAddr, SocketAddr) {
 
 pub fn test_client() -> reqwest::Client {
     reqwest::Client::new()
+}
+
+/// Insert a fresh cached Unsplash picture so page handlers never make real
+/// network calls during tests.
+pub async fn seed_wallpaper(db: &SqlitePool) {
+    sqlx::query(
+        "INSERT INTO unsplash_pictures (url, photographer) \
+         VALUES ('https://example.com/wallpaper.jpg', 'Wallpaper Photographer')",
+    )
+    .execute(db)
+    .await
+    .expect("seed wallpaper");
 }
 
 pub struct UnsplashStub {

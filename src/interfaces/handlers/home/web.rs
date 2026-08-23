@@ -2,20 +2,24 @@ use axum::{extract::State, response::Html};
 use minijinja::context;
 
 use crate::app::error::WebError;
+use crate::app::picture;
 use crate::app::state::AppState;
 
 pub async fn index(State(state): State<AppState>) -> Result<Html<String>, WebError> {
     state.metrics.inc_page_view("home");
+    // The wallpaper is decorative: render the page without it rather than
+    // failing the whole request if Unsplash is unavailable.
+    let wallpaper_url = picture::current(&state).await.ok().map(|p| p.url);
     let html = state
         .templates
         .get_template("home.html")?
-        .render(context! {})?;
+        .render(context! { wallpaper_url })?;
     Ok(Html(html))
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::test::{start_app, test_client};
+    use crate::test::{start_app, start_app_with, start_unsplash_stub, test_client};
     use axum::http::StatusCode;
 
     #[tokio::test]
@@ -55,5 +59,39 @@ mod tests {
         assert!(body.contains(r#"<a href="/singlethread">SingleThread</a>"#));
         assert!(body.contains("/static/site.css?v="));
         assert!(!body.contains("<style>"));
+    }
+
+    #[tokio::test]
+    async fn index_renders_wallpaper_from_cache() {
+        let addr = start_app().await;
+        let body = test_client()
+            .get(format!("http://{addr}/"))
+            .send()
+            .await
+            .expect("request failed")
+            .text()
+            .await
+            .expect("body");
+        // minijinja escapes `/` in attribute context; browsers decode it back
+        assert!(body.contains("url('https:&#x2f;&#x2f;example.com&#x2f;wallpaper.jpg')"));
+    }
+
+    #[tokio::test]
+    async fn index_still_renders_when_wallpaper_fetch_fails() {
+        let stub = start_unsplash_stub(axum::http::StatusCode::INTERNAL_SERVER_ERROR).await;
+        let (addr, db) = start_app_with(&stub.base_url).await;
+        sqlx::query("DELETE FROM unsplash_pictures")
+            .execute(&db)
+            .await
+            .expect("clear pictures");
+
+        let res = test_client()
+            .get(format!("http://{addr}/"))
+            .send()
+            .await
+            .expect("request failed");
+        assert_eq!(res.status(), StatusCode::OK);
+        let body = res.text().await.expect("body");
+        assert!(!body.contains("background-image"));
     }
 }
