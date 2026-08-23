@@ -18,14 +18,28 @@ async fn health(State(state): State<AppState>) -> Result<StatusCode, WebError> {
 }
 
 pub fn routes() -> Router<AppState> {
+    // Expensive endpoints each get their own tighter per-IP budget, nested
+    // inside the global limiter; budgets do not pool across tiers.
+    let dump_tier = crate::app::rate_limit::tiered_routes(
+        Router::new().route(
+            "/dump/{key}",
+            axum::routing::post(handlers::dump::web::create),
+        ),
+        crate::app::rate_limit::DUMP_TIER_PER_MS,
+        crate::app::rate_limit::DUMP_TIER_BURST,
+    );
+    let unsplash_tier = crate::app::rate_limit::tiered_routes(
+        Router::new().route("/unsplash", get(handlers::unsplash::json::index)),
+        crate::app::rate_limit::UNSPLASH_TIER_PER_MS,
+        crate::app::rate_limit::UNSPLASH_TIER_BURST,
+    );
+
     Router::new()
         .route("/", get(handlers::home::web::index))
         .route("/singlethread", get(handlers::singlethread::web::index))
-        .route("/unsplash", get(handlers::unsplash::json::index))
-        .route(
-            "/dump/{key}",
-            get(handlers::dump::web::index).post(handlers::dump::web::create),
-        )
+        .route("/dump/{key}", get(handlers::dump::web::index)) // global budget only
+        .merge(dump_tier)
+        .merge(unsplash_tier)
         .route("/health", get(health))
         .nest_service(
             "/static",

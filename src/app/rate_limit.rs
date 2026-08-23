@@ -67,6 +67,12 @@ fn rate_limit_error_response(err: GovernorError) -> axum::response::Response {
     }
 }
 
+/// Stricter budgets for expensive endpoints. Policy lives in code, not config.
+pub const DUMP_TIER_PER_MS: u64 = 1_000; // 1 write/sec sustained
+pub const DUMP_TIER_BURST: u32 = 3;
+pub const UNSPLASH_TIER_PER_MS: u64 = 200; // 5 upstream calls/sec sustained
+pub const UNSPLASH_TIER_BURST: u32 = 5;
+
 /// Apply a global per-IP rate limiter to the router.
 pub fn with_global_limit(router: Router<AppState>, per_ms: u64, burst: u32) -> Router<AppState> {
     let governor_cfg = std::sync::Arc::new(
@@ -80,6 +86,22 @@ pub fn with_global_limit(router: Router<AppState>, per_ms: u64, burst: u32) -> R
     );
 
     router.layer(GovernorLayer::new(governor_cfg).error_handler(rate_limit_error_response))
+}
+
+/// Wrap a route group with its own tighter per-IP budget, nested inside the
+/// global limiter.
+pub fn tiered_routes(limited: Router<AppState>, per_ms: u64, burst: u32) -> Router<AppState> {
+    let governor_cfg = std::sync::Arc::new(
+        GovernorConfigBuilder::default()
+            .key_extractor(FlyClientIpKeyExtractor)
+            .per_millisecond(per_ms)
+            .burst_size(burst)
+            .use_headers()
+            .finish()
+            .expect("tier rate-limit config must be valid"),
+    );
+
+    limited.layer(GovernorLayer::new(governor_cfg).error_handler(rate_limit_error_response))
 }
 
 #[cfg(test)]

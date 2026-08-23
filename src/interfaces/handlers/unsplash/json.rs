@@ -224,4 +224,44 @@ mod tests {
             .expect("count");
         assert_eq!(count, 1);
     }
+
+    #[tokio::test]
+    async fn unsplash_tier_trips_while_global_budget_stays_open() {
+        use axum::http::StatusCode;
+        use std::sync::atomic::Ordering;
+
+        let stub = start_unsplash_stub(axum::http::StatusCode::OK).await;
+        let (addr, _pool) =
+            crate::test::start_app_with_rate_limits(&stub.base_url, 1, 1_000_000).await; // global effectively disabled
+        let client = test_client();
+        // UNSPLASH_TIER_BURST = 5; fire 20 concurrent GETs: mix of 200 and 429
+        let handles: Vec<_> = (0..20)
+            .map(|_| {
+                let client = client.clone();
+                let url = format!("http://{addr}/unsplash");
+                tokio::spawn(async move { client.get(url).send().await.expect("request failed") })
+            })
+            .collect();
+        let mut ok = 0;
+        let mut limited = 0;
+        for handle in handles {
+            let res = handle.await.expect("join");
+            match res.status() {
+                StatusCode::OK => ok += 1,
+                StatusCode::TOO_MANY_REQUESTS => {
+                    limited += 1;
+                    assert!(res.headers().get("retry-after").is_some());
+                    assert_eq!(res.text().await.unwrap(), "too many requests");
+                }
+                status => panic!("unexpected status {status}"),
+            }
+        }
+        assert!(ok >= 1, "at least one request should succeed");
+        assert!(limited >= 5, "tier should trip well before global budget");
+        // The tier throttles before every request reaches the upstream stub.
+        assert!(
+            stub.call_count.load(Ordering::SeqCst) < 20,
+            "stub should see fewer calls than requests"
+        );
+    }
 }
