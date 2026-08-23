@@ -5,5 +5,6 @@ pub mod env;
 pub mod error;
 pub mod log;
 pub mod picture;
+pub mod rate_limit;
 pub mod state;
 pub mod templates;

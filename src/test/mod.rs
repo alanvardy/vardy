@@ -22,6 +22,8 @@ pub async fn start_app_with(unsplash_base_url: &str) -> (SocketAddr, SqlitePool)
         database_url: "sqlite::memory:".into(),
         sentry_dsn: "test-dsn".into(),
         enable_sentry: false,
+        rate_limit_per_ms: 1,
+        rate_limit_burst: 1_000_000,
     };
     let db = crate::app::db::init(&env.database_url).await;
     sqlx::migrate!("./migrations")
@@ -42,9 +44,12 @@ pub async fn start_app_with(unsplash_base_url: &str) -> (SocketAddr, SqlitePool)
     let addr = listener.local_addr().expect("local addr");
     let router: Router = crate::interfaces::routes::routes().with_state(state);
     tokio::spawn(async move {
-        axum::serve(listener, router.into_make_service())
-            .await
-            .expect("server");
+        axum::serve(
+            listener,
+            router.into_make_service_with_connect_info::<std::net::SocketAddr>(),
+        )
+        .await
+        .expect("server");
     });
     (addr, db)
 }
@@ -56,6 +61,8 @@ pub async fn start_app_with_metrics() -> (SocketAddr, SocketAddr) {
         database_url: "sqlite::memory:".into(),
         sentry_dsn: "test-dsn".into(),
         enable_sentry: false,
+        rate_limit_per_ms: 1,
+        rate_limit_burst: 1_000_000,
     };
     let state = crate::app::state::AppState {
         templates: crate::app::templates::init(),
@@ -76,9 +83,12 @@ pub async fn start_app_with_metrics() -> (SocketAddr, SocketAddr) {
     let router: Router = crate::interfaces::routes::routes().with_state(state.clone());
     let metrics_router = crate::interfaces::routes::metrics_router(state.metrics.clone());
     tokio::spawn(async move {
-        axum::serve(app_listener, router.into_make_service())
-            .await
-            .expect("server");
+        axum::serve(
+            app_listener,
+            router.into_make_service_with_connect_info::<std::net::SocketAddr>(),
+        )
+        .await
+        .expect("server");
     });
     tokio::spawn(async move {
         axum::serve(metrics_listener, metrics_router.into_make_service())

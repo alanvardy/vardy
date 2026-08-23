@@ -8,6 +8,8 @@ pub struct Env {
     // Read by Sentry init
     pub sentry_dsn: String,
     pub enable_sentry: bool,
+    pub rate_limit_per_ms: u64,
+    pub rate_limit_burst: u32,
 }
 
 impl Env {
@@ -16,12 +18,16 @@ impl Env {
         let database_url = get_string_env("DATABASE_URL");
         let sentry_dsn = get_string_env("SENTRY_DSN");
         let enable_sentry = get_bool_env("ENABLE_SENTRY");
+        let rate_limit_per_ms = get_parse_env::<u64>("RATE_LIMIT_PER_MS");
+        let rate_limit_burst = get_parse_env::<u32>("RATE_LIMIT_BURST");
 
         Env {
             unsplash_api_key,
             database_url,
             sentry_dsn,
             enable_sentry,
+            rate_limit_per_ms,
+            rate_limit_burst,
         }
     }
 }
@@ -41,6 +47,12 @@ fn get_bool_env(key: &str) -> bool {
     }
 }
 
+fn get_parse_env<T: std::str::FromStr>(key: &str) -> T {
+    let raw = get_string_env(key);
+    raw.parse()
+        .unwrap_or_else(|_| panic!("{key} must be a valid integer, got '{raw}'"))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -55,6 +67,7 @@ mod tests {
 
     const TEST_KEY: &str = "TEST_GET_ENV_KEY";
     const BOOL_KEY: &str = "TEST_GET_BOOL_KEY";
+    const TEST_GET_PARSE_KEY: &str = "TEST_GET_PARSE_KEY";
 
     fn lock() -> std::sync::MutexGuard<'static, ()> {
         ENV_MUTEX.lock().unwrap_or_else(|e| e.into_inner())
@@ -109,5 +122,30 @@ mod tests {
         let _guard = lock();
         unsafe { std::env::set_var(BOOL_KEY, "yes") };
         get_bool_env(BOOL_KEY);
+    }
+
+    #[test]
+    fn get_parse_env_returns_value_when_set_and_valid() {
+        let _guard = lock();
+        unsafe { std::env::set_var(TEST_GET_PARSE_KEY, "100") };
+        let result: u64 = get_parse_env(TEST_GET_PARSE_KEY);
+        unsafe { std::env::remove_var(TEST_GET_PARSE_KEY) };
+        assert_eq!(result, 100);
+    }
+
+    #[test]
+    #[should_panic(expected = "must be a valid integer")]
+    fn get_parse_env_panics_on_invalid() {
+        let _guard = lock();
+        unsafe { std::env::set_var(TEST_GET_PARSE_KEY, "abc") };
+        let _: u64 = get_parse_env(TEST_GET_PARSE_KEY);
+    }
+
+    #[test]
+    #[should_panic(expected = "must be set and non-empty")]
+    fn get_parse_env_panics_when_missing() {
+        let _guard = lock();
+        unsafe { std::env::remove_var(TEST_GET_PARSE_KEY) };
+        let _: u64 = get_parse_env(TEST_GET_PARSE_KEY);
     }
 }
