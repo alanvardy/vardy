@@ -613,9 +613,9 @@ line. Wording template:
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` passes
-- [ ] New tier tests pass: `cargo nextest run tier`
-- [ ] Existing dump/unsplash suites still green (limits disabled in their harness)
+- [x] `./scripts/test.sh` passes
+- [x] New tier tests pass: `cargo nextest run tier`
+- [x] Existing dump/unsplash suites still green (limits disabled in their harness)
 
 #### Manual
 - [ ] Boot locally; exceed the unsplash tier rapidly (curl loop on `/unsplash`)
