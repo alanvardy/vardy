@@ -27,8 +27,62 @@ pub async fn create(
 
 #[cfg(test)]
 mod tests {
-    use crate::test::{start_app, test_client};
+    use crate::test::{start_app, start_app_with_rate_limits, test_client};
     use axum::http::StatusCode;
+
+    #[tokio::test]
+    async fn dump_post_tier_trips_while_global_budget_stays_open() {
+        let (addr, _pool) =
+            start_app_with_rate_limits("https://api.unsplash.com", 1, 1_000_000).await;
+        let client = test_client();
+        // DUMP_TIER_BURST = 3; fire 15 concurrent POSTs of tiny JSON
+        let handles: Vec<_> = (0..15)
+            .map(|_| {
+                let client = client.clone();
+                let url = format!("http://{addr}/dump/tier-test");
+                tokio::spawn(async move {
+                    client
+                        .post(url)
+                        .json(&serde_json::json!({ "n": 1 }))
+                        .send()
+                        .await
+                        .expect("request failed")
+                })
+            })
+            .collect();
+        let mut created = 0;
+        let mut limited = 0;
+        for handle in handles {
+            let res = handle.await.expect("join");
+            match res.status() {
+                StatusCode::CREATED => created += 1,
+                StatusCode::TOO_MANY_REQUESTS => {
+                    limited += 1;
+                    assert!(res.headers().get("retry-after").is_some());
+                    assert_eq!(res.text().await.unwrap(), "too many requests");
+                }
+                status => panic!("unexpected status {status}"),
+            }
+        }
+        assert!(created >= 1, "at least one POST should be created");
+        assert!(limited >= 5, "tier should trip well before global budget");
+    }
+
+    #[tokio::test]
+    async fn dump_get_is_not_tier_limited() {
+        let (addr, _pool) =
+            start_app_with_rate_limits("https://api.unsplash.com", 1, 1_000_000).await;
+        let client = test_client();
+        // 30 sequential GETs to /dump/anything -> all 200 (would trip any sane tier)
+        for _ in 0..30 {
+            let res = client
+                .get(format!("http://{addr}/dump/anything"))
+                .send()
+                .await
+                .expect("request failed");
+            assert_eq!(res.status(), StatusCode::OK);
+        }
+    }
 
     #[tokio::test]
     async fn get_unknown_key_returns_empty_list() {
