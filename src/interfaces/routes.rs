@@ -119,6 +119,46 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn under_limit_request_is_not_rate_limited() {
+        let (addr, _pool) =
+            crate::test::start_app_with_rate_limits("https://api.unsplash.com", 1_000, 2).await;
+        let res = test_client()
+            .get(format!("http://{addr}/health"))
+            .send()
+            .await
+            .unwrap();
+        assert_eq!(res.status(), StatusCode::OK);
+    }
+
+    #[tokio::test]
+    async fn over_limit_requests_get_429_with_exact_body_and_retry_after() {
+        let (addr, _pool) =
+            crate::test::start_app_with_rate_limits("https://api.unsplash.com", 1_000, 2).await;
+        let client = test_client();
+        // burst 2, refill 1 token/sec: 10 rapid sequential requests must trip it
+        let mut saw_429 = false;
+        for _ in 0..10 {
+            let res = client
+                .get(format!("http://{addr}/health"))
+                .send()
+                .await
+                .unwrap();
+            match res.status() {
+                StatusCode::TOO_MANY_REQUESTS => {
+                    saw_429 = true;
+                    assert!(res.headers().get("retry-after").is_some());
+                    assert_eq!(res.text().await.unwrap(), "too many requests");
+                }
+                StatusCode::OK => {}
+                status => panic!("unexpected status {status}"),
+            }
+        }
+        assert!(
+            saw_429,
+            "expected at least one 429 within 10 rapid requests"
+        );
+    }
+    #[tokio::test]
     async fn health_returns_200() {
         let (addr, _pool) = crate::test::start_app_with("https://api.unsplash.com").await;
         let client = test_client();

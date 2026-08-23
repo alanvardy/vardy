@@ -440,9 +440,9 @@ tests stay isolated.
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` passes including the three new tests
-- [ ] `cargo nextest run error::tests` — `TooManyRequests` mapping unit tests pass
-- [ ] `cargo nextest run over_limit\|under_limit` — 429 status + exact body + `Retry-After` asserted over real TCP
+- [x] `./scripts/test.sh` passes including the three new tests
+- [x] `cargo nextest run error::tests` — `TooManyRequests` mapping unit tests pass
+- [x] `cargo nextest run over_limit\|under_limit` — 429 status + exact body + `Retry-After` asserted over real TCP
 
 #### Manual
 - [ ] Boot locally with a small budget (e.g. `RATE_LIMIT_PER_MS=500`, `RATE_LIMIT_BURST=3`),
