@@ -13,6 +13,8 @@ sentry = "0.49"
 sha2 = "0.10"
 sqlx = { version = "0.9.0", features = ["sqlite", "runtime-tokio", "chrono", "migrate", "json"] }
 tokio = { version = "1.52.3", features = ["rt-multi-thread", "macros", "net", "io-util"] }
+tower_governor = { version = "0.8", features = ["axum"] }
+governor = "0.10"
 tower-http = { version = "0.6", features = ["fs", "set-header", "trace"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }

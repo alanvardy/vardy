@@ -22,6 +22,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let db = app::db::init(&env.database_url).await;
     app::db::migrate(&db).await?;
     info!("Database migrated");
+    let rate_limit_per_ms = env.rate_limit_per_ms;
+    let rate_limit_burst = env.rate_limit_burst;
     let state = app::state::AppState {
         templates: app::templates::init(),
         db,
@@ -34,12 +36,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     info!("Hosting on http://localhost:3000");
     let metrics_listener = tokio::net::TcpListener::bind("0.0.0.0:9090").await?;
     info!("Metrics listening on http://localhost:9090");
+    let router = interfaces::routes::routes().layer(app::log::trace_layer());
+    let router = app::rate_limit::with_global_limit(router, rate_limit_per_ms, rate_limit_burst);
     tokio::try_join!(
         axum::serve(
             listener,
-            interfaces::routes::routes()
+            router
                 .with_state(state)
-                .layer(app::log::trace_layer())
                 .into_make_service_with_connect_info::<std::net::SocketAddr>(),
         ),
         axum::serve(
