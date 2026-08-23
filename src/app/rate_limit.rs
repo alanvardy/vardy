@@ -1,10 +1,11 @@
 use std::net::SocketAddr;
 
-use axum::{Router, extract::ConnectInfo};
+use axum::{Router, extract::ConnectInfo, response::IntoResponse};
 use tower_governor::{
     GovernorError, GovernorLayer, governor::GovernorConfigBuilder, key_extractor::KeyExtractor,
 };
 
+use crate::app::error::WebError;
 use crate::app::state::AppState;
 
 /// Reads `Fly-Client-IP` set by the Fly Proxy, which cannot be spoofed.
@@ -35,6 +36,37 @@ impl KeyExtractor for FlyClientIpKeyExtractor {
     }
 }
 
+/// Map governor errors through the `WebError` chokepoint so middleware and
+/// handlers share one 429 format.
+fn rate_limit_error_response(err: GovernorError) -> axum::response::Response {
+    match err {
+        GovernorError::TooManyRequests { wait_time, headers } => {
+            let mut response = WebError::TooManyRequests {
+                retry_after_secs: wait_time,
+            }
+            .into_response();
+            if let Some(headers) = headers {
+                for (name, value) in headers.into_iter() {
+                    if let Some(name) = name {
+                        response.headers_mut().insert(name, value);
+                    }
+                }
+            }
+            response
+        }
+        // Unreachable with our extractor (header or ConnectInfo always present),
+        // but keep it total and logged.
+        other => {
+            tracing::error!(?other, "rate limiter failed to extract key");
+            (
+                axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+                "internal server error",
+            )
+                .into_response()
+        }
+    }
+}
+
 /// Apply a global per-IP rate limiter to the router.
 pub fn with_global_limit(router: Router<AppState>, per_ms: u64, burst: u32) -> Router<AppState> {
     let governor_cfg = std::sync::Arc::new(
@@ -47,7 +79,7 @@ pub fn with_global_limit(router: Router<AppState>, per_ms: u64, burst: u32) -> R
             .expect("rate-limit config must be valid"),
     );
 
-    router.layer(GovernorLayer::new(governor_cfg))
+    router.layer(GovernorLayer::new(governor_cfg).error_handler(rate_limit_error_response))
 }
 
 #[cfg(test)]
@@ -107,5 +139,22 @@ mod tests {
             Err(GovernorError::UnableToExtractKey) => {}
             other => panic!("expected UnableToExtractKey, got {other:?}"),
         }
+    }
+
+    #[tokio::test]
+    async fn too_many_requests_error_maps_to_web_error_shape() {
+        let res = rate_limit_error_response(GovernorError::TooManyRequests {
+            wait_time: 5,
+            headers: None,
+        });
+        assert_eq!(res.status(), 429);
+        assert_eq!(
+            res.headers().get("retry-after"),
+            Some(&"5".parse().unwrap())
+        );
+        let bytes = axum::body::to_bytes(res.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        assert_eq!(bytes.as_ref(), b"too many requests");
     }
 }

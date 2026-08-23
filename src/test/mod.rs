@@ -17,13 +17,27 @@ pub async fn start_app() -> SocketAddr {
 /// Like [`start_app`], but with an overridable Unsplash base URL; returns the
 /// bound address and the database pool so tests can seed rows.
 pub async fn start_app_with(unsplash_base_url: &str) -> (SocketAddr, SqlitePool) {
+    serve_app(unsplash_base_url, 1, 1_000_000).await
+}
+
+/// Tight-limit harness for 429 integration tests: the global limiter runs with
+/// the given budget instead of the effectively-disabled default.
+pub async fn start_app_with_rate_limits(
+    unsplash_base_url: &str,
+    per_ms: u64,
+    burst: u32,
+) -> (SocketAddr, SqlitePool) {
+    serve_app(unsplash_base_url, per_ms, burst).await
+}
+
+async fn serve_app(unsplash_base_url: &str, per_ms: u64, burst: u32) -> (SocketAddr, SqlitePool) {
     let env = Env {
         unsplash_api_key: "test-key".into(),
         database_url: "sqlite::memory:".into(),
         sentry_dsn: "test-dsn".into(),
         enable_sentry: false,
-        rate_limit_per_ms: 1,
-        rate_limit_burst: 1_000_000,
+        rate_limit_per_ms: per_ms,
+        rate_limit_burst: burst,
     };
     let db = crate::app::db::init(&env.database_url).await;
     sqlx::migrate!("./migrations")
@@ -42,7 +56,12 @@ pub async fn start_app_with(unsplash_base_url: &str) -> (SocketAddr, SqlitePool)
         .await
         .expect("bind");
     let addr = listener.local_addr().expect("local addr");
-    let router: Router = crate::interfaces::routes::routes().with_state(state);
+    let router: Router = crate::app::rate_limit::with_global_limit(
+        crate::interfaces::routes::routes(),
+        per_ms,
+        burst,
+    )
+    .with_state(state);
     tokio::spawn(async move {
         axum::serve(
             listener,

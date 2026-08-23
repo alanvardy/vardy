@@ -12,6 +12,7 @@ pub enum WebError {
     Database(sqlx::Error),
     NotFound,
     External(String),
+    TooManyRequests { retry_after_secs: u64 },
 }
 
 impl From<minijinja::Error> for WebError {
@@ -50,6 +51,13 @@ impl IntoResponse for WebError {
                 tracing::error!(error = %message, "external error");
                 (StatusCode::BAD_GATEWAY, "bad gateway").into_response()
             }
+            // Client fault, like `External`: log nothing to Sentry.
+            WebError::TooManyRequests { retry_after_secs } => (
+                StatusCode::TOO_MANY_REQUESTS,
+                [("retry-after", retry_after_secs.to_string())],
+                "too many requests",
+            )
+                .into_response(),
         }
     }
 }
@@ -81,6 +89,23 @@ mod tests {
     fn external_error_is_502() {
         let res = WebError::External("boom".into()).into_response();
         assert_eq!(res.status(), StatusCode::BAD_GATEWAY);
+    }
+
+    #[tokio::test]
+    async fn too_many_requests_is_429_with_body_and_retry_after() {
+        let res = WebError::TooManyRequests {
+            retry_after_secs: 7,
+        }
+        .into_response();
+        assert_eq!(res.status(), StatusCode::TOO_MANY_REQUESTS);
+        assert_eq!(
+            res.headers().get("retry-after"),
+            Some(&"7".parse().unwrap())
+        );
+        let bytes = axum::body::to_bytes(res.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        assert_eq!(bytes.as_ref(), b"too many requests");
     }
 
     #[test]
