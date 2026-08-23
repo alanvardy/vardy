@@ -1,7 +1,12 @@
 /* Tailwind v4 source (CSS-first). Compiled to static/site.css by
    scripts/build-css.sh — never served directly.
    Preflight is intentionally NOT imported: the base rules below rely on
-   UA-default margins, so only theme + utilities layers are imported. */
+   UA-default margins, so only theme + utilities layers are imported.
+   .pi/ planning notes and the generated static/site.css are excluded from
+   source detection: scanning them makes the utility set depend on local
+   files and on previous build output (nondeterministic). */
+@source not "../.pi";
+@source not "../static";
 @layer theme, base, components, utilities;
 @import "tailwindcss/theme.css" layer(theme);
 @import "tailwindcss/utilities.css" layer(utilities);

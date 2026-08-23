@@ -455,10 +455,10 @@ assert!(!body.contains("section-heading"));
 
 ### Verification
 #### Automated
-- [ ] `cargo nextest run` passes
-- [ ] `rg 'st-|section-heading|@media|\.card|\.portrait|\.home|\.invite|\.wave' css/site.css`
+- [x] `cargo nextest run` passes
+- [x] `rg 'st-|section-heading|@media|\.card|\.portrait|\.home|\.invite|\.wave' css/site.css`
       returns nothing
-- [ ] `./scripts/test.sh` full gate green (fmt → sqlx prepare → check → clippy → CSS
+- [x] `./scripts/test.sh` full gate green (fmt → sqlx prepare → check → clippy → CSS
       build + drift → nextest → TODO grep)
 
 #### Manual
@@ -508,10 +508,10 @@ VAR-657/VAR-664/VAR-670 no-build-step decisions; old design docs are not edited
 
 ### Verification
 #### Automated
-- [ ] Fresh clone (or `git clean -xfd` in a scratch clone): `./scripts/test.sh` green
+- [x] Fresh clone (or `git clean -xfd` in a scratch clone): `./scripts/test.sh` green
       end-to-end — proves no hidden dependency on stale `target/` artifacts
-- [ ] `./scripts/test.sh` TODO/FIXME grep gate passes
-- [ ] All three invariant greps above return nothing
+- [x] `./scripts/test.sh` TODO/FIXME grep gate passes
+- [x] All three invariant greps above return nothing
 
 #### Manual
 - [ ] Local server (or deploy preview): click through `/` and `/singlethread`, follow
