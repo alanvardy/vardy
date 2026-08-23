@@ -1,0 +1,214 @@
+/* Tailwind v4 source (CSS-first). Compiled to static/site.css by
+   scripts/build-css.sh — never served directly.
+   Preflight is intentionally NOT imported: the hand-rolled rules below rely on
+   UA-default margins, so Phase 1 must stay visually invisible. */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@theme {
+    --color-bg: #121212;
+    --color-surface: #1e1e1e;
+    --color-text: #e0e0e0;
+    --color-muted: #9e9e9e;
+    --color-accent: #7aa2f7;
+}
+
+:root {
+    --bg: #121212;
+    --surface: #1e1e1e;
+    --text: #e0e0e0;
+    --muted: #9e9e9e;
+    --accent: #7aa2f7;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+}
+
+.card {
+    background: var(--surface);
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+nav {
+    display: flex;
+    gap: 1.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--surface);
+    border-bottom: 1px solid #333;
+}
+
+nav a {
+    color: var(--text);
+    text-decoration: none;
+}
+
+nav a:hover {
+    color: var(--accent);
+}
+
+/* Homepage */
+.home .wave {
+    vertical-align: middle;
+    margin-right: 0.5rem;
+}
+
+.home-columns {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.home-text {
+    flex: 3;
+}
+
+.home-portrait {
+    flex: 1;
+}
+
+.portrait {
+    width: 100%;
+    max-width: 200px;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+.section-heading {
+    color: var(--muted);
+    font-size: 1.25rem;
+    margin: 2rem 0 0.75rem;
+}
+
+.invite-list {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 1rem;
+    border-left: 4px solid var(--accent);
+}
+
+.invite-list a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text);
+    text-decoration: none;
+    padding: 0.5rem 0;
+}
+
+.invite-list a:hover {
+    color: var(--accent);
+}
+
+.invite-icon {
+    display: inline-block;
+}
+
+/* SingleThread */
+.st-hero {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.st-hero-text {
+    flex: 1;
+}
+
+.st-tagline {
+    font-size: 1.25rem;
+    color: var(--muted);
+}
+
+.st-hero-shot {
+    flex: 0 0 16rem;
+    max-width: 16rem;
+}
+
+.st-hero-shot img {
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+.st-shots {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.st-shot {
+    margin: 0;
+    flex: 1 1 10rem;
+    max-width: 14rem;
+}
+
+.st-shot img {
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+.st-watch-pair {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+}
+
+.st-watch-pair img {
+    width: 100%;
+    max-width: 12rem;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+.st-list li::marker {
+    color: var(--accent); /* accent bullets, token-based */
+}
+
+.st-list li strong {
+    color: var(--text);
+}
+
+.st-closing {
+    font-size: 1.25rem;
+    color: var(--accent);
+    text-align: center;
+    margin-top: 3rem;
+}
+
+@media (max-width: 48rem) {
+    .home-columns {
+        flex-direction: column;
+    }
+
+    .home-portrait {
+        order: -1; /* portrait above text on narrow screens */
+    }
+
+    .st-hero {
+        flex-direction: column;
+    }
+
+    .st-hero-shot {
+        order: -1; /* screenshot above text on narrow screens */
+        flex: none;
+    }
+}
