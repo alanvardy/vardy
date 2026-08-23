@@ -12,11 +12,12 @@
 @import "tailwindcss/utilities.css" layer(utilities);
 
 @theme {
-    --color-bg: #121212;
-    --color-surface: #1e1e1e;
-    --color-text: #e0e0e0;
-    --color-muted: #9e9e9e;
-    --color-accent: #7aa2f7;
+    --color-bg: #1a1a1a;
+    --color-surface: #262626;
+    --color-text: #ece7e2;
+    --color-muted: #a8a29e;
+    --color-accent: #fb923c;
+    --color-accent-strong: #fdba74;
 }
 
 /* Global element defaults for layout.html chrome (shared across pages) */
@@ -44,7 +45,7 @@
         gap: 1.5rem;
         padding: 0.75rem 1.5rem;
         background: var(--color-surface);
-        border-bottom: 1px solid #333;
+        border-bottom: 1px solid #3d3833;
     }
 
     nav a {
@@ -53,6 +54,6 @@
     }
 
     nav a:hover {
-        color: var(--color-accent);
+        color: var(--color-accent-strong);
     }
 }
