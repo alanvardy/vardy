@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}Home{% endblock %}
 {% block heading %}
-<img class="wave" src="/static/wave.svg" alt="Waving hand" width="48" height="48"> Hi!
+<img class="wave" src="{{ asset_url('wave.svg') }}" alt="Waving hand" width="48" height="48"> Hi!
 {% endblock %}
 {% block content %}
 <div class="home">
@@ -21,20 +21,20 @@
       <ul class="invite-list">
         <li>
           <a href="https://github.com/alanvardy" target="_blank">
-            <img class="invite-icon" src="/static/github.svg" alt="" width="32" height="32">
+            <img class="invite-icon" src="{{ asset_url('github.svg') }}" alt="" width="32" height="32">
             Take a look at my work on GitHub
           </a>
         </li>
         <li>
           <a href="https://www.linkedin.com/in/alanvardy/" target="_blank">
-            <img class="invite-icon" src="/static/linkedin.svg" alt="" width="32" height="32">
+            <img class="invite-icon" src="{{ asset_url('linkedin.svg') }}" alt="" width="32" height="32">
             Check out my LinkedIn
           </a>
         </li>
       </ul>
     </div>
     <div class="home-portrait">
-      <img class="portrait" src="/static/alanvardy.jpg" alt="Portrait of Alan Vardy">
+      <img class="portrait" src="{{ asset_url('alanvardy.jpg') }}" alt="Portrait of Alan Vardy">
     </div>
   </div>
 </div>
