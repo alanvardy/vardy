@@ -1,8 +1,10 @@
-use std::net::SocketAddr;
+use std::{net::SocketAddr, time::Duration};
 
 use axum::{Router, extract::ConnectInfo, response::IntoResponse};
+use governor::{clock::QuantaInstant, middleware::RateLimitingMiddleware};
 use tower_governor::{
-    GovernorError, GovernorLayer, governor::GovernorConfigBuilder, key_extractor::KeyExtractor,
+    GovernorError, GovernorLayer, governor::GovernorConfigBuilder, governor::SharedRateLimiter,
+    key_extractor::KeyExtractor,
 };
 
 use crate::app::error::WebError;
@@ -73,6 +75,23 @@ pub const DUMP_TIER_BURST: u32 = 3;
 pub const UNSPLASH_TIER_PER_MS: u64 = 200; // 5 upstream calls/sec sustained
 pub const UNSPLASH_TIER_BURST: u32 = 5;
 
+const PRUNE_EVERY_SECS: u64 = 60;
+
+/// Prune expired entries from a limiter store forever. Spawned detached;
+/// shutdown is handled by process exit (task holds no shutdown-critical state).
+pub async fn prune_loop<K, M>(limiter: SharedRateLimiter<K, M>)
+where
+    K: Clone + Eq + std::hash::Hash + Send + Sync + 'static,
+    M: RateLimitingMiddleware<QuantaInstant> + Send + Sync + 'static,
+{
+    let mut interval = tokio::time::interval(Duration::from_secs(PRUNE_EVERY_SECS));
+    loop {
+        interval.tick().await;
+        limiter.retain_recent();
+        tracing::trace!("pruned rate-limit store");
+    }
+}
+
 /// Apply a global per-IP rate limiter to the router.
 pub fn with_global_limit(router: Router<AppState>, per_ms: u64, burst: u32) -> Router<AppState> {
     let governor_cfg = std::sync::Arc::new(
@@ -84,6 +103,10 @@ pub fn with_global_limit(router: Router<AppState>, per_ms: u64, burst: u32) -> R
             .finish()
             .expect("rate-limit config must be valid"),
     );
+
+    // Keep the keyed store bounded without any call-site wiring: production
+    // and the test harness both spawn exactly one pruner per limiter here.
+    tokio::spawn(prune_loop(governor_cfg.limiter().clone()));
 
     router.layer(GovernorLayer::new(governor_cfg).error_handler(rate_limit_error_response))
 }
@@ -161,6 +184,19 @@ mod tests {
             Err(GovernorError::UnableToExtractKey) => {}
             other => panic!("expected UnableToExtractKey, got {other:?}"),
         }
+    }
+
+    #[tokio::test]
+    async fn prune_does_not_panic() {
+        use governor::{Quota, RateLimiter, middleware::NoOpMiddleware};
+        use std::num::NonZeroU32;
+
+        let quota = Quota::per_second(NonZeroU32::new(1).unwrap());
+        let limiter: SharedRateLimiter<String, NoOpMiddleware> = RateLimiter::keyed(quota).into();
+        limiter
+            .check_key(&"test-key".to_string())
+            .expect("check should succeed");
+        limiter.retain_recent();
     }
 
     #[tokio::test]

@@ -710,7 +710,7 @@ fly secrets set RATE_LIMIT_PER_MS=100 RATE_LIMIT_BURST=200
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` passes (full gate green — ready for PR)
+- [x] `./scripts/test.sh` passes (full gate green — ready for PR)
 
 #### Manual
 - [ ] Boot the server >60 s under light load; no unbounded memory growth
