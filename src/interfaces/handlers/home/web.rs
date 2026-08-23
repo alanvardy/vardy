@@ -42,10 +42,14 @@ mod tests {
         assert!(body.contains("You are invited to"));
         assert!(body.contains(r#"href="https://github.com/alanvardy""#));
         assert!(body.contains(r#"href="https://www.linkedin.com/in/alanvardy/""#));
-        assert!(body.contains(r#"<img class="portrait" src="/static/alanvardy.jpg?v="#));
-        assert!(body.contains(r#"<img class="wave" src="/static/wave.svg?v="#));
+        // all images versioned
+        assert!(body.contains(r#"src="/static/wave.svg?v="#));
+        assert!(body.contains(r#"src="/static/alanvardy.jpg?v="#));
         assert!(body.contains(r#"src="/static/github.svg?v="#));
         assert!(body.contains(r#"src="/static/linkedin.svg?v="#));
+        // no legacy component classes remain on this page
+        assert!(!body.contains("home-columns"));
+        assert!(!body.contains("invite-list"));
         // nav chrome unchanged
         assert!(body.contains(r#"<a href="/">Home</a>"#));
         assert!(body.contains(r#"<a href="/singlethread">SingleThread</a>"#));

@@ -332,10 +332,10 @@ assert!(!body.contains("<style>"));
 
 ### Verification
 #### Automated
-- [ ] `cargo nextest run` passes
-- [ ] `rg 'class="[^"]*\b(home|portrait|invite-)' templates/` returns nothing
-- [ ] `rg 'section-heading' templates/home.html` returns nothing
-- [ ] Drift gate inside `./scripts/test.sh` confirms committed `static/site.css`
+- [x] `cargo nextest run` passes
+- [x] `rg 'class="[^"]*\b(home|portrait|invite-)' templates/` returns nothing
+- [x] `rg 'section-heading' templates/home.html` returns nothing
+- [x] Drift gate inside `./scripts/test.sh` confirms committed `static/site.css`
       matches source
 
 #### Manual
