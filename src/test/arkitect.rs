@@ -24,6 +24,7 @@ mod tests {
         let rules = ArchitecturalRules::define()
             .rules_for_module("vardy::domain")
             .it_must_not_depend_on(&["vardy::app", "vardy::infra", "vardy::interfaces"])
+            .and_it_may_depend_on(&["serde"])
             .rules_for_module("vardy::app")
             .it_must_not_depend_on(&["vardy::interfaces"])
             .rules_for_module("vardy::infra")
@@ -39,8 +40,8 @@ mod tests {
 
         assert!(
             result.is_ok(),
-            "Detected {} violations",
-            result.err().unwrap().len()
+            "Detected violations:\n{}",
+            result.err().unwrap().join("\n")
         );
         #[cfg(test)]
         pub struct MustNotDependOnExceptTests {
