@@ -1,0 +1,1 @@
+ALTER TABLE unsplash_pictures ADD COLUMN photographer_url TEXT NOT NULL DEFAULT '';
