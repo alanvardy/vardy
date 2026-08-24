@@ -77,7 +77,7 @@ Serves files from the `static/` directory (tower-http `ServeDir`).
 
 Returns a random Unsplash photo (JSON), cached in the database for 6 hours.
 
-- Response: `200 OK` — `application/json` `{ "url": ..., "photographer": ..., "created_at": ... }`
+- Response: `200 OK` — `application/json` `{ "url": ..., "photographer": ..., "photographer_url": ..., "created_at": ... }`
 - Errors: `500` via `WebError` (database failure), `502` via `WebError` (upstream failure)
 - Rate limit: global per-IP GCRA limiter. Over limit → `429 Too Many Requests`,
   plain-text body `too many requests`, with `Retry-After` and `X-RateLimit-*` headers.

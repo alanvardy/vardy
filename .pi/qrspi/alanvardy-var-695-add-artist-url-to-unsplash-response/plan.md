@@ -193,14 +193,14 @@ pub async fn create(pool: &SqlitePool, picture: &Picture) -> sqlx::Result<Pictur
 ### Verification
 
 #### Automated
-- [ ] `cargo sqlx prepare -- --tests` succeeds (offline metadata refreshed against migrated DB)
-- [ ] `cargo check --all-targets` passes (FromRow column count matches everywhere)
-- [ ] `cargo test --lib` — `insert_picture_returns_row_with_created_at` now passes (round-trip with `photographer_url`)
-- [ ] `./scripts/test.sh` — gate passes (migration, prepare, check, clippy, tests)
+- [x] `cargo sqlx prepare -- --tests` succeeds (offline metadata refreshed against migrated DB)
+- [x] `cargo check --all-targets` passes (FromRow column count matches everywhere)
+- [x] `cargo test --lib` — `insert_picture_returns_row_with_created_at` now passes (round-trip with `photographer_url`)
+- [x] `./scripts/test.sh` — gate passes (migration, prepare, check, clippy, tests)
 
 #### Manual
-- [ ] `sqlx migrate info` shows new migration as applied
-- [ ] `echo "SELECT photographer_url FROM unsplash_pictures;" | sqlite3 test.db` shows the column exists
+- [x] `sqlite migrate info` shows new migration as applied
+- [x] `echo "SELECT photographer_url FROM unsplash_pictures;" | sqlite3 test.db` shows the column exists
 
 ---
 
@@ -210,7 +210,7 @@ Update the stub, add/update integration tests covering all four data paths, and 
 
 ### Changes
 
-#### 1. Update stub JSON to include `user.links.html`
+#### 1. Update stub JSON to include `user.links.html` *(done — pulled forward into Phase 2 to green the `test.sh` gate)*
 **File**: `src/test/mod.rs`
 **Action**: modify — in `start_unsplash_stub`, the success-path `Json(json!(...))` block
 
@@ -327,9 +327,9 @@ To:
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` passes (full gate: fmt, prepare, check, css, clippy, test, todo-grep)
-- [ ] All 10+ tests in `json.rs` pass — confirm via `cargo nextest run` output showing test names and status
-- [ ] New `malformed_upstream_json_missing_user_links_is_502` test passes
+- [x] `./scripts/test.sh` passes (full gate: fmt, prepare, check, css, clippy, test, todo-grep)
+- [x] All 10+ tests in `json.rs` pass — confirm via `cargo nextest run` output showing test names and status
+- [x] New `malformed_upstream_json_missing_user_links_is_502` test passes
 
 #### Manual
 - [ ] `cargo run` → `curl -s http://localhost:3000/unsplash | jq` shows `photographer_url` field with a real Unsplash profile URL on first fetch
