@@ -9,6 +9,7 @@ const MAX_AGE_HOURS: i64 = 6;
 pub struct Picture {
     pub url: String,
     pub photographer: String,
+    pub photographer_url: String,
     pub created_at: String,
 }
 

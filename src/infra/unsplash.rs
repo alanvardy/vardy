@@ -2,20 +2,26 @@ use crate::domain::picture::Picture;
 use reqwest::Client;
 use serde::Deserialize;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct RandomPhotoResponse {
     urls: RandomPhotoUrls,
     user: RandomPhotoUser,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct RandomPhotoUrls {
     regular: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 struct RandomPhotoUser {
     name: String,
+    links: RandomPhotoUserRich,
+}
+
+#[derive(Deserialize, Debug)]
+struct RandomPhotoUserRich {
+    html: String,
 }
 
 /// Failure talking to the Unsplash API; translated into
@@ -54,6 +60,35 @@ pub async fn fetch_random(
     Ok(Picture {
         url: body.urls.regular,
         photographer: body.user.name,
+        photographer_url: body.user.links.html,
         created_at: String::new(), // populated by the DB on insert
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_photographer_url_from_user_links_html() {
+        let json = serde_json::json!({
+            "urls": {"regular": "https://example.com/img.jpg"},
+            "user": {
+                "name": "Test Photographer",
+                "links": {"html": "https://unsplash.com/@test"}
+            }
+        });
+        let parsed: RandomPhotoResponse = serde_json::from_value(json).unwrap();
+        assert_eq!(parsed.user.links.html, "https://unsplash.com/@test");
+    }
+
+    #[test]
+    fn missing_user_links_fails_parse() {
+        let json = serde_json::json!({
+            "urls": {"regular": "https://example.com/img.jpg"},
+            "user": {"name": "Test Photographer"}
+        });
+        let err = serde_json::from_value::<RandomPhotoResponse>(json).unwrap_err();
+        assert!(err.to_string().contains("links"));
+    }
 }
