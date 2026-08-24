@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO dumps (key, body) VALUES (?, ?)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "4c49bd9a0b8abbab28eef9f36d85403f5cdb5561fea44ea21783260a61d5ed6c"
+}

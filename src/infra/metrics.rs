@@ -5,6 +5,10 @@ pub struct AppMetrics {
     page_views_total: IntCounterVec,
 }
 
+pub fn content_type() -> String {
+    TextEncoder::new().format_type().to_owned()
+}
+
 impl AppMetrics {
     pub fn new() -> Result<Self, prometheus::Error> {
         let registry = Registry::new();
