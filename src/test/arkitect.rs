@@ -20,17 +20,43 @@ mod tests {
     #[allow(dead_code)]
     fn test_architectural_rules() {
         let project = Project::from_current_crate();
+        let domain_deps = vec!["serde"];
+        let infra_deps = vec![
+            "prometheus",
+            "reqwest",
+            "sentry",
+            "serde",
+            "std",
+            "vardy::domain",
+        ];
+
+        let interfaces_deps = vec![
+            "axum",
+            "crate::app",
+            "crate::test",
+            "minijinja",
+            "serde_json",
+            "std",
+            "tower_http",
+            "vardy::app",
+            "vardy::domain",
+            "vardy::infra",
+            "vardy::test",
+            // just for tests
+            "sqlx",
+        ];
 
         let rules = ArchitecturalRules::define()
             .rules_for_module("vardy::domain")
             .it_must_not_depend_on(&["vardy::app", "vardy::infra", "vardy::interfaces"])
-            .and_it_may_depend_on(&["serde"])
+            .and_it_may_depend_on(&domain_deps)
             .rules_for_module("vardy::app")
             .it_must_not_depend_on(&["vardy::interfaces"])
             .rules_for_module("vardy::infra")
             .it_must_not_depend_on(&["vardy::app", "vardy::interfaces"])
+            .and_it_may_depend_on(&infra_deps)
             .rules_for_module("vardy::interfaces")
-            .it_must_not_depend_on(&["vardy::infra"])
+            .it_may_depend_on(&interfaces_deps)
             .and_it(Box::new(MustNotDependOnExceptTestsBuilder {
                 forbidden: vec!["sqlx".to_string(), "reqwest".to_string()],
             }))

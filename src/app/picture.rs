@@ -44,3 +44,42 @@ pub async fn create(pool: &SqlitePool, picture: &Picture) -> sqlx::Result<Pictur
     .await?;
     Ok(inserted)
 }
+
+#[cfg(test)]
+mod tests {
+    use sqlx::{Row, SqlitePool};
+
+    use super::*;
+
+    #[sqlx::test]
+    async fn unsplash_pictures_table_exists(pool: SqlitePool) {
+        let row = sqlx::query(
+            "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'unsplash_pictures'",
+        )
+        .fetch_one(&pool)
+        .await
+        .expect("unsplash_pictures table should exist after migrations");
+        assert_eq!(row.get::<String, _>("name"), "unsplash_pictures");
+    }
+
+    #[sqlx::test]
+    async fn insert_picture_returns_row_with_created_at(pool: SqlitePool) {
+        let picture = Picture {
+            url: "https://example.com/x.jpg".to_string(),
+            photographer: "Someone".to_string(),
+            created_at: String::new(),
+        };
+        let inserted = create(&pool, &picture)
+            .await
+            .expect("insert should succeed");
+        assert!(!inserted.created_at.is_empty());
+
+        let latest = latest(&pool)
+            .await
+            .expect("query should succeed")
+            .expect("row should exist");
+        assert_eq!(latest.url, "https://example.com/x.jpg");
+        assert_eq!(latest.photographer, "Someone");
+        assert_eq!(latest.created_at, inserted.created_at);
+    }
+}
