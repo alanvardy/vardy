@@ -50,6 +50,8 @@ mod tests {
         let body = res.text().await.expect("body");
         assert!(body.contains("https://example.com/seeded.jpg"));
         assert!(body.contains("Seeded Photographer"));
+        // The raw INSERT omits `photographer_url`, so it defaults to empty.
+        assert!(body.contains(r#""photographer_url":"""#));
     }
 
     #[tokio::test]
@@ -67,6 +69,8 @@ mod tests {
         let body = res.text().await.expect("body");
         assert!(body.contains("https://images.example.com/photo.jpg"));
         assert!(body.contains("Stub Photographer"));
+        // The stub carries `user.links.html`, which seeds photographer_url.
+        assert!(body.contains("https://unsplash.com/@stub"));
 
         let count = sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM unsplash_pictures")
             .fetch_one(&db)
@@ -98,6 +102,8 @@ mod tests {
         let body = res.text().await.expect("body");
         assert!(body.contains("https://example.com/fresh.jpg"));
         assert!(body.contains("Fresh Photographer"));
+        // Fresh rows come from a legacy INSERT with no photographer_url.
+        assert!(body.contains(r#""photographer_url":"""#));
 
         assert_eq!(stub.call_count.load(std::sync::atomic::Ordering::SeqCst), 0);
         let count = sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM unsplash_pictures")
@@ -130,6 +136,8 @@ mod tests {
         let body = res.text().await.expect("body");
         assert!(body.contains("https://images.example.com/photo.jpg"));
         assert!(body.contains("Stub Photographer"));
+        // The stale row refetches from the stub, which seeds photographer_url.
+        assert!(body.contains("https://unsplash.com/@stub"));
 
         assert_eq!(stub.call_count.load(std::sync::atomic::Ordering::SeqCst), 1);
         let count = sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM unsplash_pictures")
@@ -156,6 +164,56 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn malformed_upstream_json_missing_user_links_is_502() {
+        use axum::response::IntoResponse;
+        use axum::{Json, Router, routing::get};
+        use serde_json::json;
+        use std::sync::Arc;
+        use std::sync::atomic::{AtomicUsize, Ordering};
+
+        // Stub returns JSON without `user.links`, which fails the strict parse.
+        let call_count = Arc::new(AtomicUsize::new(0));
+        let count = Arc::clone(&call_count);
+        let app = Router::new().route(
+            "/photos/random",
+            get(move || {
+                let count = Arc::clone(&count);
+                async move {
+                    count.fetch_add(1, Ordering::SeqCst);
+                    Json(json!({
+                        "urls": {"regular": "https://images.example.com/photo.jpg"},
+                        "user": {"name": "Stub Photographer"}
+                    }))
+                    .into_response()
+                }
+            }),
+        );
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
+            .await
+            .expect("bind");
+        let addr = listener.local_addr().expect("local addr");
+        tokio::spawn(async move {
+            axum::serve(listener, app.into_make_service())
+                .await
+                .expect("server");
+        });
+        let base_url = format!("http://{addr}");
+
+        let (app_addr, db) = start_app_with(&base_url).await;
+        clear_pictures(&db).await;
+
+        let res = test_client()
+            .get(format!("http://{app_addr}/unsplash"))
+            .send()
+            .await
+            .expect("request");
+        assert_eq!(res.status(), 502);
+        let body = res.text().await.expect("body");
+        assert_eq!(body, "bad gateway");
+        assert_eq!(call_count.load(Ordering::SeqCst), 1);
+    }
+
+    #[tokio::test]
     async fn second_request_within_window_is_cached() {
         let stub = start_unsplash_stub(axum::http::StatusCode::OK).await;
         let (addr, db) = start_app_with(&stub.base_url).await;
@@ -169,6 +227,8 @@ mod tests {
             .expect("first request");
         assert_eq!(first.status(), 200);
         let first_body = first.text().await.expect("body");
+        // The stub carries `user.links.html`; the cached row serves it.
+        assert!(first_body.contains("https://unsplash.com/@stub"));
 
         let second = client
             .get(format!("http://{addr}/unsplash"))
