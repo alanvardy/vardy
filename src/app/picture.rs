@@ -67,6 +67,7 @@ mod tests {
         let picture = Picture {
             url: "https://example.com/x.jpg".to_string(),
             photographer: "Someone".to_string(),
+            photographer_url: "https://unsplash.com/@someone".to_string(),
             created_at: String::new(),
         };
         let inserted = create(&pool, &picture)
@@ -80,6 +81,7 @@ mod tests {
             .expect("row should exist");
         assert_eq!(latest.url, "https://example.com/x.jpg");
         assert_eq!(latest.photographer, "Someone");
+        assert_eq!(latest.photographer_url, "https://unsplash.com/@someone");
         assert_eq!(latest.created_at, inserted.created_at);
     }
 }
