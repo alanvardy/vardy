@@ -162,7 +162,10 @@ pub async fn start_unsplash_stub(status: StatusCode) -> UnsplashStub {
                 if status.is_success() {
                     Json(json!({
                         "urls": {"regular": "https://images.example.com/photo.jpg"},
-                        "user": {"name": "Stub Photographer"}
+                        "user": {
+                            "name": "Stub Photographer",
+                            "links": {"html": "https://unsplash.com/@stub"}
+                        }
                     }))
                     .into_response()
                 } else {
