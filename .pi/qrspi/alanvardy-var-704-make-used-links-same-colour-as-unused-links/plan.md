@@ -162,8 +162,8 @@ those utility classes from the compiled output if no other template uses them:
 ### Verification
 
 #### Automated
-- [ ] `./scripts/build-css.sh` succeeds
-- [ ] `./scripts/test.sh` — full gate green
+- [x] `./scripts/build-css.sh` succeeds
+- [x] `./scripts/test.sh` — full gate green
 
 #### Manual
 - [ ] `cargo run`, open home page
