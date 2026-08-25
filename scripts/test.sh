@@ -10,6 +10,7 @@ echo "🔍  CHECK" &&
 cargo check --all-targets &&
 echo "🎨  BUILD CSS" &&
 ./scripts/build-css.sh &&
+git diff --exit-code -- static/site.css &&
 echo "📎  CLIPPY" &&
 cargo clippy --all-targets --all-features --locked -- -D warnings &&
 echo "🧪  TEST" &&
