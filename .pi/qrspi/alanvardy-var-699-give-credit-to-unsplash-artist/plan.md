@@ -257,11 +257,11 @@ assert!(!body.contains("Photo by"));
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` passes — all Phase 2 tests pass
-- [ ] `index_shows_credit_as_text_when_no_photographer_url` (home) passes
-- [ ] `index_shows_credit_as_text_when_no_photographer_url` (singlethread) passes
-- [ ] `index_still_renders_when_wallpaper_fetch_fails` (home) asserts no `Photo by` in body
-- [ ] `index_still_renders_when_wallpaper_fetch_fails` (singlethread) asserts no `Photo by` in body
+- [x] `./scripts/test.sh` passes — all Phase 2 tests pass
+- [x] `index_shows_credit_as_text_when_no_photographer_url` (home) passes
+- [x] `index_shows_credit_as_text_when_no_photographer_url` (singlethread) passes
+- [x] `index_still_renders_when_wallpaper_fetch_fails` (home) asserts no `Photo by` in body
+- [x] `index_still_renders_when_wallpaper_fetch_fails` (singlethread) asserts no `Photo by` in body
 
 #### Manual
 - [ ] `cargo run` → all pages render with credit (happy path from Phase 1 still holds)

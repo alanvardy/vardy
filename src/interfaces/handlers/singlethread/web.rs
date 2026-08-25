@@ -23,7 +23,9 @@ pub async fn index(State(state): State<AppState>) -> Result<Html<String>, WebErr
 
 #[cfg(test)]
 mod tests {
-    use crate::test::{start_app, start_app_with, start_unsplash_stub, test_client};
+    use crate::test::{
+        seed_wallpaper_no_url, start_app, start_app_with, start_unsplash_stub, test_client,
+    };
     use axum::http::StatusCode;
 
     #[tokio::test]
@@ -90,5 +92,27 @@ mod tests {
         assert_eq!(res.status(), StatusCode::OK);
         let body = res.text().await.expect("body");
         assert!(!body.contains("background-image"));
+        assert!(!body.contains("Photo by"));
+    }
+
+    #[tokio::test]
+    async fn index_shows_credit_as_text_when_no_photographer_url() {
+        let (addr, db) = start_app_with("https://api.unsplash.com").await;
+        sqlx::query("DELETE FROM unsplash_pictures")
+            .execute(&db)
+            .await
+            .expect("clear pictures");
+        seed_wallpaper_no_url(&db).await;
+        let body = test_client()
+            .get(format!("http://{addr}/singlethread"))
+            .send()
+            .await
+            .expect("request failed")
+            .text()
+            .await
+            .expect("body");
+        assert!(body.contains("Photo by NoLink Photographer on Unsplash"));
+        // The name must NOT be wrapped in a link
+        assert!(!body.contains(r#"" >NoLink Photographer</a>"#));
     }
 }
