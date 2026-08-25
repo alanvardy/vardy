@@ -15,13 +15,7 @@ pub async fn current(state: &AppState) -> Result<Picture, WebError> {
     {
         return Ok(picture);
     }
-    let picture = fetch_random(
-        &state.http,
-        &state.unsplash_base_url,
-        &state.env.unsplash_api_key,
-    )
-    .await?;
-    Ok(create(&state.db, &picture).await?)
+    fetch_and_insert(state).await
 }
 
 pub async fn latest(pool: &SqlitePool) -> sqlx::Result<Option<Picture>> {
@@ -46,13 +40,27 @@ pub async fn create(pool: &SqlitePool, picture: &Picture) -> sqlx::Result<Pictur
     Ok(inserted)
 }
 
-pub async fn count(pool: &SqlitePool) -> sqlx::Result<i64> {
+/// Minimum number of cached rows before `/unsplash/random` stops
+/// fetching from upstream and selects locally instead.
+const RANDOM_CACHE_MIN_ROWS: i64 = 5;
+
+async fn fetch_and_insert(state: &AppState) -> Result<Picture, WebError> {
+    let picture = fetch_random(
+        &state.http,
+        &state.unsplash_base_url,
+        &state.env.unsplash_api_key,
+    )
+    .await?;
+    Ok(create(&state.db, &picture).await?)
+}
+
+async fn count(pool: &SqlitePool) -> sqlx::Result<i64> {
     sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM unsplash_pictures")
         .fetch_one(pool)
         .await
 }
 
-pub async fn random_select(pool: &SqlitePool) -> sqlx::Result<Picture> {
+async fn random_select(pool: &SqlitePool) -> sqlx::Result<Picture> {
     sqlx::query_as::<_, Picture>(
         "SELECT url, photographer, photographer_url, created_at FROM unsplash_pictures ORDER BY RANDOM() LIMIT 1",
     )
@@ -60,15 +68,12 @@ pub async fn random_select(pool: &SqlitePool) -> sqlx::Result<Picture> {
     .await
 }
 
+/// Return a random cached picture, refilling from Unsplash when fewer
+/// than [`RANDOM_CACHE_MIN_ROWS`] rows are available. No staleness
+/// timeout — the row-count threshold alone controls refill.
 pub async fn random(state: &AppState) -> Result<Picture, WebError> {
-    if count(&state.db).await? < 5 {
-        let picture = fetch_random(
-            &state.http,
-            &state.unsplash_base_url,
-            &state.env.unsplash_api_key,
-        )
-        .await?;
-        return Ok(create(&state.db, &picture).await?);
+    if count(&state.db).await? < RANDOM_CACHE_MIN_ROWS {
+        return fetch_and_insert(state).await;
     }
     Ok(random_select(&state.db).await?)
 }
