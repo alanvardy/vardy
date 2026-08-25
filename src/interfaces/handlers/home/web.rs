@@ -9,11 +9,15 @@ pub async fn index(State(state): State<AppState>) -> Result<Html<String>, WebErr
     state.metrics.inc_page_view("home");
     // The wallpaper is decorative: render the page without it rather than
     // failing the whole request if Unsplash is unavailable.
-    let wallpaper_url = picture::current(&state).await.ok().map(|p| p.url);
+    let (wallpaper_url, photographer, photographer_url) = picture::current(&state)
+        .await
+        .ok()
+        .map(|p| (p.url, p.photographer, p.photographer_url))
+        .unwrap_or_default();
     let html = state
         .templates
         .get_template("home.html")?
-        .render(context! { wallpaper_url })?;
+        .render(context! { wallpaper_url, photographer, photographer_url })?;
     Ok(Html(html))
 }
 
@@ -59,6 +63,11 @@ mod tests {
         assert!(body.contains(r#"<a href="/singlethread">SingleThread</a>"#));
         assert!(body.contains("/static/site.css?v="));
         assert!(!body.contains("<style>"));
+        // credit line appears with linked photographer name
+        assert!(body.contains("Photo by"));
+        assert!(body.contains("Wallpaper Photographer"));
+        assert!(body.contains(r#"href="https:&#x2f;&#x2f;unsplash.com&#x2f;@test""#));
+        assert!(body.contains("on Unsplash"));
     }
 
     #[tokio::test]

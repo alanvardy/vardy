@@ -8,6 +8,11 @@
 </head>
 <body>
     <div class="wallpaper" aria-hidden="true" {% if wallpaper_url %}style="background-image: url('{{ wallpaper_url }}')"{% endif %}></div>
+    {% if photographer %}
+    <div class="fixed bottom-3 right-3 px-3 py-1.5 rounded bg-black/50 text-sm" aria-hidden="true">
+      Photo by {% if photographer_url %}<a href="{{ photographer_url }}" target="_blank" rel="noopener noreferrer" class="underline">{{ photographer }}</a>{% else %}{{ photographer }}{% endif %} on Unsplash
+    </div>
+    {% endif %}
     <nav>
         <a href="/">Home</a>
         <a href="/singlethread">SingleThread</a>
