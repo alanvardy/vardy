@@ -124,3 +124,13 @@ jobs:
       - uses: Swatinem/rust-cache@v2
 
       - run: cargo clippy --all-targets --all-features --locked -- -D warnings
+
+  css-drift:
+    name: CSS Drift Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Rebuild static/site.css from source
+        run: ./scripts/build-css.sh
+      - name: Check for uncommitted CSS changes (drift)
+        run: git diff --exit-code -- static/site.css
