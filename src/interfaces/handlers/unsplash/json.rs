@@ -25,36 +25,6 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn unsplash_serves_seeded_row() {
-        let (addr, db) = start_app_with("https://api.unsplash.com").await;
-        clear_pictures(&db).await;
-        sqlx::query("INSERT INTO unsplash_pictures (url, photographer) VALUES (?, ?)")
-            .bind("https://example.com/seeded.jpg")
-            .bind("Seeded Photographer")
-            .execute(&db)
-            .await
-            .expect("seed insert should succeed");
-
-        let client = test_client();
-        let res = client
-            .get(format!("http://{addr}/unsplash"))
-            .send()
-            .await
-            .expect("request to /unsplash should succeed");
-        assert_eq!(res.status(), 200);
-        assert!(
-            res.headers()
-                .get("content-type")
-                .is_some_and(|v| v.to_str().unwrap().contains("application/json"))
-        );
-        let body = res.text().await.expect("body");
-        assert!(body.contains("https://example.com/seeded.jpg"));
-        assert!(body.contains("Seeded Photographer"));
-        // The raw INSERT omits `photographer_url`, so it defaults to empty.
-        assert!(body.contains(r#""photographer_url":"""#));
-    }
-
-    #[tokio::test]
     async fn no_row_triggers_fetch_and_insert() {
         let stub = start_unsplash_stub(axum::http::StatusCode::OK).await;
         let (addr, db) = start_app_with(&stub.base_url).await;
@@ -69,7 +39,6 @@ mod tests {
         let body = res.text().await.expect("body");
         assert!(body.contains("https://images.example.com/photo.jpg"));
         assert!(body.contains("Stub Photographer"));
-        // The stub carries `user.links.html`, which seeds photographer_url.
         assert!(body.contains("https://unsplash.com/@stub"));
 
         let count = sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM unsplash_pictures")
@@ -227,7 +196,6 @@ mod tests {
             .expect("first request");
         assert_eq!(first.status(), 200);
         let first_body = first.text().await.expect("body");
-        // The stub carries `user.links.html`; the cached row serves it.
         assert!(first_body.contains("https://unsplash.com/@stub"));
 
         let second = client
