@@ -7,7 +7,10 @@ All `:3000` endpoints are subject to a global per-IP GCRA rate limiter. The
 
 ### GET /
 
-Renders the home page.
+Renders the home page with a random Unsplash wallpaper and photographer credit
+(linked name when a profile URL is available, plain text otherwise). The
+wallpaper and credit gracefully degrade to hidden when the Unsplash fetch
+fails.
 
 - Response: `200 OK` — `text/html` (minijinja `templates/home.html`)
 - Errors: `500` via `WebError` (template render failure)
@@ -18,7 +21,10 @@ Renders the home page.
 
 ### GET /singlethread
 
-Renders the SingleThread page.
+Renders the SingleThread page with a random Unsplash wallpaper and photographer
+credit (linked name when a profile URL is available, plain text otherwise). The
+wallpaper and credit gracefully degrade to hidden when the Unsplash fetch
+fails.
 
 - Response: `200 OK` — `text/html` (minijinja `templates/singlethread.html`)
 - Errors: `500` via `WebError` (template render failure)

@@ -7,13 +7,10 @@ use crate::app::state::AppState;
 
 pub async fn index(State(state): State<AppState>) -> Result<Html<String>, WebError> {
     state.metrics.inc_page_view("home");
-    // The wallpaper is decorative: render the page without it rather than
-    // failing the whole request if Unsplash is unavailable.
-    let (wallpaper_url, photographer, photographer_url) = picture::current(&state)
-        .await
-        .ok()
-        .map(|p| (p.url, p.photographer, p.photographer_url))
-        .unwrap_or_default();
+    // The wallpaper and its photographer credit are decorative fallbacks:
+    // render the page without them rather than failing the whole request
+    // if Unsplash is unavailable.
+    let (wallpaper_url, photographer, photographer_url) = picture::wallpaper_context(&state).await;
     let html = state
         .templates
         .get_template("home.html")?
@@ -104,8 +101,8 @@ mod tests {
             .await
             .expect("body");
         assert!(body.contains("Photo by NoLink Photographer on Unsplash"));
-        // The name must NOT be wrapped in a link
-        assert!(!body.contains(r#"" >NoLink Photographer</a>"#));
+        // The name must NOT be wrapped in a link when photographer_url is empty
+        assert!(!body.contains("NoLink Photographer</a>"));
     }
 
     #[tokio::test]

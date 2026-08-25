@@ -7,8 +7,21 @@ use crate::app::state::AppState;
 use crate::domain::picture::Picture;
 use sqlx::SqlitePool;
 
+/// Extract the wallpaper URL, photographer name, and photographer URL
+/// from the cached picture for template rendering. Returns empty defaults
+/// on any failure so the page render never fails due to Unsplash
+/// unavailability — the template guards suppress the wallpaper background
+/// and credit line when these values are empty.
+pub async fn wallpaper_context(state: &AppState) -> (String, String, String) {
+    current(state)
+        .await
+        .ok()
+        .map(|p| (p.url, p.photographer, p.photographer_url))
+        .unwrap_or_default()
+}
+
 /// Latest picture from the database cache, refreshed from Unsplash when
-/// older than [`MAX_AGE_HOURS`] hours.
+/// older than the staleness window (delegates to [`Picture::is_stale`]).
 pub async fn current(state: &AppState) -> Result<Picture, WebError> {
     if let Some(picture) = latest(&state.db).await?
         && !&picture.is_stale()
