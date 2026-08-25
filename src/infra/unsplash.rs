@@ -16,11 +16,11 @@ struct RandomPhotoUrls {
 #[derive(Deserialize, Debug)]
 struct RandomPhotoUser {
     name: String,
-    links: RandomPhotoUserRich,
+    links: RandomPhotoUserLinks,
 }
 
 #[derive(Deserialize, Debug)]
-struct RandomPhotoUserRich {
+struct RandomPhotoUserLinks {
     html: String,
 }
 
