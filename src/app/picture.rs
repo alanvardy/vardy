@@ -46,16 +46,12 @@ pub async fn create(pool: &SqlitePool, picture: &Picture) -> sqlx::Result<Pictur
     Ok(inserted)
 }
 
-/// Dead code until Phase 2 wires these into the `/unsplash/random` handler.
-#[allow(dead_code)]
 pub async fn count(pool: &SqlitePool) -> sqlx::Result<i64> {
     sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM unsplash_pictures")
         .fetch_one(pool)
         .await
 }
 
-/// Dead code until Phase 2 reads cached rows for `/unsplash/random`.
-#[allow(dead_code)]
 pub async fn random_select(pool: &SqlitePool) -> sqlx::Result<Picture> {
     sqlx::query_as::<_, Picture>(
         "SELECT url, photographer, photographer_url, created_at FROM unsplash_pictures ORDER BY RANDOM() LIMIT 1",
@@ -64,8 +60,6 @@ pub async fn random_select(pool: &SqlitePool) -> sqlx::Result<Picture> {
     .await
 }
 
-/// Dead code until Phase 2 wires it into the HTTP `/unsplash/random` handler.
-#[allow(dead_code)]
 pub async fn random(state: &AppState) -> Result<Picture, WebError> {
     if count(&state.db).await? < 5 {
         let picture = fetch_random(
@@ -195,9 +189,7 @@ mod tests {
                 rate_limit_burst: 1_000_000,
             }),
             templates: crate::app::templates::init(),
-            metrics: Arc::new(
-                crate::infra::metrics::AppMetrics::new().expect("metrics"),
-            ),
+            metrics: Arc::new(crate::infra::metrics::AppMetrics::new().expect("metrics")),
         };
 
         let picture = random(&state).await.expect("random should succeed");
@@ -206,10 +198,7 @@ mod tests {
 
         let c = count(&pool).await.expect("count");
         assert_eq!(c, 1);
-        assert_eq!(
-            stub.call_count.load(std::sync::atomic::Ordering::SeqCst),
-            1
-        );
+        assert_eq!(stub.call_count.load(std::sync::atomic::Ordering::SeqCst), 1);
     }
 
     #[tokio::test]
@@ -255,9 +244,7 @@ mod tests {
                 rate_limit_burst: 1_000_000,
             }),
             templates: crate::app::templates::init(),
-            metrics: Arc::new(
-                crate::infra::metrics::AppMetrics::new().expect("metrics"),
-            ),
+            metrics: Arc::new(crate::infra::metrics::AppMetrics::new().expect("metrics")),
         };
 
         let picture = random(&state).await.expect("random should succeed");
@@ -268,10 +255,7 @@ mod tests {
         let final_count = count(&pool).await.expect("count");
         assert_eq!(final_count, 5);
         // No upstream call
-        assert_eq!(
-            stub.call_count.load(std::sync::atomic::Ordering::SeqCst),
-            0
-        );
+        assert_eq!(stub.call_count.load(std::sync::atomic::Ordering::SeqCst), 0);
     }
 
     #[tokio::test]
@@ -280,8 +264,7 @@ mod tests {
         use crate::test::start_unsplash_stub;
         use std::sync::Arc;
 
-        let stub =
-            start_unsplash_stub(axum::http::StatusCode::INTERNAL_SERVER_ERROR).await;
+        let stub = start_unsplash_stub(axum::http::StatusCode::INTERNAL_SERVER_ERROR).await;
         let pool = SqlitePool::connect("sqlite::memory:").await.expect("pool");
         sqlx::migrate!("./migrations")
             .run(&pool)
@@ -302,9 +285,7 @@ mod tests {
                 rate_limit_burst: 1_000_000,
             }),
             templates: crate::app::templates::init(),
-            metrics: Arc::new(
-                crate::infra::metrics::AppMetrics::new().expect("metrics"),
-            ),
+            metrics: Arc::new(crate::infra::metrics::AppMetrics::new().expect("metrics")),
         };
 
         let result = random(&state).await;

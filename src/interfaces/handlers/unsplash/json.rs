@@ -8,6 +8,10 @@ pub async fn index(State(state): State<AppState>) -> Result<Json<Picture>, WebEr
     Ok(Json(picture::current(&state).await?))
 }
 
+pub async fn random(State(state): State<AppState>) -> Result<Json<Picture>, WebError> {
+    Ok(Json(picture::random(&state).await?))
+}
+
 #[cfg(test)]
 mod tests {
     use sqlx::SqlitePool;
@@ -250,6 +254,126 @@ mod tests {
         assert!(ok >= 1, "at least one request should succeed");
         assert!(limited >= 5, "tier should trip well before global budget");
         // The tier throttles before every request reaches the upstream stub.
+        assert!(
+            stub.call_count.load(Ordering::SeqCst) < 20,
+            "stub should see fewer calls than requests"
+        );
+    }
+
+    #[tokio::test]
+    async fn random_below_threshold_fetches_and_inserts() {
+        let stub = start_unsplash_stub(axum::http::StatusCode::OK).await;
+        let (addr, db) = start_app_with(&stub.base_url).await;
+        clear_pictures(&db).await;
+        // No seed — 0 rows → threshold fetch
+
+        let res = test_client()
+            .get(format!("http://{addr}/unsplash/random"))
+            .send()
+            .await
+            .expect("request to /unsplash/random should succeed");
+        assert_eq!(res.status(), 200);
+        assert!(
+            res.headers()
+                .get("content-type")
+                .is_some_and(|v| v.to_str().unwrap().contains("application/json"))
+        );
+        let body = res.text().await.expect("body");
+        assert!(body.contains("https://images.example.com/photo.jpg"));
+        assert!(body.contains("Stub Photographer"));
+
+        let count = sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM unsplash_pictures")
+            .fetch_one(&db)
+            .await
+            .expect("count");
+        assert_eq!(count, 1);
+        assert_eq!(stub.call_count.load(std::sync::atomic::Ordering::SeqCst), 1);
+    }
+
+    #[tokio::test]
+    async fn random_at_threshold_no_upstream() {
+        let stub = start_unsplash_stub(axum::http::StatusCode::OK).await;
+        let (addr, db) = start_app_with(&stub.base_url).await;
+        clear_pictures(&db).await;
+        // Seed exactly 5 rows
+        for i in 0..5 {
+            sqlx::query("INSERT INTO unsplash_pictures (url, photographer) VALUES (?, ?)")
+                .bind(format!("https://example.com/{i}.jpg"))
+                .bind(format!("Photographer {i}"))
+                .execute(&db)
+                .await
+                .expect("seed insert");
+        }
+
+        let res = test_client()
+            .get(format!("http://{addr}/unsplash/random"))
+            .send()
+            .await
+            .expect("request to /unsplash/random should succeed");
+        assert_eq!(res.status(), 200);
+        let body = res.text().await.expect("body");
+        // Body contains one of the seeded URLs
+        assert!((0..5).any(|i| body.contains(&format!("https://example.com/{i}.jpg"))));
+        assert!((0..5).any(|i| body.contains(&format!("Photographer {i}"))));
+
+        assert_eq!(stub.call_count.load(std::sync::atomic::Ordering::SeqCst), 0);
+        let count = sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM unsplash_pictures")
+            .fetch_one(&db)
+            .await
+            .expect("count");
+        assert_eq!(count, 5);
+    }
+
+    #[tokio::test]
+    async fn random_upstream_failure_502() {
+        let stub = start_unsplash_stub(axum::http::StatusCode::INTERNAL_SERVER_ERROR).await;
+        let (addr, db) = start_app_with(&stub.base_url).await;
+        clear_pictures(&db).await;
+
+        let res = test_client()
+            .get(format!("http://{addr}/unsplash/random"))
+            .send()
+            .await
+            .expect("request to /unsplash/random should succeed");
+        assert_eq!(res.status(), 502);
+        let body = res.text().await.expect("body");
+        assert_eq!(body, "bad gateway");
+    }
+
+    #[tokio::test]
+    async fn random_shares_unsplash_tier() {
+        use axum::http::StatusCode;
+        use std::sync::atomic::Ordering;
+
+        let stub = start_unsplash_stub(axum::http::StatusCode::OK).await;
+        let (addr, _pool) =
+            crate::test::start_app_with_rate_limits(&stub.base_url, 1, 1_000_000).await;
+        clear_pictures(&_pool).await;
+        let client = test_client();
+        // UNSPLASH_TIER_BURST = 5; fire 20 concurrent GETs at /unsplash/random
+        let handles: Vec<_> = (0..20)
+            .map(|_| {
+                let client = client.clone();
+                let url = format!("http://{addr}/unsplash/random");
+                tokio::spawn(async move { client.get(url).send().await.expect("request failed") })
+            })
+            .collect();
+        let mut ok = 0;
+        let mut limited = 0;
+        for handle in handles {
+            let res = handle.await.expect("join");
+            match res.status() {
+                StatusCode::OK => ok += 1,
+                StatusCode::TOO_MANY_REQUESTS => {
+                    limited += 1;
+                    assert!(res.headers().get("retry-after").is_some());
+                    assert_eq!(res.text().await.unwrap(), "too many requests");
+                }
+                status => panic!("unexpected status {status}"),
+            }
+        }
+        assert!(ok >= 1, "at least one request should succeed");
+        assert!(limited >= 5, "tier should trip");
         assert!(
             stub.call_count.load(Ordering::SeqCst) < 20,
             "stub should see fewer calls than requests"
