@@ -453,9 +453,9 @@ refilled.
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` passes (fmt, check, clippy, nextest, forgotten TODOs)
-- [ ] `cargo test unsplash` — all existing `/unsplash` tests still pass
-- [ ] `cargo test random` — all new `/unsplash/random` tests pass
+- [x] `./scripts/test.sh` passes (fmt, check, clippy, nextest, forgotten TODOs)
+- [x] `cargo test unsplash` — all existing `/unsplash` tests still pass
+- [x] `cargo test random` — all new `/unsplash/random` tests pass
 
 #### Manual
 - [ ] `ROUTES.md` entries match the route behavior described in the code

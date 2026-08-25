@@ -29,7 +29,9 @@ pub fn routes() -> Router<AppState> {
         crate::app::rate_limit::DUMP_TIER_BURST,
     );
     let unsplash_tier = crate::app::rate_limit::tiered_routes(
-        Router::new().route("/unsplash", get(handlers::unsplash::json::index)),
+        Router::new()
+            .route("/unsplash", get(handlers::unsplash::json::index))
+            .route("/unsplash/random", get(handlers::unsplash::json::random)),
         crate::app::rate_limit::UNSPLASH_TIER_PER_MS,
         crate::app::rate_limit::UNSPLASH_TIER_BURST,
     );

@@ -85,3 +85,19 @@ Returns a random Unsplash photo (JSON), cached in the database for 6 hours.
   `UNSPLASH_TIER_*` in `src/app/rate_limit.rs`) nested inside the global budget.
 
 ---
+
+### GET /unsplash/random
+
+Returns a random Unsplash photo (JSON). If fewer than 5 pictures are cached,
+fetches from Unsplash and inserts a new row; otherwise picks a random cached
+row. No staleness timeout — the 5-row threshold controls when the cache is
+refilled.
+
+- Response: `200 OK` — `application/json` `{ "url": ..., "photographer": ..., "photographer_url": ..., "created_at": ... }`
+- Errors: `500` via `WebError` (database failure), `502` via `WebError` (upstream failure)
+- Rate limit: global per-IP GCRA limiter. Over limit → `429 Too Many Requests`,
+  plain-text body `too many requests`, with `Retry-After` and `X-RateLimit-*` headers.
+- Rate limit: also subject to the same stricter dedicated tier as `/unsplash` (see
+  `UNSPLASH_TIER_*` in `src/app/rate_limit.rs`) nested inside the global budget.
+
+---
