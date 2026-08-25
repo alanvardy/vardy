@@ -142,6 +142,18 @@ pub async fn seed_wallpaper(db: &SqlitePool) {
     .expect("seed wallpaper");
 }
 
+/// Insert a wallpaper row with a photographer name but no photographer_url,
+/// so tests can assert the credit renders as plain text (no broken link).
+pub async fn seed_wallpaper_no_url(db: &SqlitePool) {
+    sqlx::query(
+        "INSERT INTO unsplash_pictures (url, photographer) \
+         VALUES ('https://example.com/wallpaper.jpg', 'NoLink Photographer')",
+    )
+    .execute(db)
+    .await
+    .expect("seed wallpaper no url");
+}
+
 pub struct UnsplashStub {
     pub base_url: String,
     pub call_count: Arc<AtomicUsize>,
