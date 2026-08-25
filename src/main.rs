@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use std::time::Duration;
 
 mod app;
 mod domain;
@@ -18,7 +19,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .enable_sentry
         .then(|| infra::sentry::init(&env.sentry_dsn));
     let metrics = Arc::new(infra::metrics::AppMetrics::new()?);
-    let http = reqwest::Client::new();
+    let http = reqwest::Client::builder()
+        .timeout(Duration::from_secs(10))
+        .build()?;
     let db = app::db::init(&env.database_url).await;
     app::db::migrate(&db).await?;
     info!("Database migrated");

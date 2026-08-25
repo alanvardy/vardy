@@ -1,3 +1,7 @@
+{# Context contract: every template extending layout.html must supply
+   wallpaper_url, photographer, and photographer_url in its render
+   context. Missing values are safely treated as empty (wallpaper
+   hidden, credit line suppressed). #}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +13,9 @@
 <body>
     <div class="wallpaper" aria-hidden="true" {% if wallpaper_url %}style="background-image: url('{{ wallpaper_url }}')"{% endif %}></div>
     {% if photographer %}
-    <div class="fixed bottom-3 right-3 px-3 py-1.5 rounded bg-black/50 text-sm" aria-hidden="true">
+    {# Unsplash attribution: linked name when photographer_url is
+       populated, plain text when the URL is empty (legacy rows). #}
+    <div class="fixed bottom-3 right-3 px-3 py-1.5 rounded bg-black/50 text-sm">
       Photo by {% if photographer_url %}<a href="{{ photographer_url }}" target="_blank" rel="noopener noreferrer" class="underline">{{ photographer }}</a>{% else %}{{ photographer }}{% endif %} on Unsplash
     </div>
     {% endif %}
