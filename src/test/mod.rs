@@ -134,8 +134,8 @@ pub fn test_client() -> reqwest::Client {
 /// network calls during tests.
 pub async fn seed_wallpaper(db: &SqlitePool) {
     sqlx::query(
-        "INSERT INTO unsplash_pictures (url, photographer) \
-         VALUES ('https://example.com/wallpaper.jpg', 'Wallpaper Photographer')",
+        "INSERT INTO unsplash_pictures (url, photographer, photographer_url) \
+         VALUES ('https://example.com/wallpaper.jpg', 'Wallpaper Photographer', 'https://unsplash.com/@test')",
     )
     .execute(db)
     .await
