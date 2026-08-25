@@ -39,7 +39,7 @@ jobs:
     name: Cargo CI Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install mold linker
         run: |
@@ -89,7 +89,7 @@ jobs:
     name: TODO and FIXME
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: ./scripts/lint_string.sh "FIXME "
       - run: ./scripts/lint_string.sh "FIXME:"
       - run: ./scripts/lint_string.sh "fixme "
@@ -100,7 +100,7 @@ jobs:
     name: Rust-fmt (Cargo Format)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt
@@ -110,7 +110,7 @@ jobs:
     name: Clippy (Cargo Clippy Lint Check)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install mold linker
         run: |
@@ -128,8 +128,18 @@ jobs:
   css-drift:
     name: CSS Drift Check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/cache@v4
+        with:
+          path: target/tailwindcss-cli
+          key: ${{ runner.os }}-tailwind-${{ hashFiles('scripts/build-css.sh') }}
+          restore-keys: |
+            ${{ runner.os }}-tailwind-
+
       - name: Rebuild static/site.css from source
         run: ./scripts/build-css.sh
       - name: Check for uncommitted CSS changes (drift)
