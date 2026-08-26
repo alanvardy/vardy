@@ -35,6 +35,14 @@ pub fn routes() -> Router<AppState> {
         crate::app::rate_limit::UNSPLASH_TIER_PER_MS,
         crate::app::rate_limit::UNSPLASH_TIER_BURST,
     );
+    let contact_tier = crate::app::rate_limit::tiered_routes(
+        Router::new().route(
+            "/contact",
+            axum::routing::post(handlers::contact::web::create),
+        ),
+        crate::app::rate_limit::CONTACT_TIER_PER_MS,
+        crate::app::rate_limit::CONTACT_TIER_BURST,
+    );
 
     Router::new()
         .route("/", get(handlers::home::web::index))
@@ -43,6 +51,7 @@ pub fn routes() -> Router<AppState> {
         .route("/dump/{key}", get(handlers::dump::web::index)) // global budget only
         .merge(dump_tier)
         .merge(unsplash_tier)
+        .merge(contact_tier)
         .route("/health", get(health))
         .nest_service(
             "/static",

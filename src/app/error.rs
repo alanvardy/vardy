@@ -33,6 +33,12 @@ impl From<crate::infra::unsplash::UnsplashError> for WebError {
     }
 }
 
+impl From<crate::infra::resend::ResendError> for WebError {
+    fn from(err: crate::infra::resend::ResendError) -> Self {
+        WebError::External(err.0)
+    }
+}
+
 impl IntoResponse for WebError {
     fn into_response(self) -> Response {
         match self {
@@ -88,6 +94,12 @@ mod tests {
     #[test]
     fn external_error_is_502() {
         let res = WebError::External("boom".into()).into_response();
+        assert_eq!(res.status(), StatusCode::BAD_GATEWAY);
+    }
+
+    #[test]
+    fn resend_error_is_502() {
+        let res = WebError::from(crate::infra::resend::ResendError("boom".into())).into_response();
         assert_eq!(res.status(), StatusCode::BAD_GATEWAY);
     }
 

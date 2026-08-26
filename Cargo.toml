@@ -18,7 +18,7 @@ governor = "0.10"
 tower-http = { version = "0.6", features = ["fs", "set-header", "trace"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
-reqwest = { version = "0.13", features = ["json", "query"] }
+reqwest = { version = "0.13", features = ["form", "json", "query"] }
 chrono = "0.4"
 
 [dev-dependencies]

@@ -1,6 +1,11 @@
 mod arkitect;
 
-use axum::{Json, Router, http::StatusCode, response::IntoResponse, routing::get};
+use axum::{
+    Json, Router,
+    http::StatusCode,
+    response::IntoResponse,
+    routing::{get, post},
+};
 use serde_json::json;
 use sqlx::SqlitePool;
 use std::net::SocketAddr;
@@ -8,6 +13,8 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 use crate::app::env::Env;
+
+const RESEND_BASE_URL: &str = "https://api.resend.com";
 
 /// Bind a random port, spawn the app, return the bound address.
 pub async fn start_app() -> SocketAddr {
@@ -17,7 +24,7 @@ pub async fn start_app() -> SocketAddr {
 /// Like [`start_app`], but with an overridable Unsplash base URL; returns the
 /// bound address and the database pool so tests can seed rows.
 pub async fn start_app_with(unsplash_base_url: &str) -> (SocketAddr, SqlitePool) {
-    serve_app(unsplash_base_url, 1, 1_000_000).await
+    serve_app(unsplash_base_url, RESEND_BASE_URL, 1, 1_000_000).await
 }
 
 /// Tight-limit harness for 429 integration tests: the global limiter runs with
@@ -27,12 +34,34 @@ pub async fn start_app_with_rate_limits(
     per_ms: u64,
     burst: u32,
 ) -> (SocketAddr, SqlitePool) {
-    serve_app(unsplash_base_url, per_ms, burst).await
+    serve_app(unsplash_base_url, RESEND_BASE_URL, per_ms, burst).await
 }
 
-async fn serve_app(unsplash_base_url: &str, per_ms: u64, burst: u32) -> (SocketAddr, SqlitePool) {
+/// Like [`start_app`], but with an overridable Resend base URL so tests can
+/// point at a local stub server.
+pub async fn start_app_with_resend(resend_base_url: &str) -> (SocketAddr, SqlitePool) {
+    serve_app("https://api.unsplash.com", resend_base_url, 1, 1_000_000).await
+}
+
+/// Like [`start_app_with_resend`], but with a tight global rate limit for
+/// testing the dedicated contact tier.
+pub async fn start_app_with_resend_and_rate_limits(
+    resend_base_url: &str,
+    per_ms: u64,
+    burst: u32,
+) -> (SocketAddr, SqlitePool) {
+    serve_app("https://api.unsplash.com", resend_base_url, per_ms, burst).await
+}
+
+async fn serve_app(
+    unsplash_base_url: &str,
+    resend_base_url: &str,
+    per_ms: u64,
+    burst: u32,
+) -> (SocketAddr, SqlitePool) {
     let env = Env {
         unsplash_api_key: "test-key".into(),
+        resend_api_key: "test-key".into(),
         database_url: "sqlite::memory:".into(),
         sentry_dsn: "test-dsn".into(),
         enable_sentry: false,
@@ -51,6 +80,7 @@ async fn serve_app(unsplash_base_url: &str, per_ms: u64, burst: u32) -> (SocketA
         http: reqwest::Client::new(),
         env: Arc::new(env),
         unsplash_base_url: unsplash_base_url.into(),
+        resend_base_url: resend_base_url.into(),
         db: db.clone(),
     };
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
@@ -78,6 +108,7 @@ async fn serve_app(unsplash_base_url: &str, per_ms: u64, burst: u32) -> (SocketA
 pub async fn start_app_with_metrics() -> (SocketAddr, SocketAddr) {
     let env = Env {
         unsplash_api_key: "test-key".into(),
+        resend_api_key: "test-key".into(),
         database_url: "sqlite::memory:".into(),
         sentry_dsn: "test-dsn".into(),
         enable_sentry: false,
@@ -99,6 +130,7 @@ pub async fn start_app_with_metrics() -> (SocketAddr, SocketAddr) {
         metrics: Arc::new(crate::infra::metrics::AppMetrics::new().expect("metrics")),
         http: reqwest::Client::new(),
         unsplash_base_url: "https://api.unsplash.com".into(),
+        resend_base_url: RESEND_BASE_URL.into(),
     };
     let app_listener = tokio::net::TcpListener::bind("127.0.0.1:0")
         .await
@@ -196,6 +228,45 @@ pub async fn start_unsplash_stub(status: StatusCode) -> UnsplashStub {
             .expect("server");
     });
     UnsplashStub {
+        base_url: format!("http://{addr}"),
+        call_count,
+    }
+}
+
+pub struct ResendStub {
+    pub base_url: String,
+    pub call_count: Arc<AtomicUsize>,
+}
+
+/// Spawn a local stub of `POST /emails`, returning canned `{"id":"email_test"}`
+/// on success or the given status verbatim to simulate upstream failure.
+pub async fn start_resend_stub(status: StatusCode) -> ResendStub {
+    let call_count = Arc::new(AtomicUsize::new(0));
+    let count = Arc::clone(&call_count);
+    let app = Router::new().route(
+        "/emails",
+        post(move || {
+            let count = Arc::clone(&count);
+            async move {
+                count.fetch_add(1, Ordering::SeqCst);
+                if status.is_success() {
+                    Json(json!({ "id": "email_test" })).into_response()
+                } else {
+                    status.into_response()
+                }
+            }
+        }),
+    );
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0")
+        .await
+        .expect("bind");
+    let addr = listener.local_addr().expect("local addr");
+    tokio::spawn(async move {
+        axum::serve(listener, app.into_make_service())
+            .await
+            .expect("server");
+    });
+    ResendStub {
         base_url: format!("http://{addr}"),
         call_count,
     }

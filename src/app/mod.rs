@@ -1,4 +1,5 @@
 pub mod assets;
+pub mod contact;
 pub mod db;
 pub mod dump;
 pub mod env;

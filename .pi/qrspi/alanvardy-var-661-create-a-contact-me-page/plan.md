@@ -727,9 +727,9 @@ matching `dump/web.rs`'s tier test.
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` passes end-to-end (format, sqlx prepare, check, CSS build + drift, clippy, nextest)
-- [ ] `cargo nextest run` — all five contact tests pass: `get_contact_returns_200_with_form`, `post_valid_form_sends_email`, `post_honeypot_filled_skips_email`, `post_resend_failure_returns_502`, `post_too_many_requests_returns_429`
-- [ ] `cargo test --lib test_architectural_rules` passes (new `app::contact` module is `app`-layer; no `serde`/`reqwest` leak into `interfaces`)
+- [x] `./scripts/test.sh` passes end-to-end (format, sqlx prepare, check, CSS build + drift, clippy, nextest)
+- [x] `cargo nextest run` — all five contact tests pass: `get_contact_returns_200_with_form`, `post_valid_form_sends_email`, `post_honeypot_filled_skips_email`, `post_resend_failure_returns_502`, `post_too_many_requests_returns_429`
+- [x] `cargo test --lib test_architectural_rules` passes (new `app::contact` module is `app`-layer; no `serde`/`reqwest` leak into `interfaces`)
 
 #### Manual
 - [ ] With `RESEND_API_KEY` set in `.env` and the server running, `POST /contact` with valid form data delivers a real email to the configured inbox

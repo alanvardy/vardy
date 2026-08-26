@@ -198,8 +198,10 @@ mod tests {
             db: pool.clone(),
             http: reqwest::Client::new(),
             unsplash_base_url: stub.base_url.into(),
+            resend_base_url: "https://api.resend.com".into(),
             env: Arc::new(Env {
                 unsplash_api_key: "test-key".into(),
+                resend_api_key: "test-key".into(),
                 database_url: "sqlite::memory:".into(),
                 sentry_dsn: String::new(),
                 enable_sentry: false,
@@ -253,8 +255,10 @@ mod tests {
             db: pool.clone(),
             http: reqwest::Client::new(),
             unsplash_base_url: stub.base_url.into(),
+            resend_base_url: "https://api.resend.com".into(),
             env: Arc::new(Env {
                 unsplash_api_key: "test-key".into(),
+                resend_api_key: "test-key".into(),
                 database_url: "sqlite::memory:".into(),
                 sentry_dsn: String::new(),
                 enable_sentry: false,
@@ -294,8 +298,10 @@ mod tests {
             db: pool.clone(),
             http: reqwest::Client::new(),
             unsplash_base_url: stub.base_url.into(),
+            resend_base_url: "https://api.resend.com".into(),
             env: Arc::new(Env {
                 unsplash_api_key: "test-key".into(),
+                resend_api_key: "test-key".into(),
                 database_url: "sqlite::memory:".into(),
                 sentry_dsn: String::new(),
                 enable_sentry: false,

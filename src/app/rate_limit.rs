@@ -74,6 +74,8 @@ pub const DUMP_TIER_PER_MS: u64 = 1_000; // 1 write/sec sustained
 pub const DUMP_TIER_BURST: u32 = 3;
 pub const UNSPLASH_TIER_PER_MS: u64 = 200; // 5 upstream calls/sec sustained
 pub const UNSPLASH_TIER_BURST: u32 = 5;
+pub const CONTACT_TIER_PER_MS: u64 = 1_000; // 1 submission/sec sustained
+pub const CONTACT_TIER_BURST: u32 = 2; // allow one retry
 
 const PRUNE_EVERY_SECS: u64 = 60;
 

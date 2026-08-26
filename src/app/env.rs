@@ -4,6 +4,7 @@
 
 pub struct Env {
     pub unsplash_api_key: String,
+    pub resend_api_key: String,
     pub database_url: String,
     // Read by Sentry init
     pub sentry_dsn: String,
@@ -15,6 +16,7 @@ pub struct Env {
 impl Env {
     pub fn init() -> Env {
         let unsplash_api_key = get_string_env("UNSPLASH_API_KEY");
+        let resend_api_key = get_string_env("RESEND_API_KEY");
         let database_url = get_string_env("DATABASE_URL");
         let sentry_dsn = get_string_env("SENTRY_DSN");
         let enable_sentry = get_bool_env("ENABLE_SENTRY");
@@ -23,6 +25,7 @@ impl Env {
 
         Env {
             unsplash_api_key,
+            resend_api_key,
             database_url,
             sentry_dsn,
             enable_sentry,

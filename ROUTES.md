@@ -46,6 +46,23 @@ to hidden when the Unsplash fetch fails.
 
 ---
 
+### POST /contact
+
+Accepts the contact form, skips email when the honeypot is filled (returns the
+thank-you page silently), otherwise sends the message to the configured inbox
+via the Resend API and returns the thank-you page.
+
+- Request body: `application/x-www-form-urlencoded` (`name`, `email`, `message`,
+  `_website` honeypot)
+- Response: `200 OK` — `text/html` thank-you page
+- Errors: `502` via `WebError` (Resend API failure)
+- Rate limit: global per-IP GCRA limiter. Over limit → `429 Too Many Requests`,
+  plain-text body `too many requests`, with `Retry-After` and `X-RateLimit-*` headers.
+- Rate limit: also a stricter dedicated tier (see
+  `CONTACT_TIER_*` in `src/app/rate_limit.rs`) nested inside the global budget.
+
+---
+
 ### GET /dump/{key}
 
 Returns all stored entries for `key`, in insertion order.

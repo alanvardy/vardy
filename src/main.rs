@@ -9,6 +9,7 @@ mod interfaces;
 use tracing::info;
 
 const UNSPLASH_BASE_URL: &str = "https://api.unsplash.com";
+const RESEND_BASE_URL: &str = "https://api.resend.com";
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -34,6 +35,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         http,
         env: Arc::new(env),
         unsplash_base_url: UNSPLASH_BASE_URL.into(),
+        resend_base_url: RESEND_BASE_URL.into(),
     };
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
     info!("Hosting on http://localhost:3000");

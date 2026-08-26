@@ -16,4 +16,6 @@ pub struct AppState {
     pub http: reqwest::Client,
     /// Overridable so tests can point at a local stub server.
     pub unsplash_base_url: Arc<str>,
+    /// Overridable so tests can point at a local stub server.
+    pub resend_base_url: Arc<str>,
 }
