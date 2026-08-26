@@ -39,10 +39,13 @@
   check, lint, run tests, and grep for forgotten TODOs. It loads
   `DATABASE_URL` from `.env`, which must exist.
 - The local database is SQLite at `sqlite:test.db`, set in `.env` (created on
-  first boot; gitignored)
+  first boot; gitignored). To reset: `./scripts/reset_db.sh`.
 - Compile-time-checked query macros (`query!` etc.) need either a reachable
   `DATABASE_URL` or committed offline metadata: set `SQLX_OFFLINE=true` and
-  refresh metadata with `cargo sqlx prepare` after schema changes
+  refresh metadata with `cargo sqlx prepare` after schema changes.
+- `scripts/test.sh` includes a CSS-drift check (`git diff --exit-code --
+  static/site.css`) — if it fails, the committed `static/site.css` is out
+  of sync with the generated Tailwind output; run the Tailwind build step.
 
 ## Commits and PRs
 - Code comments should describe what and why but not how
@@ -66,8 +69,5 @@ this flow. If a user requests a new feature after `/5_plan` but before
 implementing directly.
 
 ## Error Responses
-- All handler-produced error responses must go through `WebError`'s
-  `IntoResponse` impl (`src/app/error.rs`) — never return bare status-code
-  tuples from handlers.
-- Tests must validate both the HTTP status and the response body; never
-  assert status alone.
+- All handler errors go through `WebError`'s `IntoResponse` impl
+  (`src/app/error.rs`). Error handling chokepoint policy: see `~/AGENTS.md`.
