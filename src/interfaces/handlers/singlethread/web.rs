@@ -55,6 +55,7 @@ mod tests {
         assert!(body.contains(r#"<img src="/static/singlethread-shot-swipe.jpg?v="#));
         assert!(body.contains(r#"<img src="/static/singlethread-watch-list.png?v="#));
         assert!(body.contains(r#"<img src="/static/singlethread-watch-detail.png?v="#));
+        assert!(body.contains(r#"<img src="/static/singlethread-icon.png?v="#));
         assert!(body.contains(r#"<a href="/">Home</a>"#));
         assert!(body.contains(r#"<a href="/singlethread" class="active">SingleThread</a>"#));
         // no legacy component classes remain on this page (checked at class-name
@@ -62,6 +63,7 @@ mod tests {
         assert!(!body.contains("\"st-"));
         assert!(!body.contains(" st-"));
         assert!(!body.contains("section-heading"));
+        assert!(!body.contains("home-columns"));
         // server-rendered wallpaper from the seeded cache row; minijinja
         // escapes `/` in attribute context, browsers decode it back
         assert!(body.contains("url('https:&#x2f;&#x2f;example.com&#x2f;wallpaper.jpg')"));
