@@ -81,6 +81,7 @@ mod tests {
         assert!(body.contains(r#"name="message""#));
         assert!(body.contains(r#"name="_website""#));
         assert!(body.contains(r#"action="/contact""#));
+        assert!(body.contains("I'm Alan"));
         // nav chrome
         assert!(body.contains(r#"<a href="/">Home</a>"#));
         assert!(body.contains(r#"<a href="/singlethread">SingleThread</a>"#));
@@ -99,6 +100,8 @@ mod tests {
             .expect("request failed");
         assert_eq!(res.status(), StatusCode::OK);
         assert_eq!(stub.call_count.load(Ordering::SeqCst), 1);
+        let body = res.text().await.unwrap();
+        assert!(body.contains("Thank you — I'll get back to you soon."));
     }
 
     #[tokio::test]

@@ -9,33 +9,44 @@
 {% block title %}Contact{% endblock %}
 {% block heading %}Contact{% endblock %}
 {% block content %}
-{% if submitted %}
-  <p class="text-xl text-accent">Thank you for your message — I'll get back to you soon.</p>
-{% else %}
-  <form action="/contact" method="post" class="flex flex-col gap-4">
-    <div class="flex flex-col gap-2">
-      <label for="name" class="text-muted">Name</label>
-      <input id="name" name="name" type="text" required
-             class="w-full rounded border border-border bg-surface text-text p-2">
+<div class="flex flex-col md:flex-row gap-8 items-start">
+    {# Left column (top on mobile): introductory copy #}
+    <div class="space-y-4 md:flex-1">
+        <p class="text-muted">
+            I'm Alan, a Senior Developer on Canada's West Coast.
+            I build AI tools, backend Rust services, and Swift apps for Apple platforms.
+        </p>
+        <p class="text-muted">
+            Whether you have a question about one of my projects, want to collaborate,
+            or just want to say hi — I'd love to hear from you.
+        </p>
     </div>
-    <div class="flex flex-col gap-2">
-      <label for="email" class="text-muted">Email</label>
-      <input id="email" name="email" type="email" required
-             class="w-full rounded border border-border bg-surface text-text p-2">
+
+    {# Right column (bottom on mobile): form or thank-you #}
+    <div class="md:flex-1">
+        {% if submitted %}
+            <p class="text-2xl text-accent">Thank you — I'll get back to you soon.</p>
+        {% else %}
+            <form action="/contact" method="post" class="flex flex-col gap-4">
+                <div class="flex flex-col gap-2">
+                    <label for="name" class="form-label">Name</label>
+                    <input id="name" name="name" type="text" required class="form-input">
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label for="email" class="form-label">Email</label>
+                    <input id="email" name="email" type="email" required class="form-input">
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label for="message" class="form-label">Message</label>
+                    <textarea id="message" name="message" rows="6" required class="form-input"></textarea>
+                </div>
+                {# Honeypot: bots fill this, humans never see it (CSS-hidden, not type="hidden") #}
+                <input type="text" name="_website" value="" tabindex="-1" autocomplete="off"
+                       aria-hidden="true"
+                       style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden">
+                <button type="submit" class="btn self-start">Send message</button>
+            </form>
+        {% endif %}
     </div>
-    <div class="flex flex-col gap-2">
-      <label for="message" class="text-muted">Message</label>
-      <textarea id="message" name="message" rows="6" required
-                class="w-full rounded border border-border bg-surface text-text p-2"></textarea>
-    </div>
-    {# Honeypot: bots fill this, humans never see it (CSS-hidden, not `type="hidden"`) #}
-    <input type="text" name="_website" value="" tabindex="-1" autocomplete="off"
-           aria-hidden="true"
-           style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden">
-    <button type="submit"
-            class="rounded bg-accent text-bg font-semibold px-4 py-2 self-start">
-      Send message
-    </button>
-  </form>
-{% endif %}
+</div>
 {% endblock %}
