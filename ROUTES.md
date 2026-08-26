@@ -33,6 +33,19 @@ fails.
 
 ---
 
+### GET /contact
+
+Renders the contact form (name, email, message, and a CSS-hidden honeypot
+field) with a random Unsplash wallpaper and photographer credit that degrade
+to hidden when the Unsplash fetch fails.
+
+- Response: `200 OK` — `text/html` (minijinja `templates/contact.html`)
+- Errors: `500` via `WebError` (template render failure)
+- Rate limit: global per-IP GCRA limiter. Over limit → `429 Too Many Requests`,
+  plain-text body `too many requests`, with `Retry-After` and `X-RateLimit-*` headers.
+
+---
+
 ### GET /dump/{key}
 
 Returns all stored entries for `key`, in insertion order.
