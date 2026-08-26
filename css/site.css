@@ -19,6 +19,7 @@
     --color-accent: #fb923c;
     --color-accent-strong: #fdba74;
     --color-border: #3d3833;
+    --radius-DEFAULT: 0.375rem;
 }
 
 /* Global element defaults for layout.html chrome (shared across pages).
@@ -105,10 +106,6 @@
 }
 
 @layer components {
-    .hero {
-        max-width: 64rem;
-    }
-
     .card {
         background: var(--color-surface);
         border: 1px solid var(--color-border);
@@ -137,10 +134,6 @@
         background: linear-gradient(to right, var(--color-accent), var(--color-accent-strong), transparent);
     }
 
-    .container-wide {
-        max-width: 64rem;
-    }
-
     .btn {
         border-radius: var(--radius-DEFAULT);
         background: var(--color-accent);
@@ -152,10 +145,6 @@
 
     .btn:hover {
         background: var(--color-accent-strong);
-    }
-
-    .bg-gradient-accent {
-        background: linear-gradient(to right, var(--color-accent), var(--color-accent-strong));
     }
 
     .heading-hero {
@@ -177,10 +166,6 @@
         font-size: var(--text-xl);
     }
 
-    .transition-interactive {
-        transition: color 200ms, background-color 200ms, border-color 200ms;
-    }
-
     .form-input {
         width: 100%;
         border-radius: var(--radius-DEFAULT);
@@ -193,7 +178,8 @@
 
     .form-input:focus {
         border-color: var(--color-accent);
-        outline: none;
+        outline: 2px solid var(--color-accent-strong);
+        outline-offset: 2px;
     }
 
     .form-label {
