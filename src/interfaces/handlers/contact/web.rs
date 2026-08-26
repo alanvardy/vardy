@@ -84,7 +84,7 @@ mod tests {
         // nav chrome
         assert!(body.contains(r#"<a href="/">Home</a>"#));
         assert!(body.contains(r#"<a href="/singlethread">SingleThread</a>"#));
-        assert!(body.contains(r#"<a href="/contact">Contact</a>"#));
+        assert!(body.contains(r#"<a href="/contact" class="active">Contact</a>"#));
     }
 
     #[tokio::test]

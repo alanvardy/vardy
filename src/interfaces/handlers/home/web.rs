@@ -58,7 +58,7 @@ mod tests {
         assert!(!body.contains("home-columns"));
         assert!(!body.contains("invite-list"));
         // nav chrome unchanged
-        assert!(body.contains(r#"<a href="/">Home</a>"#));
+        assert!(body.contains(r#"<a href="/" class="active">Home</a>"#));
         assert!(body.contains(r#"<a href="/singlethread">SingleThread</a>"#));
         assert!(body.contains("/static/site.css?v="));
         assert!(!body.contains("<style>"));
