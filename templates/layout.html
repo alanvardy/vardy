@@ -21,9 +21,9 @@
     {% endif %}
     {% block nav %}
     <nav>
-        <a href="/">Home</a>
-        <a href="/singlethread">SingleThread</a>
-        <a href="/contact">Contact</a>
+        <a href="/"{% if active_page == "home" %} class="active"{% endif %}>Home</a>
+        <a href="/singlethread"{% if active_page == "singlethread" %} class="active"{% endif %}>SingleThread</a>
+        <a href="/contact"{% if active_page == "contact" %} class="active"{% endif %}>Contact</a>
     </nav>
     {% endblock %}
     <main class="page">

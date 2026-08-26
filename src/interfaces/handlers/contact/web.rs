@@ -22,7 +22,7 @@ async fn render(state: &AppState, submitted: bool) -> Result<Html<String>, WebEr
     let html = state
         .templates
         .get_template("contact.html")?
-        .render(context! { wallpaper_url, photographer, photographer_url, submitted })?;
+        .render(context! { wallpaper_url, photographer, photographer_url, submitted, active_page => "contact" })?;
     Ok(Html(html))
 }
 

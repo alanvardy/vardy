@@ -21,8 +21,11 @@ fails.
 
 ### GET /singlethread
 
-Renders the SingleThread page with a random Unsplash wallpaper and photographer
-credit (linked name when a profile URL is available, plain text otherwise). The
+Renders the SingleThread page with an app-icon hero (icon badge + tagline),
+platform badges (iPhone, iPad, Mac, Watch), a gradient decorative divider,
+screenshot and watch-image cards with hover transitions, feature lists, and a
+closing CTA line. Includes a random Unsplash wallpaper and photographer credit
+(linked name when a profile URL is available, plain text otherwise). The
 wallpaper and credit gracefully degrade to hidden when the Unsplash fetch
 fails.
 
@@ -35,9 +38,11 @@ fails.
 
 ### GET /contact
 
-Renders the contact form (name, email, message, and a CSS-hidden honeypot
-field) with a random Unsplash wallpaper and photographer credit that degrade
-to hidden when the Unsplash fetch fails.
+Renders a two-column contact page: introductory copy about Alan in the left
+column, and the contact form (name, email, message, CSS-hidden honeypot) in the
+right column. Both columns stack vertically on mobile. Includes a random
+Unsplash wallpaper and photographer credit that degrade to hidden when the
+Unsplash fetch fails.
 
 - Response: `200 OK` — `text/html` (minijinja `templates/contact.html`)
 - Errors: `500` via `WebError` (template render failure)
@@ -49,8 +54,9 @@ to hidden when the Unsplash fetch fails.
 ### POST /contact
 
 Accepts the contact form, skips email when the honeypot is filled (returns the
-thank-you page silently), otherwise sends the message to the configured inbox
-via the Resend API and returns the thank-you page.
+two-column thank-you page silently), otherwise sends the message to the
+configured inbox via the Resend API and returns the two-column thank-you page
+(introductory copy in the left column, confirmation message in the right).
 
 - Request body: `application/x-www-form-urlencoded` (`name`, `email`, `message`,
   `_website` honeypot)

@@ -1,11 +1,4 @@
 {% extends "layout.html" %}
-{% block nav %}
-<nav>
-    <a href="/">Home</a>
-    <a href="/singlethread" class="active">SingleThread</a>
-    <a href="/contact">Contact</a>
-</nav>
-{% endblock %}
 {% block title %}SingleThread{% endblock %}
 {% block heading %}SingleThread{% endblock %}
 {% block content %}
@@ -40,14 +33,17 @@
     <figure class="card m-0 flex-1 basis-[10rem] max-w-[14rem] p-3">
         <img src="{{ asset_url('singlethread-shot-main.jpg') }}" alt="One reminder at a time on iPhone"
              class="w-full rounded-lg border border-neutral-700">
+        <figcaption class="text-muted text-sm mt-2 text-center">One reminder at a time</figcaption>
     </figure>
     <figure class="card m-0 flex-1 basis-[10rem] max-w-[14rem] p-3">
         <img src="{{ asset_url('singlethread-shot-settings.jpg') }}" alt="The SingleThread settings sheet"
              class="w-full rounded-lg border border-neutral-700">
+        <figcaption class="text-muted text-sm mt-2 text-center">Settings</figcaption>
     </figure>
     <figure class="card m-0 flex-1 basis-[10rem] max-w-[14rem] p-3">
         <img src="{{ asset_url('singlethread-shot-swipe.jpg') }}" alt="Swiping to complete a reminder in light mode"
              class="w-full rounded-lg border border-neutral-700">
+        <figcaption class="text-muted text-sm mt-2 text-center">Swipe to complete</figcaption>
     </figure>
 </div>
 

@@ -11,10 +11,9 @@ pub async fn index(State(state): State<AppState>) -> Result<Html<String>, WebErr
     // render the page without them rather than failing the whole request
     // if Unsplash is unavailable.
     let (wallpaper_url, photographer, photographer_url) = picture::wallpaper_context(&state).await;
-    let html = state
-        .templates
-        .get_template("singlethread.html")?
-        .render(context! { wallpaper_url, photographer, photographer_url })?;
+    let html = state.templates.get_template("singlethread.html")?.render(
+        context! { wallpaper_url, photographer, photographer_url, active_page => "singlethread" },
+    )?;
     Ok(Html(html))
 }
 
