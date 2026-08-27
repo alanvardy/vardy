@@ -111,7 +111,8 @@ mod tests {
         // FAQ section
         assert!(body.contains("Frequently Asked Questions"));
         assert!(body.contains("<details"));
-        assert!(body.contains("<summary>Where is my data stored?</summary>"));
+        assert!(body.contains("<summary><span class=\"faq-chevron\""));
+        assert!(body.contains("</span>Where is my data stored?</summary>"));
         assert!(body.contains("stored on your device"));
         assert!(body.contains("Your reminders. One at a time. In order. At your pace."));
         assert!(body.contains(r#"<img src="/static/singlethread-shot-main.jpg?v="#));
@@ -263,6 +264,30 @@ mod tests {
         // No <script> tags or onclick handlers anywhere in the page
         assert!(!body.contains("<script"));
         assert!(!body.contains("onclick"));
+    }
+
+    #[tokio::test]
+    async fn faq_summary_has_chevron() {
+        let addr = start_app().await;
+        let client = test_client();
+        let body = client
+            .get(format!("http://{addr}/singlethread"))
+            .send()
+            .await
+            .expect("request failed")
+            .text()
+            .await
+            .expect("body");
+        // The disclosure chevron (an inline SVG) must sit inside every question's summary,
+        // with the question text immediately following the chevron span.
+        for item in FAQ_ITEMS {
+            let question = html_escape(item.question);
+            assert!(
+                body.contains(&format!("</span>{question}")),
+                "chevron missing before question: {}",
+                item.question,
+            );
+        }
     }
 
     /// Reproduce minijinja's HTML autoescape for the characters it escapes

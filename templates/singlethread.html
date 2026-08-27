@@ -92,7 +92,7 @@
 <div class="space-y-0">
     {% for item in faq_items %}
     <details class="faq-item">
-        <summary>{{ item.question }}</summary>
+        <summary><span class="faq-chevron" aria-hidden="true"><svg viewBox="0 0 16 16" width="1.125em" height="1.125em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M6 4l4 4-4 4"/></svg></span>{{ item.question }}</summary>
         <p class="faq-answer text-muted mt-2">{{ item.answer }}</p>
     </details>
     {% endfor %}
