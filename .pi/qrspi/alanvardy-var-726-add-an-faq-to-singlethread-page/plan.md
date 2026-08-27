@@ -304,8 +304,8 @@ async fn faq_no_javascript() {
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` passes — all existing tests still green, new FAQ integration tests green, CSS drift check still green
-- [ ] `cargo clippy --all-targets --all-features --locked -- -D warnings` — no new warnings (unused imports, etc)
+- [x] `./scripts/test.sh` passes — all existing tests still green, new FAQ integration tests green, CSS drift check still green
+- [x] `cargo clippy --all-targets --all-features --locked -- -D warnings` — no new warnings (unused imports, etc)
 
 #### Manual
 - [ ] `./scripts/test.sh` output shows all 4 new FAQ tests passing by name
