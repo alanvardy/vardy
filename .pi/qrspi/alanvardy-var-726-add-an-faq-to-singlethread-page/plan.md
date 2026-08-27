@@ -157,8 +157,8 @@ Design notes:
 ### Verification
 
 #### Automated
-- [ ] `./scripts/build-css.sh && git diff --exit-code -- static/site.css` — CSS compiles cleanly and `static/site.css` is in sync
-- [ ] `./scripts/test.sh` passes (drift check green; all existing tests still green — no template changes yet, so no rendered HTML to assert)
+- [x] `./scripts/build-css.sh && git diff --exit-code -- static/site.css` — CSS compiles cleanly and `static/site.css` is in sync
+- [x] `./scripts/test.sh` passes (drift check green; all existing tests still green — no template changes yet, so no rendered HTML to assert)
 
 #### Manual
 - [ ] `git diff css/site.css` — review the new `.faq-item` rules for visual intent
