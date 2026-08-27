@@ -5,13 +5,11 @@ use crate::app::error::WebError;
 use crate::app::picture;
 use crate::app::state::AppState;
 
-#[allow(dead_code)] // used in Phase 3 when FAQ_ITEMS is wired into the render context
 struct FaqItem {
     question: &'static str,
     answer: &'static str,
 }
 
-#[allow(dead_code)] // used in Phase 3 when FAQ_ITEMS is wired into the render context
 const FAQ_ITEMS: &[FaqItem] = &[
     FaqItem {
         question: "Where is my data stored?",
@@ -65,8 +63,15 @@ pub async fn index(State(state): State<AppState>) -> Result<Html<String>, WebErr
     // render the page without them rather than failing the whole request
     // if Unsplash is unavailable.
     let (wallpaper_url, photographer, photographer_url) = picture::wallpaper_context(&state).await;
+    // FAQ_ITEMS cannot implement serde::Serialize directly (the interfaces
+    // layer may not depend on `serde`), so marshal it through serde_json for
+    // minijinja's context! macro, which requires Serialize values.
+    let faq_items: Vec<serde_json::Value> = FAQ_ITEMS
+        .iter()
+        .map(|item| serde_json::json!({ "question": item.question, "answer": item.answer }))
+        .collect();
     let html = state.templates.get_template("singlethread.html")?.render(
-        context! { wallpaper_url, photographer, photographer_url, active_page => "singlethread" },
+        context! { wallpaper_url, photographer, photographer_url, active_page => "singlethread", faq_items },
     )?;
     Ok(Html(html))
 }
@@ -103,6 +108,11 @@ mod tests {
         assert!(body.contains("Everything you need, nothing you don't"));
         assert!(body.contains("Thoughtful by design"));
         assert!(body.contains("Built for quiet productivity"));
+        // FAQ section
+        assert!(body.contains("Frequently Asked Questions"));
+        assert!(body.contains("<details"));
+        assert!(body.contains("<summary>Where is my data stored?</summary>"));
+        assert!(body.contains("stored on your device"));
         assert!(body.contains("Your reminders. One at a time. In order. At your pace."));
         assert!(body.contains(r#"<img src="/static/singlethread-shot-main.jpg?v="#));
         assert!(body.contains(r#"<img src="/static/singlethread-shot-settings.jpg?v="#));
@@ -167,6 +177,104 @@ mod tests {
         assert!(body.contains("Photo by NoLink Photographer on Unsplash"));
         // The name must NOT be wrapped in a link when photographer_url is empty
         assert!(!body.contains("NoLink Photographer</a>"));
+    }
+
+    #[tokio::test]
+    async fn faq_all_questions_appear() {
+        let addr = start_app().await;
+        let client = test_client();
+        let res = client
+            .get(format!("http://{addr}/singlethread"))
+            .send()
+            .await
+            .expect("request failed");
+        assert_eq!(res.status(), StatusCode::OK);
+        let body = res.text().await.unwrap();
+        for item in FAQ_ITEMS {
+            assert!(
+                body.contains(item.question),
+                "FAQ question not found in rendered page: {}",
+                item.question,
+            );
+        }
+    }
+
+    #[tokio::test]
+    async fn faq_all_answers_appear() {
+        let addr = start_app().await;
+        let client = test_client();
+        let res = client
+            .get(format!("http://{addr}/singlethread"))
+            .send()
+            .await
+            .expect("request failed");
+        assert_eq!(res.status(), StatusCode::OK);
+        let body = res.text().await.unwrap();
+        for item in FAQ_ITEMS {
+            // minijinja's HTML autoescape turns `'` and `/` into entities
+            // (some answers contain apostrophes such as "you're")
+            let escaped_answer = html_escape(item.answer);
+            assert!(
+                body.contains(&escaped_answer),
+                "FAQ answer not found in rendered page: {}",
+                &item.answer[..item.answer.len().min(60)],
+            );
+        }
+    }
+
+    #[tokio::test]
+    async fn faq_section_after_quiet_productivity_before_cta() {
+        let addr = start_app().await;
+        let client = test_client();
+        let res = client
+            .get(format!("http://{addr}/singlethread"))
+            .send()
+            .await
+            .expect("request failed");
+        assert_eq!(res.status(), StatusCode::OK);
+        let body = res.text().await.unwrap();
+
+        let quiet_pos = body
+            .find("Built for quiet productivity")
+            .expect("quiet productivity heading");
+        let faq_pos = body
+            .find("Frequently Asked Questions")
+            .expect("FAQ heading");
+        let cta_pos = body.find("Your reminders. One at a time.").expect("CTA");
+
+        assert!(
+            quiet_pos < faq_pos,
+            "FAQ must appear after 'Built for quiet productivity'"
+        );
+        assert!(faq_pos < cta_pos, "FAQ must appear before closing CTA");
+    }
+
+    #[tokio::test]
+    async fn faq_no_javascript() {
+        let addr = start_app().await;
+        let client = test_client();
+        let res = client
+            .get(format!("http://{addr}/singlethread"))
+            .send()
+            .await
+            .expect("request failed");
+        assert_eq!(res.status(), StatusCode::OK);
+        let body = res.text().await.unwrap();
+        // No <script> tags or onclick handlers anywhere in the page
+        assert!(!body.contains("<script"));
+        assert!(!body.contains("onclick"));
+    }
+
+    /// Reproduce minijinja's HTML autoescape for the characters it escapes
+    /// (see `AutoEscape::Html` docs: `<`, `>`, `&`, `"`, `'`, `/`).
+    fn html_escape(input: &str) -> String {
+        input
+            .replace('&', "&amp;")
+            .replace('<', "&lt;")
+            .replace('>', "&gt;")
+            .replace('"', "&quot;")
+            .replace('\'', "&#x27;")
+            .replace('/', "&#x2f;")
     }
 
     #[test]
