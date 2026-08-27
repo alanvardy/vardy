@@ -5,6 +5,60 @@ use crate::app::error::WebError;
 use crate::app::picture;
 use crate::app::state::AppState;
 
+#[allow(dead_code)] // used in Phase 3 when FAQ_ITEMS is wired into the render context
+struct FaqItem {
+    question: &'static str,
+    answer: &'static str,
+}
+
+#[allow(dead_code)] // used in Phase 3 when FAQ_ITEMS is wired into the render context
+const FAQ_ITEMS: &[FaqItem] = &[
+    FaqItem {
+        question: "Where is my data stored?",
+        answer: "Your Reminders are stored on your phone and on iCloud in Apple Reminders. Your settings are stored on your device and in iCloud. I do not store any of your information myself. The only way that I will find out anything about you is if you email me.",
+    },
+    FaqItem {
+        question: "Why did you choose Apple Reminders?",
+        answer: "I chose Apple Reminders because it is free, has first class support on Apple devices, and is a pragmatic choice for many Apple users.",
+    },
+    FaqItem {
+        question: "Are you going to create an Android version?",
+        answer: "I'm not against the idea, but there are no current plans to do so. If this is something that you would like, send me an email!",
+    },
+    FaqItem {
+        question: "Are you planning on supporting other task managers?",
+        answer: "I have been toying with the idea of supporting more task managers, please let me know if this is something that you desire and for which task manager.",
+    },
+    FaqItem {
+        question: "Where are the wallpapers from and how do you select them?",
+        answer: "The wallpapers are from Unsplash. My server at vardy.cc fetches random nature wallpapers from their service and caches them. The app then gets the wallpapers from my server using no identifying information about you. This allows me to obscure my API key and keep the number of requests to Unsplash to a reasonable level.",
+    },
+    FaqItem {
+        question: "Pulp or no pulp?",
+        answer: "I try not to be too picky, but I definitely prefer pulp.",
+    },
+    FaqItem {
+        question: "What network requests does this app make?",
+        answer: "I only have the app perform network requests to fetch new wallpapers.",
+    },
+    FaqItem {
+        question: "Does this app work off-line?",
+        answer: "It sure does! The changes to your reminders are stored on your device and will be synced to iCloud when you're next online. During this time, you will not be able to fetch new wallpapers, but the app will degrade gracefully in this case.",
+    },
+    FaqItem {
+        question: "Can I contact you with questions, bug reports, or feature requests?",
+        answer: "I would appreciate it! Please use my contact form and I will read your email personally.",
+    },
+    FaqItem {
+        question: "Is SingleThread free?",
+        answer: "SingleThread is free to download and use with no ads, no accounts, and no subscriptions. The full feature set is available to everyone.",
+    },
+    FaqItem {
+        question: "How do I get started?",
+        answer: "Download SingleThread from the App Store on your iPhone, iPad, or Mac. It reads your existing Apple Reminders — no import, no setup, no account. Open the app and you'll see your first reminder right away. From there, tap Complete, Skip, or Delete, and the next one appears.",
+    },
+];
+
 pub async fn index(State(state): State<AppState>) -> Result<Html<String>, WebError> {
     state.metrics.inc_page_view("singlethread");
     // The wallpaper and its photographer credit are decorative fallbacks:
@@ -19,6 +73,7 @@ pub async fn index(State(state): State<AppState>) -> Result<Html<String>, WebErr
 
 #[cfg(test)]
 mod tests {
+    use super::FAQ_ITEMS;
     use crate::test::{
         seed_wallpaper_no_url, start_app, start_app_with, start_unsplash_stub, test_client,
     };
@@ -112,5 +167,30 @@ mod tests {
         assert!(body.contains("Photo by NoLink Photographer on Unsplash"));
         // The name must NOT be wrapped in a link when photographer_url is empty
         assert!(!body.contains("NoLink Photographer</a>"));
+    }
+
+    #[test]
+    fn faq_items_all_non_empty() {
+        for (i, item) in FAQ_ITEMS.iter().enumerate() {
+            assert!(!item.question.is_empty(), "FAQ item {i} has empty question");
+            assert!(!item.answer.is_empty(), "FAQ item {i} has empty answer");
+        }
+    }
+
+    #[test]
+    fn faq_items_count() {
+        assert_eq!(FAQ_ITEMS.len(), 11);
+    }
+
+    #[test]
+    fn faq_items_no_duplicate_questions() {
+        let mut seen = std::collections::HashSet::new();
+        for item in FAQ_ITEMS {
+            assert!(
+                seen.insert(item.question),
+                "Duplicate FAQ question: {}",
+                item.question
+            );
+        }
     }
 }
