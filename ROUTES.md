@@ -23,7 +23,8 @@ fails.
 
 Renders the SingleThread page with an app-icon hero (icon badge + tagline),
 platform badges (iPhone, iPad, Mac, Watch), a gradient decorative divider,
-screenshot and watch-image cards with hover transitions, feature lists, and a
+screenshot and watch-image cards with hover transitions, feature lists, an
+FAQ section with collapsible Q&A pairs (native <details>/<summary> widgets), and a
 closing CTA line. Includes a random Unsplash wallpaper and photographer credit
 (linked name when a profile URL is available, plain text otherwise). The
 wallpaper and credit gracefully degrade to hidden when the Unsplash fetch

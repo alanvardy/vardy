@@ -335,7 +335,7 @@ FAQ section with collapsible Q&A pairs (native <details>/<summary> widgets), and
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` passes (no code changes; gate confirms ROUTES.md change is syntactically fine)
+- [x] `./scripts/test.sh` passes (no code changes; gate confirms ROUTES.md change is syntactically fine)
 
 #### Manual
 - [ ] `git diff ROUTES.md` — review the updated block; verify it still follows `###` … `---` self-contained convention
