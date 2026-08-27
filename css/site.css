@@ -198,6 +198,9 @@
 
     .faq-item summary {
         cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
         color: var(--color-muted);
         padding: 0.75rem 0;
         list-style: none;
@@ -205,8 +208,19 @@
         transition: color 200ms;
     }
 
+    .faq-item summary .faq-chevron {
+        display: inline-flex;
+        flex: none;
+        color: var(--color-accent);
+        transition: transform 200ms ease;
+    }
+
     .faq-item summary:hover {
         color: var(--color-text);
+    }
+
+    .faq-item[open] summary .faq-chevron {
+        transform: rotate(90deg);
     }
 
     .faq-item summary::marker,
