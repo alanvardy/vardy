@@ -348,8 +348,8 @@ Note: `index()` changes from `render(&state, false)` to `render(&state, false, N
 
 ### Verification
 #### Automated
-- [ ] `./scripts/test.sh` passes (full gate: fmt, sqlx, check, CSS drift, clippy, nextest, no TODOs)
-- [ ] `post_valid_form_sends_email` continues to pass (regression — validates existing behavior unchanged)
+- [x] `./scripts/test.sh` passes (full gate: fmt, sqlx, check, CSS drift, clippy, nextest, no TODOs)
+- [x] `post_valid_form_sends_email` continues to pass (regression — validates existing behavior unchanged)
 
 #### Manual
 - [ ] N/A — integration tests are self-verifying
