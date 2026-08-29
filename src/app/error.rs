@@ -72,6 +72,7 @@ impl IntoResponse for WebError {
                 sentry::capture_error(&ExternalError(message));
                 (StatusCode::BAD_GATEWAY, "bad gateway").into_response()
             }
+            // Expected 429 for rate-limited clients; not a server fault to alert on.
             WebError::TooManyRequests { retry_after_secs } => (
                 StatusCode::TOO_MANY_REQUESTS,
                 [("retry-after", retry_after_secs.to_string())],
