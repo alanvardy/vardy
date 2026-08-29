@@ -94,7 +94,7 @@ This scans `templates/` for utility classes and emits them into the compiled out
 ### Verification
 
 #### Automated
-- [ ] `./scripts/build-css.sh && git diff --exit-code -- static/site.css` passes (exit 0) — confirms the regenerated file matches what was just built
+- [x] `./scripts/build-css.sh && git diff --exit-code -- static/site.css` passes (exit 0) — confirms the regenerated file matches what was just built
 
 ---
 
@@ -150,5 +150,5 @@ All existing tests pass unchanged:
 ## Testing Checkpoints
 
 - [x] **Phase 1**: `git diff -- templates/` shows only the four utility-class additions in `templates/contact.html` and `templates/layout.html`
-- [ ] **Phase 2**: `./scripts/build-css.sh && git diff --exit-code -- static/site.css` passes (exit 0)
+- [x] **Phase 2**: `./scripts/build-css.sh && git diff --exit-code -- static/site.css` passes (exit 0)
 - [ ] **Phase 3**: `./scripts/test.sh` passes (exit 0, all tests green, no CSS drift)
