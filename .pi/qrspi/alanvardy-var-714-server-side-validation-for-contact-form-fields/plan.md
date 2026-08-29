@@ -506,8 +506,8 @@ Updated tests (replace the Stage 3 versions):
 
 ### Verification
 #### Automated
-- [ ] `./scripts/test.sh` passes (full gate: fmt, sqlx, check, **CSS drift**, clippy, nextest, no TODOs)
-- [ ] If CSS drift check fails: run `./scripts/build-css.sh` to regenerate `static/site.css` with the new Tailwind classes (`bg-red-100`, `border-red-400`, `text-red-700`, `px-4`, `py-3`, `rounded`, `mb-4`), then commit the updated CSS
+- [x] `./scripts/test.sh` passes (full gate: fmt, sqlx, check, **CSS drift**, clippy, nextest, no TODOs)
+- [x] If CSS drift check fails: run `./scripts/build-css.sh` to regenerate `static/site.css` with the new Tailwind classes (`bg-red-100`, `border-red-400`, `text-red-700`, `px-4`, `py-3`, `rounded`, `mb-4`), then commit the updated CSS
 
 #### Manual
 - [ ] N/A — integration tests with template assertions are self-verifying

@@ -207,6 +207,10 @@ mod tests {
         assert_eq!(stub.call_count.load(Ordering::SeqCst), 0);
         let body = res.text().await.unwrap();
         assert!(body.contains("<form"));
+        assert!(body.contains("bg-red-100"));
+        assert!(body.contains("Please enter your name."));
+        assert!(body.contains(r#"value="a@b.cc""#));
+        assert!(body.contains("hi</textarea>"));
     }
 
     #[tokio::test]
@@ -221,7 +225,12 @@ mod tests {
             .expect("request failed");
         assert_eq!(res.status(), StatusCode::OK);
         assert_eq!(stub.call_count.load(Ordering::SeqCst), 0);
-        assert!(res.text().await.unwrap().contains("<form"));
+        let body = res.text().await.unwrap();
+        assert!(body.contains("<form"));
+        assert!(body.contains("bg-red-100"));
+        assert!(body.contains("Please enter your email address."));
+        assert!(body.contains(r#"value="Alan""#));
+        assert!(body.contains("hi</textarea>"));
     }
 
     #[tokio::test]
@@ -236,7 +245,12 @@ mod tests {
             .expect("request failed");
         assert_eq!(res.status(), StatusCode::OK);
         assert_eq!(stub.call_count.load(Ordering::SeqCst), 0);
-        assert!(res.text().await.unwrap().contains("<form"));
+        let body = res.text().await.unwrap();
+        assert!(body.contains("<form"));
+        assert!(body.contains("bg-red-100"));
+        assert!(body.contains("Please enter a message."));
+        assert!(body.contains(r#"value="Alan""#));
+        assert!(body.contains(r#"value="a@b.cc""#));
     }
 
     #[tokio::test]
@@ -256,7 +270,10 @@ mod tests {
             .expect("request failed");
         assert_eq!(res.status(), StatusCode::OK);
         assert_eq!(stub.call_count.load(Ordering::SeqCst), 0);
-        assert!(res.text().await.unwrap().contains("<form"));
+        let body = res.text().await.unwrap();
+        assert!(body.contains("<form"));
+        assert!(body.contains("bg-red-100"));
+        assert!(body.contains("Name must be 200 characters or fewer."));
     }
 
     #[tokio::test]
