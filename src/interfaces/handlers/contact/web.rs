@@ -62,7 +62,7 @@ pub async fn create(
         return render(
             &state,
             false,
-            Some(&msg),
+            Some(msg),
             &form.name,
             &form.email,
             &form.message,
@@ -70,11 +70,8 @@ pub async fn create(
         .await;
     }
 
-    let subject = format!("New contact message from {} <{}>", form.name, form.email);
-    let text = format!(
-        "Name: {}\nEmail: {}\n\n{}",
-        form.name, form.email, form.message
-    );
+    let subject = form.subject();
+    let text = form.body();
     contact::send(&state, FROM_EMAIL, TO_EMAIL, &subject, &text).await?;
 
     render(&state, true, None, "", "", "").await
