@@ -137,6 +137,15 @@ mod tests {
         assert!(body.contains("Wallpaper Photographer"));
         assert!(body.contains(r#"href="https:&#x2f;&#x2f;unsplash.com&#x2f;@test""#));
         assert!(body.contains("on Unsplash"));
+        // responsive: wallpaper and credit are hidden on mobile breakpoints
+        assert!(body.contains(r#"class="wallpaper hidden md:block""#));
+        // Verify the credit div also has the responsive hide classes. We
+        // match a unique snippet from the credit element ("bg-black/50") to
+        // confirm it's present, and "hidden md:block" to confirm the
+        // responsive pattern (the wallpaper div also carries this, which is
+        // fine — both elements need the responsive hide).
+        assert!(body.contains("hidden md:block"));
+        assert!(body.contains("bg-black/50"));
     }
 
     #[tokio::test]

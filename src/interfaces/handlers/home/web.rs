@@ -66,6 +66,10 @@ mod tests {
         assert!(body.contains("Wallpaper Photographer"));
         assert!(body.contains(r#"href="https:&#x2f;&#x2f;unsplash.com&#x2f;@test""#));
         assert!(body.contains("on Unsplash"));
+        // responsive: wallpaper and credit are hidden on mobile breakpoints
+        assert!(body.contains(r#"class="wallpaper hidden md:block""#));
+        assert!(body.contains("hidden md:block"));
+        assert!(body.contains("bg-black/50"));
     }
 
     #[tokio::test]

@@ -112,6 +112,8 @@ mod tests {
         assert!(body.contains(r#"<a href="/">Home</a>"#));
         assert!(body.contains(r#"<a href="/singlethread">SingleThread</a>"#));
         assert!(body.contains(r#"<a href="/contact" class="active">Contact</a>"#));
+        // responsive: form column is full-width on mobile
+        assert!(body.contains(r#"class="w-full md:flex-1""#));
     }
 
     #[tokio::test]
