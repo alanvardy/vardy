@@ -109,7 +109,7 @@ Run the project's complete test gate. Includes CSS drift check (Phase 2's regene
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` passes (exit 0)
+- [x] `./scripts/test.sh` passes (exit 0)
 
 This runs in order:
 1. `cargo fmt --all`
@@ -151,4 +151,4 @@ All existing tests pass unchanged:
 
 - [x] **Phase 1**: `git diff -- templates/` shows only the four utility-class additions in `templates/contact.html` and `templates/layout.html`
 - [x] **Phase 2**: `./scripts/build-css.sh && git diff --exit-code -- static/site.css` passes (exit 0)
-- [ ] **Phase 3**: `./scripts/test.sh` passes (exit 0, all tests green, no CSS drift)
+- [x] **Phase 3**: `./scripts/test.sh` passes (exit 0, all tests green, no CSS drift)
