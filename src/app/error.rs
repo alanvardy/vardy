@@ -3,8 +3,8 @@ use axum::{
     response::{IntoResponse, Response},
 };
 
-/// The `NotFound` arm is only constructed from unit tests (coverage
-/// hardening); keep it alive for non-test builds.
+/// The `NotFound` and `BadRequest` arms are only constructed from unit
+/// tests (coverage hardening); keep them alive for non-test builds.
 #[allow(dead_code)]
 #[derive(Debug)]
 pub enum WebError {
@@ -12,6 +12,7 @@ pub enum WebError {
     Database(sqlx::Error),
     NotFound,
     External(String),
+    BadRequest(String),
     TooManyRequests { retry_after_secs: u64 },
 }
 
@@ -73,6 +74,8 @@ impl IntoResponse for WebError {
                 (StatusCode::BAD_GATEWAY, "bad gateway").into_response()
             }
             // Expected 429 for rate-limited clients; not a server fault to alert on.
+            WebError::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg).into_response(),
+            // Client fault: log nothing to Sentry.
             WebError::TooManyRequests { retry_after_secs } => (
                 StatusCode::TOO_MANY_REQUESTS,
                 [("retry-after", retry_after_secs.to_string())],
@@ -110,6 +113,16 @@ mod tests {
     fn external_error_is_502() {
         let res = WebError::External("boom".into()).into_response();
         assert_eq!(res.status(), StatusCode::BAD_GATEWAY);
+    }
+
+    #[tokio::test]
+    async fn bad_request_is_400_with_body() {
+        let res = WebError::BadRequest("invalid input".into()).into_response();
+        assert_eq!(res.status(), StatusCode::BAD_REQUEST);
+        let bytes = axum::body::to_bytes(res.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        assert_eq!(bytes.as_ref(), b"invalid input");
     }
 
     #[test]
