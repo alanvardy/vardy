@@ -12,9 +12,17 @@ use crate::app::state::AppState;
 const FROM_EMAIL: &str = "Contact Form <noreply@vardy.cc>";
 const TO_EMAIL: &str = "alan@vardy.cc";
 
-/// Shared render helper so GET (form) and POST (thank-you) render the same
-/// template with a `submitted` flag selecting the branch.
-async fn render(state: &AppState, submitted: bool) -> Result<Html<String>, WebError> {
+/// Shared render helper: GET (form), POST validation failure (form + error),
+/// and POST success (thank-you) all render the same template with a
+/// `submitted` flag selecting the branch.
+async fn render(
+    state: &AppState,
+    submitted: bool,
+    error: Option<&str>,
+    name: &str,
+    email: &str,
+    message: &str,
+) -> Result<Html<String>, WebError> {
     // The wallpaper and its photographer credit are decorative fallbacks:
     // render the page without them rather than failing the whole request
     // if Unsplash is unavailable.
@@ -22,13 +30,21 @@ async fn render(state: &AppState, submitted: bool) -> Result<Html<String>, WebEr
     let html = state
         .templates
         .get_template("contact.html")?
-        .render(context! { wallpaper_url, photographer, photographer_url, submitted, active_page => "contact" })?;
+        .render(context! {
+            wallpaper_url, photographer, photographer_url,
+            submitted,
+            error,
+            name,
+            email,
+            message,
+            active_page => "contact",
+        })?;
     Ok(Html(html))
 }
 
 pub async fn index(State(state): State<AppState>) -> Result<Html<String>, WebError> {
     state.metrics.inc_page_view("contact");
-    render(&state, false).await
+    render(&state, false, None, "", "", "").await
 }
 
 pub async fn create(
@@ -37,8 +53,21 @@ pub async fn create(
 ) -> Result<Html<String>, WebError> {
     // Honeypot: serde_urlencoded maps a present-but-empty field to
     // `Some("")`, so only a non-empty value means a bot filled it.
-    if form._website.is_some_and(|w| !w.trim().is_empty()) {
-        return render(&state, true).await; // silently accept, send nothing
+    if form._website.as_ref().is_some_and(|w| !w.trim().is_empty()) {
+        return render(&state, true, None, "", "", "").await; // silently accept, send nothing
+    }
+
+    // Validate before touching Resend — bad input re-renders the form.
+    if let Err(msg) = form.validate() {
+        return render(
+            &state,
+            false,
+            Some(&msg),
+            &form.name,
+            &form.email,
+            &form.message,
+        )
+        .await;
     }
 
     let subject = format!("New contact message from {} <{}>", form.name, form.email);
@@ -48,7 +77,7 @@ pub async fn create(
     );
     contact::send(&state, FROM_EMAIL, TO_EMAIL, &subject, &text).await?;
 
-    render(&state, true).await
+    render(&state, true, None, "", "", "").await
 }
 
 #[cfg(test)]
@@ -162,5 +191,84 @@ mod tests {
             }
         }
         assert!(saw_429, "expected at least one 429 within 10 rapid POSTs");
+    }
+
+    #[tokio::test]
+    async fn post_empty_name_returns_200_and_skips_email() {
+        let stub = start_resend_stub(StatusCode::OK).await;
+        let (addr, _) = start_app_with_resend(&stub.base_url).await;
+        let res = test_client()
+            .post(format!("http://{addr}/contact"))
+            .form(&[("name", ""), ("email", "a@b.cc"), ("message", "hi")])
+            .send()
+            .await
+            .expect("request failed");
+        assert_eq!(res.status(), StatusCode::OK);
+        assert_eq!(stub.call_count.load(Ordering::SeqCst), 0);
+        let body = res.text().await.unwrap();
+        assert!(body.contains("<form"));
+    }
+
+    #[tokio::test]
+    async fn post_empty_email_returns_200_and_skips_email() {
+        let stub = start_resend_stub(StatusCode::OK).await;
+        let (addr, _) = start_app_with_resend(&stub.base_url).await;
+        let res = test_client()
+            .post(format!("http://{addr}/contact"))
+            .form(&[("name", "Alan"), ("email", ""), ("message", "hi")])
+            .send()
+            .await
+            .expect("request failed");
+        assert_eq!(res.status(), StatusCode::OK);
+        assert_eq!(stub.call_count.load(Ordering::SeqCst), 0);
+        assert!(res.text().await.unwrap().contains("<form"));
+    }
+
+    #[tokio::test]
+    async fn post_empty_message_returns_200_and_skips_email() {
+        let stub = start_resend_stub(StatusCode::OK).await;
+        let (addr, _) = start_app_with_resend(&stub.base_url).await;
+        let res = test_client()
+            .post(format!("http://{addr}/contact"))
+            .form(&[("name", "Alan"), ("email", "a@b.cc"), ("message", "")])
+            .send()
+            .await
+            .expect("request failed");
+        assert_eq!(res.status(), StatusCode::OK);
+        assert_eq!(stub.call_count.load(Ordering::SeqCst), 0);
+        assert!(res.text().await.unwrap().contains("<form"));
+    }
+
+    #[tokio::test]
+    async fn post_over_length_name_returns_200_and_skips_email() {
+        let stub = start_resend_stub(StatusCode::OK).await;
+        let (addr, _) = start_app_with_resend(&stub.base_url).await;
+        let long_name = "a".repeat(201);
+        let res = test_client()
+            .post(format!("http://{addr}/contact"))
+            .form(&[
+                ("name", long_name.as_str()),
+                ("email", "a@b.cc"),
+                ("message", "hi"),
+            ])
+            .send()
+            .await
+            .expect("request failed");
+        assert_eq!(res.status(), StatusCode::OK);
+        assert_eq!(stub.call_count.load(Ordering::SeqCst), 0);
+        assert!(res.text().await.unwrap().contains("<form"));
+    }
+
+    #[tokio::test]
+    async fn post_missing_name_key_returns_422() {
+        let stub = start_resend_stub(StatusCode::OK).await;
+        let (addr, _) = start_app_with_resend(&stub.base_url).await;
+        let res = test_client()
+            .post(format!("http://{addr}/contact"))
+            .form(&[("email", "a@b.cc"), ("message", "hi")])
+            .send()
+            .await
+            .expect("request failed");
+        assert_eq!(res.status(), StatusCode::UNPROCESSABLE_ENTITY);
     }
 }
