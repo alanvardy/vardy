@@ -69,9 +69,9 @@ impl IntoResponse for WebError {
             }
             WebError::External(message) => {
                 tracing::error!(error = %message, "external error");
+                sentry::capture_error(&ExternalError(message));
                 (StatusCode::BAD_GATEWAY, "bad gateway").into_response()
             }
-            // Client fault, like `External`: log nothing to Sentry.
             WebError::TooManyRequests { retry_after_secs } => (
                 StatusCode::TOO_MANY_REQUESTS,
                 [("retry-after", retry_after_secs.to_string())],

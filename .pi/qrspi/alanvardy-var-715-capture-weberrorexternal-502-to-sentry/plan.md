@@ -111,7 +111,7 @@ The comment is no longer accurate — `External` now captures to Sentry, and `To
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` — full gate passes: format, sqlx prepare, check, CSS build + drift check, clippy, nextest (all targets), and forgotten-TODOs grep
+- [x] `./scripts/test.sh` — full gate passes: format, sqlx prepare, check, CSS build + drift check, clippy, nextest (all targets), and forgotten-TODOs grep
 
 #### Manual
 - [ ] `cargo nextest run` — verify the existing `external_error_is_502`, `resend_error_is_502`, `post_resend_failure_returns_502`, `upstream_failure_is_502`, `random_upstream_failure_502`, and `malformed_upstream_json_missing_user_links_is_502` tests all still pass (confirm no status-code regressions)
