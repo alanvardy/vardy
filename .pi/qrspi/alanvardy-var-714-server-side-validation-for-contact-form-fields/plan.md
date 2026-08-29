@@ -180,7 +180,7 @@ mod tests {
 
 ### Verification
 #### Automated
-- [ ] `cargo nextest run` passes (new unit tests green; existing tests unchanged)
+- [x] `cargo nextest run` passes (new unit tests green; existing tests unchanged)
 
 #### Manual
 - [ ] N/A — unit tests are self-verifying
