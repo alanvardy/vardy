@@ -15,6 +15,20 @@ pub enum WebError {
     TooManyRequests { retry_after_secs: u64 },
 }
 
+/// Newtype wrapper so `WebError::External(String)` can be passed to
+/// `sentry::capture_error` the same way the `Database` and `Template`
+/// arms pass their inner error types.
+#[derive(Debug)]
+struct ExternalError(String);
+
+impl std::fmt::Display for ExternalError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.0.fmt(f)
+    }
+}
+
+impl std::error::Error for ExternalError {}
+
 impl From<minijinja::Error> for WebError {
     fn from(err: minijinja::Error) -> Self {
         WebError::Template(err)
@@ -124,5 +138,21 @@ mod tests {
     fn sqlx_error_converts_via_from() {
         let err: WebError = sqlx::Error::RowNotFound.into();
         assert!(matches!(err, WebError::Database(_)));
+    }
+
+    #[test]
+    fn external_error_implements_error() {
+        let err = ExternalError("boom".into());
+        assert_eq!(err.to_string(), "boom");
+
+        // Bound-check: &ExternalError satisfies `impl Error`.
+        fn assert_error(_: &dyn std::error::Error) {}
+        assert_error(&err);
+    }
+
+    #[test]
+    fn external_error_is_send_sync() {
+        fn assert_send_sync<T: Send + Sync>() {}
+        assert_send_sync::<ExternalError>();
     }
 }
