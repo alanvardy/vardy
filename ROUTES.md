@@ -55,14 +55,18 @@ Unsplash fetch fails.
 ### POST /contact
 
 Accepts the contact form, skips email when the honeypot is filled (returns the
-two-column thank-you page silently), otherwise sends the message to the
-configured inbox via the Resend API and returns the two-column thank-you page
-(introductory copy in the left column, confirmation message in the right).
+two-column thank-you page silently), validates fields server-side (re-renders
+the form with an error banner and preserved input on failure), and otherwise
+sends the message to the configured inbox via the Resend API and returns the
+two-column thank-you page (introductory copy in the left column, confirmation
+message in the right).
 
 - Request body: `application/x-www-form-urlencoded` (`name`, `email`, `message`,
   `_website` honeypot)
-- Response: `200 OK` — `text/html` thank-you page
-- Errors: `502` via `WebError` (Resend API failure)
+- Response: `200 OK` — `text/html` thank-you page or re-rendered form with
+  error banner (validation failure)
+- Errors: `422` for missing form keys (axum default), `502` via `WebError`
+  (Resend API failure)
 - Rate limit: global per-IP GCRA limiter. Over limit → `429 Too Many Requests`,
   plain-text body `too many requests`, with `Retry-After` and `X-RateLimit-*` headers.
 - Rate limit: also a stricter dedicated tier (see

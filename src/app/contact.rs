@@ -14,28 +14,50 @@ pub struct ContactForm {
 }
 
 impl ContactForm {
+    /// Maximum name length in Unicode scalar values (characters).
+    pub const MAX_NAME_CHARS: usize = 200;
+    /// Maximum email length in bytes (RFC 5321).
+    pub const MAX_EMAIL_BYTES: usize = 254;
+    /// Maximum message length in Unicode scalar values (characters).
+    pub const MAX_MESSAGE_CHARS: usize = 10_000;
+
     /// Validate form fields and return the first human-readable error, if any.
     /// Checks empty/whitespace fields first, then maximum lengths.
-    pub fn validate(&self) -> Result<(), String> {
+    /// Name and message lengths are measured in characters (`chars().count()`);
+    /// email length is measured in bytes (`len()`, per RFC 5321).
+    pub fn validate(&self) -> Result<(), &'static str> {
         if self.name.trim().is_empty() {
-            return Err("Please enter your name.".into());
+            return Err("Please enter your name.");
         }
         if self.email.trim().is_empty() {
-            return Err("Please enter your email address.".into());
+            return Err("Please enter your email address.");
         }
         if self.message.trim().is_empty() {
-            return Err("Please enter a message.".into());
+            return Err("Please enter a message.");
         }
-        if self.name.len() > 200 {
-            return Err("Name must be 200 characters or fewer.".into());
+        if self.name.chars().count() > Self::MAX_NAME_CHARS {
+            return Err("Name must be 200 characters or fewer.");
         }
-        if self.email.len() > 254 {
-            return Err("Email must be 254 characters or fewer.".into());
+        if self.email.len() > Self::MAX_EMAIL_BYTES {
+            return Err("Email must be 254 characters or fewer.");
         }
-        if self.message.len() > 10_000 {
-            return Err("Message must be 10,000 characters or fewer.".into());
+        if self.message.chars().count() > Self::MAX_MESSAGE_CHARS {
+            return Err("Message must be 10,000 characters or fewer.");
         }
         Ok(())
+    }
+
+    /// Build the email subject line.
+    pub fn subject(&self) -> String {
+        format!("New contact message from {} <{}>", self.name, self.email)
+    }
+
+    /// Build the email body text.
+    pub fn body(&self) -> String {
+        format!(
+            "Name: {}\nEmail: {}\n\n{}",
+            self.name, self.email, self.message
+        )
     }
 }
 
