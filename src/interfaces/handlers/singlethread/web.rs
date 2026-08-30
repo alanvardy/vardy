@@ -437,8 +437,8 @@ mod tests {
 
     #[test]
     fn faq_items_count() {
-        assert_eq!(FAQS.len(), 2);
-        assert_eq!(all_faq_items().len(), 13);
+        assert_eq!(FAQS.len(), 4);
+        assert_eq!(all_faq_items().len(), 15);
     }
 
     #[test]
