@@ -1,12 +1,5 @@
 # Project Instructions
 
-## Responses
-- Keep responses concise
-- Ask clarifying questions when instructions are unclear
-
-## Skills
-- Pi skills live in `~/.pi/agent/skills/<name>/SKILL.md`
-
 ## Module Layout
 
 | Layer | Location | Examples |
@@ -25,6 +18,8 @@
 ## Tests
 - Unit tests live inline at the bottom of each source file in `#[cfg(test)] mod tests`, not in separate files
 - Happy and sad path tests need to be written
+- **Rendered HTML is minijinja-autoescaped** — assert against escaped forms
+  (`&#x27;` for `'`, `&#x2f;` for `/`) in HTML assertions, not raw strings
 - Integration-style tests boot the real router via `start_app()` from
   `src/test/mod.rs` (in-memory SQLite, random port) and assert with
   `test_client()`
@@ -45,16 +40,14 @@
   refresh metadata with `cargo sqlx prepare` after schema changes.
 - `scripts/test.sh` includes a CSS-drift check (`git diff --exit-code --
   static/site.css`) — if it fails, the committed `static/site.css` is out
-  of sync with the generated Tailwind output; run the Tailwind build step.
+  of sync with the generated Tailwind output; run the Tailwind build step,
+  commit the regenerated `static/site.css`, then re-run the gate.
 
 ## Commits and PRs
-- Code comments should describe what and why but not how
 - `main` is the base branch when reviewing code
-- Never push directly to main — all changes go through pull requests and are
-  merged into main
-
-## Migrations
-- Always use `sqlx migrate add <name>` to create new migration SQL files — never manually create files in the `migrations/` directory
+- If a session resumes onto a branch with uncommitted changes, treat them
+  as suspect (orphans from an interrupted session) — compare against
+  `plan.md` and the Linear ticket before keeping or reverting
 
 ## Routes
 - Any changes to routes or parameters needs to be updated in `ROUTES.md`
