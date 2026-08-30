@@ -89,14 +89,17 @@
 <p>SingleThread works with your existing Apple Reminders and syncs across your devices. Available on iPhone, iPad, and Mac, with a matching Apple Watch app and macOS widget; install on any one to get going. No account to create — your reminders stay in place.</p>
 
 <h2 class="heading-section">Frequently Asked Questions</h2>
+{% for category in faq_categories %}
+<h3 class="heading-subsection">{{ category.title }}</h3>
 <div class="space-y-0">
-    {% for item in faq_items %}
+    {% for item in category.items %}
     <details class="faq-item">
         <summary><span class="faq-chevron" aria-hidden="true"><svg viewBox="0 0 16 16" width="1.125em" height="1.125em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M6 4l4 4-4 4"/></svg></span>{{ item.question }}</summary>
         <p class="faq-answer text-muted mt-2">{{ item.answer }}</p>
     </details>
     {% endfor %}
 </div>
+{% endfor %}
 
 <p class="text-2xl text-accent text-center mt-12">Your reminders. One at a time. In order. At your pace.</p>
 {% endblock %}
