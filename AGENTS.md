@@ -25,9 +25,9 @@
   `test_client()`
 - `#[sqlx::test]` provisions a temporary per-test database and applies
   `migrations/` automatically
-
-## Shell
-- Pi skills: see `fish-shell` in `~/.pi/agent/skills/fish-shell/SKILL.md`
+- Assert rendered HTML on short unique substrings (e.g. `bg-black/50`),
+  never a full `class="…"` string or the head of a class list — those can
+  never match exactly.
 
 ## Commands
 - Run `./scripts/test.sh` to format, refresh sqlx offline metadata, type-
@@ -39,9 +39,9 @@
   `DATABASE_URL` or committed offline metadata: set `SQLX_OFFLINE=true` and
   refresh metadata with `cargo sqlx prepare` after schema changes.
 - `scripts/test.sh` includes a CSS-drift check (`git diff --exit-code --
-  static/site.css`) — if it fails, the committed `static/site.css` is out
-  of sync with the generated Tailwind output; run the Tailwind build step,
-  commit the regenerated `static/site.css`, then re-run the gate.
+  static/site.css`) — regenerate and commit `static/site.css` in the SAME
+  change as any Tailwind class edit; if the check fails, run the Tailwind
+  build step, commit the regenerated file, then re-run the gate.
 
 ## Commits and PRs
 - `main` is the base branch when reviewing code
