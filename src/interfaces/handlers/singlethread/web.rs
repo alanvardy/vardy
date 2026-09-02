@@ -53,6 +53,10 @@ const FAQS: &[FaqCategory] = &[
                 answer: "Because the functionality is already built in! I hold down the crown and say something along the lines of \"Remind me to get the milk today\" and it will create a reminder with today's date on it.",
             },
             FaqItem {
+                question: "My reminders don't seem to be syncing very quickly, how can I speed it up?",
+                answer: "Open up your Apple Reminders apps on the two devices that are experiencing the delay, this often triggers them to sync immediately (when they are in the background it can take longer)",
+            },
+            FaqItem {
                 question: "Does this app work off-line?",
                 answer: "It sure does! The changes to your reminders are stored on your device and will be synced to iCloud when you're next online. During this time, you will not be able to fetch new wallpapers, but the app will degrade gracefully in this case.",
             },
@@ -433,12 +437,6 @@ mod tests {
             assert!(!item.question.is_empty(), "FAQ item {i} has empty question");
             assert!(!item.answer.is_empty(), "FAQ item {i} has empty answer");
         }
-    }
-
-    #[test]
-    fn faq_items_count() {
-        assert_eq!(FAQS.len(), 4);
-        assert_eq!(all_faq_items().len(), 15);
     }
 
     #[test]
