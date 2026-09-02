@@ -230,9 +230,9 @@ struct ExternalError(String);
 
 ### Verification
 #### Automated
-- [ ] `./scripts/test.sh` passes end-to-end (format → sqlx prepare → check → CSS build/drift → clippy → tests → TODO grep)
-- [ ] Existing `src/app/error.rs` tests all pass unmodified — they assert `StatusCode`/body only, never capture behavior
-- [ ] `src/test/arkitect.rs` `test_architectural_rules` passes — `vardy::app` no longer references `sentry::` outside `#[cfg(test)]`; the AST walker (`deps_outside_test_modules`) reports zero `sentry` dependency from `app`
+- [x] `./scripts/test.sh` passes end-to-end (format → sqlx prepare → check → CSS build/drift → clippy → tests → TODO grep)
+- [x] Existing `src/app/error.rs` tests all pass unmodified — they assert `StatusCode`/body only, never capture behavior
+- [x] `src/test/arkitect.rs` `test_architectural_rules` passes — `vardy::app` no longer references `sentry::` outside `#[cfg(test)]`; the AST walker (`deps_outside_test_modules`) reports zero `sentry` dependency from `app`
 
 #### Manual
 - [ ] `rg "sentry::" src/app` returns no matches outside test code (only `crate::infra::sentry::…` calls remain)
