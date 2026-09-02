@@ -24,4 +24,5 @@ chrono = "0.4"
 [dev-dependencies]
 tower = "0.5"
 rust_arkitect = "0.3.7"
+sentry = { version = "0.49", features = ["test"] }
 syn = { version = "2", features = ["full", "visit"] }

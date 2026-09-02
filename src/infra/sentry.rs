@@ -47,3 +47,34 @@ fn is_broken_pipe(info: &std::panic::PanicHookInfo<'_>) -> bool {
 
     msg.is_some_and(|m| m.contains("Broken pipe") || m.contains("os error 32"))
 }
+
+/// Identifies which `WebError` arm triggered a Sentry capture.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ErrorSource {
+    Database,
+    Template,
+    External,
+}
+
+impl ErrorSource {
+    /// The `source` tag value attached to a captured Sentry event.
+    pub fn as_tag(&self) -> &'static str {
+        match self {
+            ErrorSource::Database => "database",
+            ErrorSource::Template => "template",
+            ErrorSource::External => "external",
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn error_source_variants_map_correctly() {
+        assert_eq!(ErrorSource::Database.as_tag(), "database");
+        assert_eq!(ErrorSource::Template.as_tag(), "template");
+        assert_eq!(ErrorSource::External.as_tag(), "external");
+    }
+}
