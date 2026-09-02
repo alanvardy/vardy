@@ -67,6 +67,17 @@ impl ErrorSource {
     }
 }
 
+/// Captures `err` in Sentry with a `source` tag identifying the error category.
+///
+/// Centralizes enrichment: every capture site must call this rather than
+/// `sentry::capture_error` directly. No-op when no client is bound.
+pub fn capture_error_with_source<E: std::error::Error>(err: &E, source: ErrorSource) {
+    sentry::with_scope(
+        |scope| scope.set_tag("source", source.as_tag()),
+        || sentry::capture_error(err),
+    );
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -76,5 +87,19 @@ mod tests {
         assert_eq!(ErrorSource::Database.as_tag(), "database");
         assert_eq!(ErrorSource::Template.as_tag(), "template");
         assert_eq!(ErrorSource::External.as_tag(), "external");
+    }
+
+    #[test]
+    fn capture_includes_source_tag() {
+        let events = sentry::test::with_captured_events(|| {
+            let err = std::io::Error::new(std::io::ErrorKind::Other, "boom");
+            capture_error_with_source(&err, ErrorSource::Database);
+        });
+
+        assert_eq!(events.len(), 1, "expected exactly one captured event");
+        assert_eq!(
+            events[0].tags.get("source").map(String::as_str),
+            Some("database")
+        );
     }
 }

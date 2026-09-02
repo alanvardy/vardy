@@ -156,8 +156,8 @@ Notes (verified against pinned sources):
 
 ### Verification
 #### Automated
-- [ ] `cargo nextest run --lib capture_includes_source_tag` passes — one event captured, `source == "database"`
-- [ ] `cargo nextest run --lib` passes — the Stage 1 enum test still passes alongside the new test
+- [x] `cargo nextest run --lib capture_includes_source_tag` passes — one event captured, `source == "database"`
+- [x] `cargo nextest run --lib` passes — the Stage 1 enum test still passes alongside the new test
 
 #### Manual
 - [ ] Temporarily change the assertion to `Some("wrong")` and confirm the test fails
