@@ -1,3 +1,4 @@
+use crate::infra::sentry::{ErrorSource, capture_error_with_source};
 use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
@@ -16,9 +17,11 @@ pub enum WebError {
     TooManyRequests { retry_after_secs: u64 },
 }
 
-/// Newtype wrapper so `WebError::External(String)` can be passed to
-/// `sentry::capture_error` the same way the `Database` and `Template`
-/// arms pass their inner error types.
+/// Typed-error wrapper for `WebError::External`'s `String` payload.
+///
+/// Lets the `External` arm satisfy the `E: std::error::Error` bound on
+/// `capture_error_with_source` while preserving the value as an exception
+/// (with its error chain) in Sentry rather than a message event.
 #[derive(Debug)]
 struct ExternalError(String);
 
@@ -60,17 +63,17 @@ impl IntoResponse for WebError {
             WebError::NotFound => (StatusCode::NOT_FOUND, "not found").into_response(),
             WebError::Database(err) => {
                 tracing::error!(error = ?err, "database error");
-                sentry::capture_error(&err);
+                capture_error_with_source(&err, ErrorSource::Database);
                 (StatusCode::INTERNAL_SERVER_ERROR, "internal server error").into_response()
             }
             WebError::Template(err) => {
                 tracing::error!(error = ?err, "template render error");
-                sentry::capture_error(&err);
+                capture_error_with_source(&err, ErrorSource::Template);
                 (StatusCode::INTERNAL_SERVER_ERROR, "internal server error").into_response()
             }
             WebError::External(message) => {
                 tracing::error!(error = %message, "external error");
-                sentry::capture_error(&ExternalError(message));
+                capture_error_with_source(&ExternalError(message), ErrorSource::External);
                 (StatusCode::BAD_GATEWAY, "bad gateway").into_response()
             }
             // Expected 429 for rate-limited clients; not a server fault to alert on.

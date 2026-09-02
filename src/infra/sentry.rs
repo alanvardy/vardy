@@ -92,7 +92,7 @@ mod tests {
     #[test]
     fn capture_includes_source_tag() {
         let events = sentry::test::with_captured_events(|| {
-            let err = std::io::Error::new(std::io::ErrorKind::Other, "boom");
+            let err = std::io::Error::other("boom");
             capture_error_with_source(&err, ErrorSource::Database);
         });
 
