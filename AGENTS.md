@@ -55,12 +55,10 @@
   self-contained block — use `---` as the cut point when making batch edits
 
 ## QRSPI Workflow
-Features follow the QRSPI pipeline: `/1_spec` → `/2_clarify` → `/3_design` →
-`/4_research` → `/5_plan` → `/6_implement`. Do not implement features outside
-this flow. If a user requests a new feature after `/5_plan` but before
-`/6_implement`, redirect to `/1_spec` to expand scope rather than
-implementing directly.
+Follow the QRSPI pipeline (`/1_spec` → `/6_implement`) — see the `qrspi`
+skill; don't implement outside it; scope changes after `/5_plan` go back to
+`/1_spec`.
 
 ## Error Responses
 - All handler errors go through `WebError`'s `IntoResponse` impl
-  (`src/app/error.rs`). Error handling chokepoint policy: see `~/.pi/agent/AGENTS.md`.
+  (`src/app/error.rs`). Error handling chokepoint policy: see `~/.pi/agent/AGENTS.md` (`## Errors`).
