@@ -63,4 +63,4 @@ implementing directly.
 
 ## Error Responses
 - All handler errors go through `WebError`'s `IntoResponse` impl
-  (`src/app/error.rs`). Error handling chokepoint policy: see `~/AGENTS.md`.
+  (`src/app/error.rs`). Error handling chokepoint policy: see `~/.pi/agent/AGENTS.md`.
