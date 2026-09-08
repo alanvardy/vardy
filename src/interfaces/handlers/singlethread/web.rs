@@ -45,8 +45,8 @@ const FAQS: &[FaqCategory] = &[
                 answer: "I have been toying with the idea of supporting more task managers, please let me know if this is something that you desire and for which task manager.",
             },
             FaqItem {
-                question: "Why can't I see url or file attachments?",
-                answer: "I would love to implement this but Apple's internal API for this has been broken for a while, if or when this is fixed I would be delighted to add it.",
+                question: "Why can't I see some of my reminder details?",
+                answer: "Apple doesn't give third-party apps access to everything in Reminders. I show the title, notes, due date, list, priority, and whether it repeats or has an alarm, but links, file attachments, tags, flags, location, start dates, alarm times and sounds, completion times, time zones, and custom repeat schedules stay behind Apple's doors — if they ever open, I'd love to show them all.",
             },
             FaqItem {
                 question: "Why don't you have dictation on the watch?",
