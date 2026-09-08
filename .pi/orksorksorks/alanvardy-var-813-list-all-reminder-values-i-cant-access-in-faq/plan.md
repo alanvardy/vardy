@@ -85,7 +85,9 @@ trims connective words to keep the answer at 62 words.
 
 Replace only the `question` and `answer` string literals of the existing
 `FaqItem` at `web.rs:47-50`. Keep the `FaqItem { ... },` wrapper, `&'static str`
-types, category, ordering, and 16-item count unchanged.
+types, category, ordering, and 17-item count unchanged (count was 16 when this plan was
+      written; an earlier merged PR added a "Why can't I filter reminders by
+      flagged reminders?" FAQ).
 
 **Before** (`web.rs:47-50`, verbatim from research Q5):
 
@@ -107,12 +109,14 @@ types, category, ordering, and 16-item count unchanged.
 
 **Constraints honored** (no code change beyond the two literals):
 
-- [ ] `struct FaqItem` shape (`web.rs:8-16`) and `FAQS: &[FaqCategory]`
+- [x] `struct FaqItem` shape (`web.rs:8-16`) and `FAQS: &[FaqCategory]`
       (`web.rs:18`) — untouched. No new types, no signature changes.
-- [ ] Item stays in the "Features" category block (`web.rs:36-61`); item count
-      remains 16 (1-for-1 replacement; do **not** add a hardcoded count — the
-      count test was deliberately deleted in commit `ca47860`).
-- [ ] Downstream unchanged: handler serde-marshals `FAQS` to `serde_json::Value`
+- [x] Item stays in the "Features" category block (`web.rs:36-61`); item count
+      remains 17 — 16 at plan time, plus a "Why can't I filter reminders by
+      flagged reminders?" FAQ added by an earlier merged PR. 1-for-1
+      replacement; do **not** add a hardcoded count — the count test was
+      deliberately deleted in commit `ca47860`.
+- [x] Downstream unchanged: handler serde-marshals `FAQS` to `serde_json::Value`
       (`web.rs:114-123`) → template loop (`templates/singlethread.html:91-100`).
       No template / route / ROUTES.md edit.
 
@@ -151,20 +155,20 @@ None — unless the CSS-drift check (below) unexpectedly fires.
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` passes end-to-end. Its steps, in order (per
+- [x] `./scripts/test.sh` passes end-to-end. Its steps, in order (per
       conventions.md):
-  - [ ] `cargo fmt --all` — clean (text-only edit produces no fmt change).
-  - [ ] `cargo sqlx prepare -- --tests` — no `.sqlx/` drift (no schema change).
-  - [ ] `cargo check --all-targets` — clean.
-  - [ ] `./scripts/build-css.sh` then `git diff --exit-code -- static/site.css` —
+  - [x] `cargo fmt --all` — clean (text-only edit produces no fmt change).
+  - [x] `cargo sqlx prepare -- --tests` — no `.sqlx/` drift (no schema change).
+  - [x] `cargo check --all-targets` — clean.
+  - [x] `./scripts/build-css.sh` then `git diff --exit-code -- static/site.css` —
         **no CSS drift expected** (no Tailwind class changed). If this check
         *does* fire, run `./scripts/build-css.sh` and commit the regenerated
         `static/site.css` in the same change (AGENTS.md "Tests"), then re-run
         the gate.
-  - [ ] `cargo clippy --all-targets --all-features --locked -- -D warnings` —
+  - [x] `cargo clippy --all-targets --all-features --locked -- -D warnings` —
         clean.
-  - [ ] `cargo nextest run` — all tests pass.
-  - [ ] TODO grep (`rg -i -s -g '*.rs' 'FIXME|fixme|dbg!|DEBUG:|FIXTURE:|TODO\s|todo\s' src`)
+  - [x] `cargo nextest run` — all tests pass.
+  - [x] TODO grep (`rg -i -s -g '*.rs' 'FIXME|fixme|dbg!|DEBUG:|FIXTURE:|TODO\s|todo\s' src`)
         — no matches (fail-on-match).
 
 #### Manual
@@ -174,7 +178,8 @@ None — unless the CSS-drift check (below) unexpectedly fires.
   - [ ] New Q&A ("Why can't I see some of my reminder details?" + the
         consolidated answer) renders under the "Features" heading.
   - [ ] Old "url or file attachments" text is absent.
-  - [ ] Exactly 16 `<details class="faq-item">` items remain; surrounding
+  - [ ] Exactly 17 `<details class="faq-item">` items remain (was 16 at plan time;
+      an earlier merged PR added a "filter by flagged reminders" FAQ); surrounding
         `<details>`/`<summary>` structure and the closing CTA are intact.
   - [ ] Apostrophes render as `&#x27;` in the raw HTML (autoescape working),
         not raw `'`.
@@ -186,7 +191,7 @@ None — unless the CSS-drift check (below) unexpectedly fires.
 1. **After Phase 1** — copy passes the prose-constraint checklist and reviewer
    approval → proceed to the swap.
 2. **After Phase 2** — `cargo nextest run -E 'test(faq_)'` green (the 5 named
-   loops) and item count still 16 → proceed to the full gate.
+   loops) and item count still 17 → proceed to the full gate.
 3. **After Phase 3** — `./scripts/test.sh` green with no CSS drift → done;
    commit the single-file change.
 
