@@ -1,0 +1,3 @@
+# Task
+
+Add a SingleThread FAQ entry (in `FAQS` in `src/interfaces/handlers/singlethread/web.rs`) that lists every Apple Reminder value the app cannot access or display — URLs and file attachments are named in the ticket, tags/flags and the remaining set ("what else?") must be enumerated from Apple's EventKit/`EKReminder` surface and the `../SingleThread` codebase before any copy is written. The wording must stay consistent with the existing "Why can't I see url or file attachments?" FAQ item, which covers the same territory from the user's perspective.
