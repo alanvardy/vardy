@@ -30,13 +30,13 @@ Phase 2 will paste into the const.
 // Answer — raw string literal, first person, warm, NO list markers, no backticks.
 // Apostrophes and the em dash are written literally; autoescape is applied at
 // render, never pre-escaped in the const (design "Patterns NOT to follow").
-"Apple doesn't give third-party apps access to everything in Reminders. I show the title, notes, due date, list, priority, and whether it repeats or has an alarm, but links, file attachments, tags, flags, location, start dates, alarm times and sounds, completion times, time zones, and custom repeat schedules stay behind Apple's doors — if they ever open, I'd love to show them all."
+"Apple doesn't give third-party apps access to everything in Reminders. I show the title, notes, due date, list, priority, and whether it repeats or has an alarm, but links, location, start dates, alarm times and sounds, completion times, time zones, and custom repeat schedules are not shown, and tags, flags, and file attachments stay behind Apple's doors — if they ever open, I'd love to show them all."
 ```
 
 **Prose-constraint review checklist** (manual, no code assertions):
 
-- [x] **Word count** — 62 words (em dash is punctuation, not counted), 2
-      sentences. Sits at the top of the research Q1 11–62-word band; the design
+- [x] **Word count** — 67 words (em dash is punctuation, not counted), 2
+      sentences. Sits just above the research Q1 11–62-word band; the design
       "Open Risks: Length vs. convention tension" declares ~62 a soft ceiling,
       so this is acceptable. (The design draft ran ~64–67 words and was trimmed;
       see deviation notes at the bottom.)
@@ -45,13 +45,16 @@ Phase 2 will paste into the const.
       values are a comma-separated clause inside prose. ✓
 - [x] **First-person founder voice** — "I show…", "I'd love to show them all";
       warm closing mirrors the old "…I would be delighted to add it" tone. ✓
-- [x] **10 values enumerated, none internal** — links, file attachments, tags,
-      flags, location, start dates, alarm times and sounds, completion times,
-      time zones, custom repeat schedules (design DD-2 set, all 10 present).
-      No `creationDate` / `lastModifiedDate` / `attendees` / recurrence sub-field
-      dump. ✓
+- [x] **10 values enumerated, none internal** — the seven SDK-present-but-unread
+      values (links, location, start dates, alarm times and sounds, completion
+      times, time zones, custom repeat schedules) plus the three with no
+      EventKit surface (tags, flags, file attachments); design DD-2 set, all 10
+      present. No `creationDate` / `lastModifiedDate` / `attendees` / recurrence
+      sub-field dump. ✓
 - [x] **Honest framing** — "Apple doesn't give third-party apps access", no
-      "broken internal API" claim (design DD-3 / "NOT to follow"). ✓
+      "broken internal API" claim (design DD-3 / "NOT to follow"); "are not
+      shown" is assigned to the app, "behind Apple's doors" only to the three
+      SDK-absent values. ✓
 - [x] **Raw, unescaped** — literals kept raw; any `'` renders to `&#x27;`
       test-side only (design "Autoescape"). Note: the answer contains three
       apostrophes — "doesn't", "Apple's", "I'd" — and one em dash; no `/`. No
@@ -61,6 +64,16 @@ Phase 2 will paste into the const.
 8 of the 10 values (omitted "time zone" and "custom repeat schedules"), which
 would have violated design DD-2 ("the 10 values"). This copy adds both and
 trims connective words to keep the answer at 62 words.
+
+**Review revision (large-review)**: the initial shipped copy attributed all ten
+values to "stay behind Apple's doors", over-claiming for the seven EventKit
+exposes but SingleThread never reads (links, location, start dates, alarm times
+and sounds, completion times, time zones, custom repeat schedules) — the design's
+own "Open Risks: Over-claiming on url" warning, which the copy under-honored.
+Final reword splits the two classes: "are not shown" for the seven SDK-present
+values vs "stay behind Apple's doors" for tags/flags/file attachments (no
+EventKit surface). This lands at 67 words / 2 sentences; the 3 apostrophes, one
+em dash, no-list, and first-person constraints still hold.
 
 ### Verification
 
@@ -103,7 +116,7 @@ types, category, ordering, and 17-item count unchanged (count was 16 when this p
 ```rust
             FaqItem {
                 question: "Why can't I see some of my reminder details?",
-                answer: "Apple doesn't give third-party apps access to everything in Reminders. I show the title, notes, due date, list, priority, and whether it repeats or has an alarm, but links, file attachments, tags, flags, location, start dates, alarm times and sounds, completion times, time zones, and custom repeat schedules stay behind Apple's doors — if they ever open, I'd love to show them all.",
+                answer: "Apple doesn't give third-party apps access to everything in Reminders. I show the title, notes, due date, list, priority, and whether it repeats or has an alarm, but links, location, start dates, alarm times and sounds, completion times, time zones, and custom repeat schedules are not shown, and tags, flags, and file attachments stay behind Apple's doors — if they ever open, I'd love to show them all.",
             },
 ```
 
@@ -125,14 +138,14 @@ types, category, ordering, and 17-item count unchanged (count was 16 when this p
 #### Automated
 - [x] `cargo nextest run -E 'test(faq_)'` passes — runs the FAQ suites in the
       inline test module (`web.rs:131-453`). Specifically:
-  - [x] `faq_all_questions_appear` (`web.rs:253`) — new question renders.
-  - [x] `faq_all_answers_appear` (`web.rs:276`) — new answer renders in escaped
-        form (exercises the four `'` via the `html_escape` helper
-        `web.rs:415-425`).
-  - [x] `faq_items_all_non_empty` (`web.rs:428`) — no empty strings.
-  - [x] `faq_items_no_duplicate_questions` (`web.rs:443`) — replacement didn't
+  - [x] `faq_all_questions_appear` (`web.rs:257`) — new question renders.
+  - [x] `faq_all_answers_appear` (`web.rs:280`) — new answer renders in escaped
+        form (exercises the three `'` via the `html_escape` helper
+        `web.rs:421`).
+  - [x] `faq_items_all_non_empty` (`web.rs:432`) — no empty strings.
+  - [x] `faq_items_no_duplicate_questions` (`web.rs:447`) — replacement didn't
         duplicate a question.
-  - [x] `faq_items_grouped_under_category_headings` (`web.rs:366`) — item stays
+  - [x] `faq_items_grouped_under_category_headings` (`web.rs:370`) — item stays
         under "Features".
 - [x] `cargo check --all-targets` passes (fast type-check gate; the full check
       runs again in Phase 3's `./scripts/test.sh`).
@@ -201,8 +214,11 @@ None — unless the CSS-drift check (below) unexpectedly fires.
 
 - **Draft copy enumerated 8 of the 10 values** (missing "time zone" and "custom
   repeat schedules"). Resolved in Phase 1 by including all 10 and trimming
-  connective wording so the answer lands at 62 words / 2 sentences — inside the
-  research Q1 band and the design's acknowledged "soft ceiling".
+  connective wording so the answer lands at 62 words / 2 sentences.
+- **Review revision** reworded the answer to split "are not shown" (7 SDK-present
+  values) from "behind Apple's doors" (tags/flags/file attachments); the final
+  copy is 67 words / 2 sentences, 3 apostrophes, one em dash, no lists (see the
+  Phase 1 review-revision note).
 - **No new test assertions** are added, per design "Patterns to Follow" (count
   test deliberately deleted, `ca47860`); the existing `faq_*` loops close the
   loop on render/duplicate/emptiness.
