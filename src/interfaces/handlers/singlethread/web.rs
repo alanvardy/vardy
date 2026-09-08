@@ -98,6 +98,10 @@ const FAQS: &[FaqCategory] = &[
                 question: "Can I contact you with questions, bug reports, or feature requests?",
                 answer: "I would appreciate it! Please use my contact form and I will read your email personally.",
             },
+            FaqItem {
+                question: "Why can't I filter reminders by flagged reminders?",
+                answer: "Apple unfortunately doesn't expose flags to outside apps, if they ever do I will support it!",
+            },
         ],
     },
 ];
