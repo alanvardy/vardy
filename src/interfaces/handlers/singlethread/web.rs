@@ -46,7 +46,7 @@ const FAQS: &[FaqCategory] = &[
             },
             FaqItem {
                 question: "Why can't I see some of my reminder details?",
-                answer: "Apple doesn't give third-party apps access to everything in Reminders. I show the title, notes, due date, list, priority, and whether it repeats or has an alarm, but links, file attachments, tags, flags, location, start dates, alarm times and sounds, completion times, time zones, and custom repeat schedules stay behind Apple's doors — if they ever open, I'd love to show them all.",
+                answer: "Apple doesn't give third-party apps access to everything in Reminders. I show the title, notes, due date, list, priority, and whether it repeats or has an alarm, but links, location, start dates, alarm times and sounds, completion times, time zones, and custom repeat schedules are not shown, and tags, flags, and file attachments stay behind Apple's doors — if they ever open, I'd love to show them all.",
             },
             FaqItem {
                 question: "Why don't you have dictation on the watch?",
