@@ -1,0 +1,5 @@
+* text=auto eol=lf
+
+static/*.jpg -text
+*.png -text
+*.svg -text

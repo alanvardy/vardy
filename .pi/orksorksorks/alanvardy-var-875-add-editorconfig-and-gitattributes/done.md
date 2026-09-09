@@ -1,0 +1,7 @@
+# Done
+
+- **What was built**: Two new repo-root config files — `.editorconfig` (space indent, 4 for `*.rs`, 2 for yaml/toml/md, utf-8, LF, final-newline, trim-trailing-whitespace) and `.gitattributes` (`* text=auto eol=lf`; `static/*.jpg`, `*.png`, `*.svg` marked `-text`; no LFS), satisfying remediation REMEDIATION-16. Stray `DELETEME` orphan from the interrupted prior session was removed.
+- **Commit SHA(s)**: `60a0d0b` `chore: add .editorconfig and .gitattributes` (pushed). Net diff vs `main` = only the two new files (+20 lines).
+- **Verification**: Full gate `./scripts/test.sh` → 🎉 SUCCESS: fmt, sqlx prepare, check, CSS-drift check, clippy `-D warnings`, **112/112 nextest tests pass**, TODO grep clean. Local `test.db` was missing (interrupted-session artifact) — pre-created and migrations applied to restore it before the gate.
+- **Reviewer findings**: APPROVED — no blockers, no nits. Confirmed all ticket bullets present, valid syntax, no CRLF renormalization risk (only 2 SVGs, now binary), DELETEME fully gone (grep clean).
+- **Remaining manual items**: None. Branch `alanvardy-var-875-add-editorconfig-and-gitattributes` ready for PR (`git diff main...HEAD` = the two config files only); gate evidence in session log.
