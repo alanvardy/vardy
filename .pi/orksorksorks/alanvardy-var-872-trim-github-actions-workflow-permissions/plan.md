@@ -83,9 +83,9 @@ The single `deploy` job (no job-level `permissions:`) inherits this baseline.
 ### Verification
 
 #### Automated
-- [ ] `/opt/homebrew/bin/actionlint -ignore 'SC2086' .github/workflows/fly-deploy.yml; echo $status` → `0` (0 error findings).
-- [ ] `grep -n "contents: read" .github/workflows/fly-deploy.yml` matches the new line.
-- [ ] `grep -n "GITHUB_TOKEN" .github/workflows/fly-deploy.yml` → empty (no token reference introduced).
+- [x] `/opt/homebrew/bin/actionlint -ignore 'SC2086' .github/workflows/fly-deploy.yml; echo $status` → `0` (0 error findings).
+- [x] `grep -n "contents: read" .github/workflows/fly-deploy.yml` matches the new line.
+- [x] `grep -n "GITHUB_TOKEN" .github/workflows/fly-deploy.yml` → empty (no token reference introduced).
 
 #### Manual
 - [ ] Read the diff: `permissions: contents: read` sits at workflow level (between `on:` and `jobs:`); no other lines touched.
