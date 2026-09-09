@@ -4,15 +4,19 @@
 
 name: Dependabot Auto Merge
 
-on: [pull_request]
+# pull_request_target runs in the base branch's context with a write-capable
+# GITHUB_TOKEN — required to approve/auto-merge dependabot PRs.
+# SECURITY: never add a checkout of the PR head in this workflow (RCE risk).
+on:
+  pull_request_target:
 
 permissions:
-  pull-requests: write
-  contents: write
+  pull-requests: write  # approve + enable auto-merge (API); a contents write token is unreachable here
+  contents: read        # no checkout step — read-only if one is ever added
 
 jobs:
   auto-merge:
-    if: ${{ github.event_name == 'pull_request'}}
+    if: ${{ github.actor == 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     steps:
       - uses: fastify/github-action-merge-dependabot@v3
