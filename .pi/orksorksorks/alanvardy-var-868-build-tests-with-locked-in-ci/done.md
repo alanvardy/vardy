@@ -1,0 +1,7 @@
+# Done
+
+- **What was built**: CI now runs both test commands in `.github/workflows/ci.yml` with `--locked` so Cargo.lock is respected — the PR fast path (`cargo nextest run --locked --profile ci`) and the main coverage path (`cargo llvm-cov nextest --locked --profile ci --all-features --lcov --output-path lcov.info`). Flag placement matches the existing `--locked` convention in the clippy job. Also amended away a junk `DELETEME` placeholder commit left by an interrupted earlier session.
+- **Commit SHA(s)**: `300f39e` ("Build tests with --locked in CI") — single commit, only `.github/workflows/ci.yml` changed (+2/−2)
+- **Verification**: `actionlint` (only 2 pre-existing SC2086 infos on the untouched mold-install steps — actionlint is not wired into this repo's CI); Python YAML parse passes; `cargo nextest run --help` + installed `cargo-llvm-cov` both confirm `--locked` is a supported forwarded flag. Full CI validation runs on GitHub after the PR is marked ready.
+- **Reviewer findings**: no blockers, no nits. Reviewer statically confirmed correctness, scope, flag-forwarding, and that the SC2086 infos are pre-existing/unrelated.
+- **Remaining manual items**: mark PR #61 ready for review (currently draft) so GitHub Actions validates the `--locked` flags in the real CI environment; merge via `gh pr merge 61 --rebase --delete-branch` once green.
