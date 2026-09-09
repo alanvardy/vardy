@@ -35,13 +35,13 @@ None — these commands are the instrumentation. Nothing shipped here.
 ### Verification
 
 #### Automated
-- [ ] `/opt/homebrew/bin/actionlint .github/workflows/ci.yml .github/workflows/fly-deploy.yml .github/workflows/dependabot_auto_merge.yml` reports **0 error-level findings** on changed lines. Expected output is *exactly* the 2 pre-existing info-level shellcheck findings, both `SC2086` ("Double quote to prevent globbing and word splitting"):
+- [x] `/opt/homebrew/bin/actionlint .github/workflows/ci.yml .github/workflows/fly-deploy.yml .github/workflows/dependabot_auto_merge.yml` reports **0 error-level findings** on changed lines. Expected output is *exactly* the 2 pre-existing info-level shellcheck findings, both `SC2086` ("Double quote to prevent globbing and word splitting"):
   - `ci.yml:45:9` (mold-install `run:` block)
   - `ci.yml:116:9` (mold-install `run:` block in the clippy job)
   These are in unrelated `run:` blocks we never touch — the green bar is "no error findings, and no findings on changed lines", **not** "empty output".
-- [ ] `/opt/homebrew/bin/actionlint -ignore 'SC2086' .github/workflows/ci.yml .github/workflows/fly-deploy.yml .github/workflows/dependabot_auto_merge.yml; echo $status` prints `0` (exit-0 form of the same check).
-- [ ] `grep -n "actions: write" .github/workflows/*.yml` currently matches exactly `ci.yml:30` — confirms the detector fires and will catch Layer 2's removal.
-- [ ] `grep -n "contents: write" .github/workflows/dependabot_auto_merge.yml` currently matches `:11` — confirms the detector fires and will catch Layer 3's removal.
+- [x] `/opt/homebrew/bin/actionlint -ignore 'SC2086' .github/workflows/ci.yml .github/workflows/fly-deploy.yml .github/workflows/dependabot_auto_merge.yml; echo $status` prints `0` (exit-0 form of the same check).
+- [x] `grep -n "actions: write" .github/workflows/*.yml` currently matches exactly `ci.yml:30` — confirms the detector fires and will catch Layer 2's removal.
+- [x] `grep -n "contents: write" .github/workflows/dependabot_auto_merge.yml` currently matches `:11` — confirms the detector fires and will catch Layer 3's removal.
 
 #### Manual
 - [ ] Confirm the two grep assertions show the *known* hits (ci.yml:30, dependabot_auto_merge.yml:11) — the harness is proven able to catch the drift it will later require to vanish.
