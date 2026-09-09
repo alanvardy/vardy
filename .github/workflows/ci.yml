@@ -59,12 +59,12 @@ jobs:
       # PR path: fast, no coverage instrumentation — uses rust-cache
       - name: Cargo Test (PR — fast, no coverage)
         if: github.event_name == 'pull_request'
-        run: cargo nextest run --profile ci
+        run: cargo nextest run --locked --profile ci
 
       # Main push: full coverage with llvm-cov
       - name: Cargo Test (main — with coverage)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: cargo llvm-cov nextest --profile ci --all-features --lcov --output-path lcov.info
+        run: cargo llvm-cov nextest --locked --profile ci --all-features --lcov --output-path lcov.info
 
       - name: Upload coverage to codecov.io
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
