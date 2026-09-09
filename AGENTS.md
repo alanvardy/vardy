@@ -49,10 +49,11 @@
   as suspect (orphans from an interrupted session) — compare against
   `plan.md` and the Linear ticket before keeping or reverting
 - Merge PRs only with `--rebase` (`gh pr merge <n> --rebase --delete-branch`);
-  merge-commit and squash merges are disabled on `main`
+  merge-commit and squash merges are disabled repo-wide
 - Branch protection on `main` is managed by `scripts/branch-protection.sh` —
-  run it after any CI job `name:` change; the script is the canonical list of
-  required-check contexts
+  after any CI job `name:` change, update `REQUIRED_CONTEXTS` in the script
+  and run `./scripts/branch-protection.sh apply` (default `verify` is
+  read-only; `apply` pushes config and re-verifies; requires gh + jq)
 
 ## Routes
 - Any changes to routes or parameters needs to be updated in `ROUTES.md`

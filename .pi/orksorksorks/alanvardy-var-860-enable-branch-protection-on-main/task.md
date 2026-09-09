@@ -1,0 +1,3 @@
+# Task
+
+Enable GitHub branch protection on `main` for alanvardy/vardy (VAR-860, remediation REMEDIATION-1: `gh api repos/alanvardy/vardy/branches/main/protection` currently 404). Configure `required_status_checks` (strict=true) with contexts matching the actual CI check-run names, `required_linear_history`, and stale-review dismissal via the GitHub REST API, then verify with a GET. Existing automation (dependabot auto-merge, fly-deploy `workflow_run` on main pushes) must keep working. Decide whether `allow_merge_commit=false` is appropriate now that the rebase/merge convention is documented. Make the change reproducible via an in-repo script and/or doc note rather than a throwaway manual PUT.
