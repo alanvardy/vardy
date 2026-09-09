@@ -48,6 +48,11 @@
 - If a session resumes onto a branch with uncommitted changes, treat them
   as suspect (orphans from an interrupted session) — compare against
   `plan.md` and the Linear ticket before keeping or reverting
+- Merge PRs only with `--rebase` (`gh pr merge <n> --rebase --delete-branch`);
+  merge-commit and squash merges are disabled on `main`
+- Branch protection on `main` is managed by `scripts/branch-protection.sh` —
+  run it after any CI job `name:` change; the script is the canonical list of
+  required-check contexts
 
 ## Routes
 - Any changes to routes or parameters needs to be updated in `ROUTES.md`
