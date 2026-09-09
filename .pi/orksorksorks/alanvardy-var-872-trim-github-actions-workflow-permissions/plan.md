@@ -215,7 +215,7 @@ permissions:
 With:
 ```yaml
 permissions:
-  pull-requests: write  # approve + enable auto-merge (API); contents: write is unreachable here
+  pull-requests: write  # approve + enable auto-merge (API); a contents write token is unreachable here
   contents: read        # no checkout step — read-only if one is ever added
 ```
 
@@ -244,11 +244,11 @@ With:
 ### Verification
 
 #### Automated
-- [ ] `/opt/homebrew/bin/actionlint -ignore 'SC2086' .github/workflows/dependabot_auto_merge.yml; echo $status` → `0`.
-- [ ] `/opt/homebrew/bin/actionlint .github/workflows/dependabot_auto_merge.yml` → 0 findings on this file (trigger/guard/permission lines all valid).
-- [ ] `grep -n "contents: write" .github/workflows/dependabot_auto_merge.yml` → empty.
-- [ ] `grep -n "pull_request_target" .github/workflows/dependabot_auto_merge.yml` matches the new trigger.
-- [ ] `grep -n "dependabot\[bot\]" .github/workflows/dependabot_auto_merge.yml` matches the `if:` guard.
+- [x] `/opt/homebrew/bin/actionlint -ignore 'SC2086' .github/workflows/dependabot_auto_merge.yml; echo $status` → `0`.
+- [x] `/opt/homebrew/bin/actionlint .github/workflows/dependabot_auto_merge.yml` → 0 findings on this file (trigger/guard/permission lines all valid).
+- [x] `grep -n "contents: write" .github/workflows/dependabot_auto_merge.yml` → empty.
+- [x] `grep -n "pull_request_target" .github/workflows/dependabot_auto_merge.yml` matches the new trigger.
+- [x] `grep -n "dependabot\[bot\]" .github/workflows/dependabot_auto_merge.yml` matches the `if:` guard.
 
 #### Manual
 - [ ] Read the full file: header comment preserved; `on: pull_request_target:`; permissions are `pull-requests: write` + `contents: read`; `if: github.actor == 'dependabot[bot]'`; action + inputs unchanged.
