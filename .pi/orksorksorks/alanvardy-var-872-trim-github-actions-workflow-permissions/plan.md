@@ -271,13 +271,13 @@ None.
 ### Verification
 
 #### Automated
-- [ ] `/opt/homebrew/bin/actionlint -ignore 'SC2086' .github/workflows/ci.yml .github/workflows/fly-deploy.yml .github/workflows/dependabot_auto_merge.yml; echo $status` → `0`.
-- [ ] `/opt/homebrew/bin/actionlint .github/workflows/ci.yml .github/workflows/fly-deploy.yml .github/workflows/dependabot_auto_merge.yml` → only the 2 known `SC2086` info findings (`ci.yml:45`, `ci.yml:116`), no error findings, nothing on changed lines.
-- [ ] `grep -R "actions: write" .github/workflows` → nothing (was `ci.yml:30`).
-- [ ] `grep -R "contents: write" .github/workflows` → only `rust-version-bump.yml:13` remains (documented out-of-scope follow-up).
-- [ ] Workflow-level `permissions:` blocks across the three files contain only `contents: read`, except dependabot's justified `pull-requests: write`.
-- [ ] `./scripts/test.sh` green (Rust gate).
-- [ ] `git diff --exit-code --stat -- .github/workflows/ci.yml .github/workflows/fly-deploy.yml .github/workflows/dependabot_auto_merge.yml` shows exactly 3 files changed (no accidental edits elsewhere).
+- [x] `/opt/homebrew/bin/actionlint -ignore 'SC2086' .github/workflows/ci.yml .github/workflows/fly-deploy.yml .github/workflows/dependabot_auto_merge.yml; echo $status` → `0`.
+- [x] `/opt/homebrew/bin/actionlint .github/workflows/ci.yml .github/workflows/fly-deploy.yml .github/workflows/dependabot_auto_merge.yml` → only the 2 known `SC2086` info findings (`ci.yml:46`, `ci.yml:117` — shifted +1 from `:45`/`:116` by the Layer 2 `test` job block), no error findings, nothing on changed lines.
+- [x] `grep -R "actions: write" .github/workflows` → nothing (was `ci.yml:30`).
+- [x] `grep -R "contents: write" .github/workflows` → only `rust-version-bump.yml:13` remains (documented out-of-scope follow-up).
+- [x] Workflow-level `permissions:` blocks across the three files contain only `contents: read`, except dependabot's justified `pull-requests: write`.
+- [x] `./scripts/test.sh` green (Rust gate).
+- [x] `git diff --exit-code --stat -- .github/workflows/ci.yml .github/workflows/fly-deploy.yml .github/workflows/dependabot_auto_merge.yml` shows exactly 3 files changed (no accidental edits elsewhere).
 
 #### Manual
 - [ ] Open PR; confirm `push` (main) + `pull_request` CI jobs stay green, and `css-drift` + both codecov uploads succeed under the narrowed token.
