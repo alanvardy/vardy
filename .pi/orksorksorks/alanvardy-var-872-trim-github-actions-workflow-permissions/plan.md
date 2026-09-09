@@ -160,11 +160,11 @@ checkout + run Rust tooling). `css-drift` keeps its existing job-level
 ### Verification
 
 #### Automated
-- [ ] `/opt/homebrew/bin/actionlint -ignore 'SC2086' .github/workflows/ci.yml; echo $status` → `0`.
-- [ ] `/opt/homebrew/bin/actionlint .github/workflows/ci.yml` → only the 2 known `SC2086` info findings at `ci.yml:45` and `ci.yml:116`; **no** finding on any changed `permissions:`/`test:` line.
-- [ ] `grep -n "actions: write" .github/workflows/ci.yml` → empty.
-- [ ] `grep -n "pull-requests: write" .github/workflows/ci.yml` → matches only inside the `test` job block, not the workflow baseline.
-- [ ] `grep -n "contents: read" .github/workflows/ci.yml` → matches the baseline + `test` job + `css-drift` job (3 places).
+- [x] `/opt/homebrew/bin/actionlint -ignore 'SC2086' .github/workflows/ci.yml; echo $status` → `0`.
+- [x] `/opt/homebrew/bin/actionlint .github/workflows/ci.yml` → only the 2 known `SC2086` info findings at `ci.yml:46` and `ci.yml:117` (shifted +1 from `:45`/`:116` by the new `test` job block); **no** finding on any changed `permissions:`/`test:` line.
+- [x] `grep -n "actions: write" .github/workflows/ci.yml` → empty.
+- [x] `grep -n "pull-requests: write" .github/workflows/ci.yml` → matches only inside the `test` job block, not the workflow baseline.
+- [x] `grep -n "contents: read" .github/workflows/ci.yml` → matches the baseline + `test` job + `css-drift` job (3 places).
 
 #### Manual
 - [ ] Read the diff: baseline is exactly the single `contents: read` line; `test` job block lists `contents: read` then `pull-requests: write`; `css-drift` untouched.

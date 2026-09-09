@@ -25,9 +25,7 @@ env:
   RUSTFLAGS: "-C link-arg=-fuse-ld=mold"
 
 permissions:
-  contents: read
-  pull-requests: write
-  actions: write
+  contents: read    # checkout everywhere; no job needs more by default
 
 # Optional but recommended: cancel superseded runs on the same ref
 concurrency:
@@ -38,6 +36,9 @@ jobs:
   test:
     name: Cargo CI Tests
     runs-on: ubuntu-latest
+    permissions:
+      contents: read        # checkout
+      pull-requests: write  # codecov test_results upload on PRs (:79)
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
