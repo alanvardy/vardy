@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read        # checkout
-      pull-requests: write  # codecov test_results upload on PRs (:79)
+      pull-requests: write  # codecov test_results upload on PRs (:85)
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
