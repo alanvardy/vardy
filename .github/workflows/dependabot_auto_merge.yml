@@ -11,8 +11,8 @@ on:
   pull_request_target:
 
 permissions:
-  pull-requests: write  # approve + enable auto-merge (API); a contents write token is unreachable here
-  contents: read        # no checkout step — read-only if one is ever added
+  pull-requests: write  # approve + enable auto-merge (API)
+  contents: write        # required for enablePullRequestAutoMerge GraphQL mutation
 
 jobs:
   auto-merge:
