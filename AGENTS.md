@@ -18,33 +18,37 @@
 ## Tests
 - Unit tests live inline at the bottom of each source file in `#[cfg(test)] mod tests`, not in separate files
 - Happy and sad path tests need to be written
-- **Rendered HTML is minijinja-autoescaped** — assert against escaped forms
-  (`&#x27;` for `'`, `&#x2f;` for `/`) in HTML assertions, not raw strings
+- **Rendered HTML is minijinja-autoescaped** — assert escaped forms
+  (`&#x27;` for `'`, `&#x2f;` for `/`) and short unique substrings
+  (e.g. `bg-black/50`), never raw strings or a full `class="…"` value
 - Integration-style tests boot the real router via `start_app()` from
   `src/test/mod.rs` (in-memory SQLite, random port) and assert with
   `test_client()`
 - `#[sqlx::test]` provisions a temporary per-test database and applies
   `migrations/` automatically
-- Assert rendered HTML on short unique substrings (e.g. `bg-black/50`),
-  never a full `class="…"` string or the head of a class list — those can
-  never match exactly.
 
 ## Commands
-- Run `./scripts/test.sh` to format, refresh sqlx offline metadata, type-
-  check, lint, run tests, and grep for forgotten TODOs. It loads
-  `DATABASE_URL` from `.env`, which must exist.
+- Run `./scripts/test.sh` (format, sqlx offline metadata, type-check, lint,
+  tests, TODO grep, and a CSS-drift check on `static/site.css`). It loads
+  `DATABASE_URL` from `.env`, which must exist. Regenerate and commit
+  `static/site.css` in the SAME change as any Tailwind class edit.
 - The local database is SQLite at `sqlite:test.db`, set in `.env` (created on
   first boot; gitignored). To reset: `./scripts/reset_db.sh`.
+- In a fresh worktree neither `.env` nor `test.db` exists (both gitignored):
+  copy `.env` from the canonical clone, then run `cargo sqlx database create
+  && cargo sqlx migrate run`. The gate's `cargo sqlx prepare` cannot work
+  without a reachable DB, and a `prepare` against a blank one can delete
+  committed `.sqlx/` metadata — restore with `git checkout -- .sqlx`, never
+  commit the damage.
 - Compile-time-checked query macros (`query!` etc.) need either a reachable
   `DATABASE_URL` or committed offline metadata: set `SQLX_OFFLINE=true` and
   refresh metadata with `cargo sqlx prepare` after schema changes.
-- `scripts/test.sh` includes a CSS-drift check (`git diff --exit-code --
-  static/site.css`) — regenerate and commit `static/site.css` in the SAME
-  change as any Tailwind class edit; if the check fails, run the Tailwind
-  build step, commit the regenerated file, then re-run the gate.
 
 ## Commits and PRs
 - `main` is the base branch when reviewing code
+- The canonical clone is `/Users/vardy/dev/vardy`; ticket branches are sibling
+  worktrees (`~/dev/<branch-name>`), and their artifacts are committed with
+  the branch
 - If a session resumes onto a branch with uncommitted changes, treat them
   as suspect (orphans from an interrupted session) — compare against
   `plan.md` and the Linear ticket before keeping or reverting
@@ -60,10 +64,13 @@
 - In `ROUTES.md`, each endpoint section (`###` through closing `---`) is a
   self-contained block — use `---` as the cut point when making batch edits
 
-## QRSPI Workflow
-Follow the QRSPI pipeline (`/1_spec` → `/6_implement`) — see the `qrspi`
-skill; don't implement outside it; scope changes after `/5_plan` go back to
-`/1_spec`.
+## Ticket Workflow
+Steps run through the `orksorksorks` CLI (`step = classify`,
+`large-research`, `large-design`, …) — the `/1_spec` → `/6_implement` prompts
+were removed. Artifacts live in `.pi/orksorksorks/<branch>/`, are committed on
+the branch (`.pi/` is deliberately not gitignored; `.ignore` hides them from
+`rg`/`fd`), and must be proofread before handoff. Scope changes after the plan
+go back to classify.
 
 ## Error Responses
 - All handler errors go through `WebError`'s `IntoResponse` impl
