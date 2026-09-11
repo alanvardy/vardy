@@ -18,16 +18,14 @@
 ## Tests
 - Unit tests live inline at the bottom of each source file in `#[cfg(test)] mod tests`, not in separate files
 - Happy and sad path tests need to be written
-- **Rendered HTML is minijinja-autoescaped** — assert against escaped forms
-  (`&#x27;` for `'`, `&#x2f;` for `/`) in HTML assertions, not raw strings
+- **Rendered HTML is minijinja-autoescaped** — assert escaped forms
+  (`&#x27;` for `'`, `&#x2f;` for `/`) and short unique substrings
+  (e.g. `bg-black/50`), never raw strings or a full `class="…"` value
 - Integration-style tests boot the real router via `start_app()` from
   `src/test/mod.rs` (in-memory SQLite, random port) and assert with
   `test_client()`
 - `#[sqlx::test]` provisions a temporary per-test database and applies
   `migrations/` automatically
-- Assert rendered HTML on short unique substrings (e.g. `bg-black/50`),
-  never a full `class="…"` string or the head of a class list — those can
-  never match exactly.
 
 ## Commands
 - Run `./scripts/test.sh` (format, sqlx offline metadata, type-check, lint,
