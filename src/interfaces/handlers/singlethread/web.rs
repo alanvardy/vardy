@@ -194,8 +194,9 @@ mod tests {
         // a list screen, and the action screen is dark mode with buttons
         assert!(body.contains(r#"alt="The SingleThread settings list""#));
         assert!(body.contains("Complete or skip"));
-        assert!(body.contains(r#"<img src="/static/singlethread-watch-list.png?v="#));
+        assert!(body.contains(r#"<img src="/static/singlethread-shot-ipad.jpg?v="#));
         assert!(body.contains(r#"<img src="/static/singlethread-watch-detail.png?v="#));
+        assert!(body.contains("Apple Watch showing Skip, Reschedule, and Delete actions"));
         assert!(body.contains(r#"<img src="/static/singlethread-icon.png?v="#));
         assert!(body.contains(r#"<a href="/">Home</a>"#));
         assert!(body.contains(r#"<a href="/singlethread" class="active">SingleThread</a>"#));
