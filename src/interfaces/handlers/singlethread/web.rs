@@ -179,6 +179,14 @@ mod tests {
         assert!(body.contains("</span>Where is my data stored?</summary>"));
         assert!(body.contains("stored on your device"));
         assert!(body.contains("Your reminders. One at a time. In order. At your pace."));
+        // App Store download badge, top (hero) and bottom (CTA). These hrefs
+        // are static template text (not context variables), so minijinja does
+        // not autoescape them — slashes stay literal. Both the URL and the
+        // badge asset must appear exactly twice (once per spot).
+        let app_store_href = "https://apps.apple.com/ca/app/singlethread/id6802537541";
+        assert_eq!(body.matches(app_store_href).count(), 2);
+        assert_eq!(body.matches(r#"/static/app-store.svg?v="#).count(), 2);
+        assert!(body.contains(r#"target="_blank""#));
         assert!(body.contains(r#"<img src="/static/singlethread-shot-main.jpg?v="#));
         assert!(body.contains(r#"<img src="/static/singlethread-shot-settings.jpg?v="#));
         assert!(body.contains(r#"<img src="/static/singlethread-shot-swipe.jpg?v="#));
