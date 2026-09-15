@@ -22,7 +22,8 @@ fails.
 ### GET /singlethread
 
 Renders the SingleThread page with an app-icon hero (icon badge + tagline),
-platform badges (iPhone, iPad, Mac, Watch), a gradient decorative divider,
+platform badges (iPhone, iPad, Mac, Watch), an Apple App Store download badge
+(top of the hero and at the closing CTA), a gradient decorative divider,
 screenshot and watch-image cards with hover transitions, feature lists, an
 FAQ section with collapsible Q&A pairs (native <details>/<summary> widgets), and a
 closing CTA line. Includes a random Unsplash wallpaper and photographer credit
