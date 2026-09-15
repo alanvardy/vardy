@@ -190,6 +190,10 @@ mod tests {
         assert!(body.contains(r#"<img src="/static/singlethread-shot-main.jpg?v="#));
         assert!(body.contains(r#"<img src="/static/singlethread-shot-settings.jpg?v="#));
         assert!(body.contains(r#"<img src="/static/singlethread-shot-swipe.jpg?v="#));
+        // copy corrects to match the VAR-1012 screenshots: the settings slot is
+        // a list screen, and the action screen is dark mode with buttons
+        assert!(body.contains(r#"alt="The SingleThread settings list""#));
+        assert!(body.contains("Complete or skip"));
         assert!(body.contains(r#"<img src="/static/singlethread-watch-list.png?v="#));
         assert!(body.contains(r#"<img src="/static/singlethread-watch-detail.png?v="#));
         assert!(body.contains(r#"<img src="/static/singlethread-icon.png?v="#));
