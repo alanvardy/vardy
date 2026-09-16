@@ -1,6 +1,6 @@
 # Done
 
-- **Branch / head SHA**: `alanvardy-var-1012-add-newer-screenshots` @ `ad12591`
+- **Branch / head SHA**: `alanvardy-var-1012-add-newer-screenshots` @ `9a01f49`
   (pushed to origin; every push on this branch was a fast-forward, so
   `--force-with-lease` was never needed).
 - **Mechanical checks**: `./scripts/test.sh` **PASS** — fmt, `cargo sqlx
@@ -156,6 +156,39 @@ A test assertion for the now-deleted `On iPad` heading was removed from
 `index_serves_ok_html`; the image assertions for all six screenshots are
 unchanged and still pass. Gate 112/112.
 
+## Follow-up 5: captions, and stacking until `lg` (`9a01f49`)
+
+Two operator requests.
+
+**Captions.** The iPad shot and both Apple Watch shots are now
+`<figure class="card m-0 ...">` with a `figcaption` styled like the phone row's
+(`text-muted text-sm mt-2 text-center`): *On iPad*, *Complete or skip*, and
+*Skip, reschedule, or delete*. `m-0` is not cosmetic — Preflight is not imported,
+so `<figure>` keeps its `1em 40px` UA margin and would otherwise indent inside
+the flex column. All six figures on the page were confirmed to carry it. Three
+caption assertions were added to `index_serves_ok_html`.
+
+**Breakpoints.** Both interspersed rows moved from `md:` to `lg:` (64rem =
+1024px), so the pictures no longer sit side-to-side with the copy once the
+viewport hits the 768px `md` breakpoint — they stay stacked and full-width until
+1024px. Rationale: the page container is capped at 48rem (704px of content), so
+a 768px viewport produced very cramped columns (a 164px-wide watch card).
+Changing the breakpoint does not enlarge the columns at `lg:`, since the
+container is width-capped either way; it only keeps tablets on the stacked
+layout.
+
+Side effects checked: the now-unused `md:items-center`, `md:w-2/5` and
+`md:w-1/2` utilities dropped out of `static/site.css`, while the hero keeps its
+own `md:flex-row` / `md:flex-1` / `md:flex-none` / `md:order-none`. Served markup
+confirmed: six captions in document order, both rows carrying
+`flex flex-col lg:flex-row gap-8 lg:items-center`, and the only surviving `md:`
+usages being the hero's and the layout chrome's. Gate 112/112.
+
+Not changed: the two Apple Watch pictures still sit side-by-side with *each
+other* at every width (they're a pair inside the same column). If the request
+was about those two rather than the copy/picture split, that is a one-line
+change to `flex-col lg:flex-row` on their wrapper.
+
 ## Manual items
 
 The app was booted locally (`cargo run`) to close out the blockers:
@@ -163,9 +196,9 @@ The app was booted locally (`cargo run`) to close out the blockers:
 - ✅ 1. `/singlethread` renders 200; three phone-row cards, then the iPad shot in
   the "Everything you need, nothing you don't" row, then the watch pair in the
   "Built for quiet productivity" row.
-- ⚠️ 2. Responsive reflow at tablet width still needs a human eye — the two
-  interspersed rows switch from stacked to side-by-side at the 48rem (`md`)
-  breakpoint, and the columns are ~40%/50% of the 704px content width.
+- ⚠️ 2. Responsive reflow still needs a human eye: the two interspersed rows now
+  switch from stacked to side-by-side at 64rem (1024px) rather than 48rem, and the
+  columns are ~40-50% of the 704px content width.
 - ✅ 3. **On your wrist** removed as a section; its two cards now render on the
   left of the "Built for quiet productivity" row.
 - ✅ 5. Fresh, distinct 12-hex `?v=` hashes on all seven assets (`icon
