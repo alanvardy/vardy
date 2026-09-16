@@ -194,6 +194,7 @@ mod tests {
         // is a list screen, and the action screen is dark mode with buttons
         assert!(body.contains(r#"alt="The SingleThread settings list""#));
         assert!(body.contains("Complete or skip"));
+        assert!(body.contains(r#"<h2 class="heading-subsection">On iPad</h2>"#));
         assert!(body.contains(r#"<img src="/static/singlethread-shot-ipad.jpg?v="#));
         assert!(body.contains(r#"<img src="/static/singlethread-watch-list.png?v="#));
         assert!(body.contains(r#"<img src="/static/singlethread-watch-detail.png?v="#));
