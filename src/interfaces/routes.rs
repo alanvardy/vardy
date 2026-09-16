@@ -220,6 +220,7 @@ mod tests {
             ("/static/singlethread-shot-settings.jpg", "image/jpeg"),
             ("/static/singlethread-shot-swipe.jpg", "image/jpeg"),
             ("/static/singlethread-shot-ipad.jpg", "image/jpeg"),
+            ("/static/singlethread-watch-list.png", "image/png"),
             ("/static/singlethread-watch-detail.png", "image/png"),
         ];
         for (path, content_type) in cases {
@@ -242,18 +243,6 @@ mod tests {
                 "{path}"
             );
         }
-    }
-
-    #[tokio::test]
-    async fn retired_singlethread_watch_list_shot_returns_404() {
-        let addr = start_app().await;
-        let client = test_client();
-        let res = client
-            .get(format!("http://{addr}/static/singlethread-watch-list.png"))
-            .send()
-            .await
-            .expect("request should complete");
-        assert_eq!(res.status(), StatusCode::NOT_FOUND);
     }
 
     #[tokio::test]
