@@ -199,6 +199,10 @@ mod tests {
         assert!(body.contains(r#"<img src="/static/singlethread-watch-detail.png?v="#));
         assert!(body.contains("Apple Watch showing a reminder with Complete and Skip buttons"));
         assert!(body.contains("Apple Watch showing Skip, Reschedule, and Delete actions"));
+        // captions render under the iPad and Apple Watch shots
+        assert!(body.contains(">On iPad</figcaption>"));
+        assert!(body.contains(">Complete or skip</figcaption>"));
+        assert!(body.contains(">Skip, reschedule, or delete</figcaption>"));
         assert!(body.contains(r#"<img src="/static/singlethread-icon.png?v="#));
         assert!(body.contains(r#"<a href="/">Home</a>"#));
         assert!(body.contains(r#"<a href="/singlethread" class="active">SingleThread</a>"#));
