@@ -1,6 +1,6 @@
 # Done
 
-- **Branch / head SHA**: `alanvardy-var-1012-add-newer-screenshots` @ `eb61e84`
+- **Branch / head SHA**: `alanvardy-var-1012-add-newer-screenshots` @ `997c0f3`
   (pushed to origin; every push on this branch was a fast-forward, so
   `--force-with-lease` was never needed).
 - **Mechanical checks**: `./scripts/test.sh` **PASS** — fmt, `cargo sqlx
@@ -93,11 +93,48 @@ Verified on a live boot: `/singlethread` → 200 with the wrist row rendering
 200 `image/png`, `public, max-age=31536000, immutable`, fresh hash
 `bcd52a89e5d2` (distinct from `watch-detail`'s `d33e4fbb2ef1`).
 
+## Follow-up 3: the iPad shot moved to its own section and grew 3x (`c183d2a`, `997c0f3`)
+
+Requested by the operator. The iPad figure left the phone row and now has its
+own `On iPad` subsection between the phone row and `On your wrist`:
+
+```html
+<h2 class="heading-subsection">On iPad</h2>
+<div class="flex justify-center">
+    <div class="card w-full max-w-2xl p-3">
+        <img src="{{ asset_url('singlethread-shot-ipad.jpg') }}" alt="Completing or skipping a reminder on iPad"
+             width="1024" height="768" class="w-full rounded-lg border border-neutral-700">
+    </div>
+</div>
+```
+
+- **3x size** is `max-w-2xl` = 42rem = 672px, against the row's former
+  `max-w-[14rem]` = 224px. Verified in the compiled CSS
+  (`--container-2xl:42rem`), not assumed.
+- This introduced a new Tailwind utility, so `static/site.css` was regenerated
+  and committed in the same commit (`c183d2a`), per the repo's CSS-drift rule.
+- **The re-export mattered more than the size change.** The asset had been
+  deliberately downscaled to 640x480 in Phase 2, when it rendered at 224px. At
+  the new size (~646 CSS px, ~1292 device px on a 2x display) that upscaled
+  roughly 2x and looked soft. It was re-encoded from the 1024x768 original at
+  quality 82 (135 KB) via `sips`.
+- `width`/`height` were added so the browser reserves the space instead of
+  shifting ~646px as the image loads. The other screenshots still omit these
+  (they render at ~224px, where the shift is minor).
+
+The phone row is back to three figures. `./scripts/test.sh` passes 112/112 with
+no CSS or `.sqlx` drift. Live boot confirmed: the section order is phone row →
+`On iPad` → `On your wrist`; the served `<img>` carries `width="1024"
+height="768"`; the asset is served as `image/jpeg` at 1024x768; and its `?v=`
+hash moved from `39907a32fa97` to `6e293777ffc7` (the other six hashes are
+unchanged), so the cache is busted correctly.
+
 ## Manual items
 
 The app was booted locally (`cargo run`) to close out the blockers:
 
-- ✅ 1. `/singlethread` renders 200; four phone-row cards incl. the iPad one.
+- ✅ 1. `/singlethread` renders 200; three phone-row cards, plus the iPad shot
+  in its own `On iPad` section at 3x (`max-w-2xl`).
 - ⚠️ 2. Wrapped-card centering at tablet width still needs a human eye.
 - ✅ 3. **On your wrist** shows exactly two cards, in the requested order:
   reminder shot first, then the Skip/Reschedule/Delete shot.
@@ -115,5 +152,5 @@ during review: `settings.jpg` = Settings list, `swipe.jpg` = "Clean bathroom"
 with complete/mic/skip bar, `ipad.jpg` = landscape action bar, `watch-list.png`
 = reminder with Complete/Skip, `watch-detail.png` = Skip/Reschedule/Delete,
 `main.jpg` = "Pick up milk". All formats match their extensions (iPad JPEG
-640x480; main/swipe JPEG 601x1306; settings JPEG 282x612; watch-list PNG
+1024x768; main/swipe JPEG 601x1306; settings JPEG 282x612; watch-list PNG
 410x502; watch-detail PNG 359x440).
