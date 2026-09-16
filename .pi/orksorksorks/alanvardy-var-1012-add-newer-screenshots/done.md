@@ -1,6 +1,6 @@
 # Done
 
-- **Branch / head SHA**: `alanvardy-var-1012-add-newer-screenshots` @ `997c0f3`
+- **Branch / head SHA**: `alanvardy-var-1012-add-newer-screenshots` @ `ad12591`
   (pushed to origin; every push on this branch was a fast-forward, so
   `--force-with-lease` was never needed).
 - **Mechanical checks**: `./scripts/test.sh` **PASS** — fmt, `cargo sqlx
@@ -129,15 +129,45 @@ height="768"`; the asset is served as `image/jpeg` at 1024x768; and its `?v=`
 hash moved from `39907a32fa97` to `6e293777ffc7` (the other six hashes are
 unchanged), so the cache is busted correctly.
 
+## Follow-up 4: screenshots interspersed with the copy (`ad12591`)
+
+Requested by the operator: the iPad shot now sits beside **"Everything you need,
+nothing you don't"** (text left, image right) and the Apple Watch shots beside
+**"Built for quiet productivity"** (images left, copy right). The standalone
+`On iPad` / `On your wrist` subheadings were removed — the `alt` text already
+names the platform, so they were redundant once the images joined real sections.
+
+Both rows reuse the hero's **existing** responsive pattern rather than inventing
+one: `flex flex-col md:flex-row gap-8 md:items-center` with `md:flex-1` on the
+text column and `md:w-2/5` (iPad) / `md:w-1/2` (watch pair) plus `md:flex-none`
+on the image column. Only three utilities were new (`md:items-center`,
+`md:w-2/5`, `md:w-1/2`), so `static/site.css` was regenerated and committed in
+the same commit.
+
+Verified on a live boot: the iPad image is the second child of its row (so it
+renders right) and the watch images are the first child of theirs (so they
+render left); a heading/image outline of the served HTML confirms
+`shot-ipad.jpg` now falls under "Everything you need, nothing you don't" and the
+two watch shots under "Built for quiet productivity", with no orphaned
+`On iPad`/`On your wrist` headings left anywhere in `templates/`. On mobile both
+rows stack (iPad below its copy, watch shots above theirs).
+
+A test assertion for the now-deleted `On iPad` heading was removed from
+`index_serves_ok_html`; the image assertions for all six screenshots are
+unchanged and still pass. Gate 112/112.
+
 ## Manual items
 
 The app was booted locally (`cargo run`) to close out the blockers:
 
-- ✅ 1. `/singlethread` renders 200; three phone-row cards, plus the iPad shot
-  in its own `On iPad` section at 3x (`max-w-2xl`).
-- ⚠️ 2. Wrapped-card centering at tablet width still needs a human eye.
-- ✅ 3. **On your wrist** shows exactly two cards, in the requested order:
-  reminder shot first, then the Skip/Reschedule/Delete shot.
+- ✅ 1. `/singlethread` renders 200; three phone-row cards, then the iPad shot in
+  the "Everything you need, nothing you don't" row, then the watch pair in the
+  "Built for quiet productivity" row.
+- ⚠️ 2. Responsive reflow at tablet width still needs a human eye — the two
+  interspersed rows switch from stacked to side-by-side at the 48rem (`md`)
+  breakpoint, and the columns are ~40%/50% of the 704px content width.
+- ✅ 3. **On your wrist** removed as a section; its two cards now render on the
+  left of the "Built for quiet productivity" row.
 - ✅ 5. Fresh, distinct 12-hex `?v=` hashes on all seven assets (`icon
   5dcf8f2d7c29`, `ipad 39907a32fa97`, `main 04e95b2e5d15`, `settings
   0ce3c27799b9`, `swipe 7884e3262192`, `watch-list bcd52a89e5d2`,
