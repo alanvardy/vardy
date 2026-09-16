@@ -1,14 +1,16 @@
 # Done
 
-- **Branch / head SHA**: `alanvardy-var-1012-add-newer-screenshots` @ `424ccff`
+- **Branch / head SHA**: `alanvardy-var-1012-add-newer-screenshots` @ `eb61e84`
   (pushed to origin; every push on this branch was a fast-forward, so
   `--force-with-lease` was never needed).
 - **Mechanical checks**: `./scripts/test.sh` **PASS** — fmt, `cargo sqlx
   prepare -- --tests`, `cargo check --all-targets`, CSS-drift (`git diff
   --exit-code -- static/site.css` clean), `cargo clippy --all-targets
-  --all-features --locked -- -D warnings`, `cargo nextest run` **113/113**,
+  --all-features --locked -- -D warnings`, `cargo nextest run` **112/112**,
   TODO/FIXME grep. No warnings flagged. No `Cargo.lock` change, so no
-  `cargo audit` was needed.
+  `cargo audit` was needed. (113 on the pre-follow-up revision; net −1 because
+  the retired-asset 404 test was deleted and its replacement case folded into
+  the existing serving-table test.)
 - **Review outcome**:
   - **Blockers: none.**
   - **Fixes worth doing now — applied** (commit `d9a26df`): corrected the
@@ -29,11 +31,9 @@
     asset); the new 404 test is meaningful because `ServeDir` is mounted with no
     fallback (`src/interfaces/routes.rs:57-61`).
 - **Repo hygiene**: the branch-start `DELETEME` placeholder was deleted and
-  committed (`45a9907`). Repo-wide grep confirms the only remaining
-  `singlethread-watch-list` reference is the intentional 404-test URL
-  (`src/interfaces/routes.rs:252`). `static/site.css` is unchanged.
+  committed (`45a9907`). `static/site.css` is unchanged.
 
-## Follow-up outside the original plan: migration idempotency (`424ccff`)
+## Follow-up 1 outside the original plan: migration idempotency (`424ccff`)
 
 `cargo run` was failing locally with `table unsplash_pictures already exists`.
 Cause: the local `test.db` had a schema built by hand-applying migration SQL,
@@ -53,32 +53,67 @@ validated against the old checksums.
 Verified: `cargo sqlx migrate info` shows 4/4 installed; each migration file
 re-applied individually with `sqlite3` exits 0; a simulation of the original
 failure mode (hand-applied table, empty ledger) now recovers instead of
-crashing; `./scripts/test.sh` still **113/113** with no `.sqlx` or `site.css`
-drift.
+crashing; `./scripts/test.sh` passes with no `.sqlx` or `site.css` drift.
 
 **Tradeoff accepted:** `IF NOT EXISTS` no-ops silently against a table of a
 different shape, so a stale local database must be *reset*, not migrated. The
 local `test.db` was reset (backup of the pre-change file at
 `/tmp/test.db.pre-idempotency.bak`).
 
+## Follow-up 2: the Apple Watch shot was reinstated (`eb61e84`)
+
+The operator supplied a newer Apple Watch image (an incoming PNG in
+`~/Downloads`) to sit **before** the actions shot. Its content is a reminder
+("Pick up milk", dated) with a green check (Complete) and an orange slashed
+circle (Skip) — i.e. exactly what the previously-retired filename
+`singlethread-watch-list.png` described, so it was re-added under that name.
+
+Consequences handled in the same commit:
+
+- The `retired_singlethread_watch_list_shot_returns_404` test from `267853b` was
+  **deleted** — it asserted the opposite of the new truth and would have failed.
+- The asset returned to the serving table in `src/interfaces/routes.rs` as
+  `image/png` (verified from the bytes: PNG, 410x502), and a `?v=` assertion plus
+  the alt-text assertion were re-added to `index_serves_ok_html`.
+- No CSS class was introduced (the sibling card's classes were reused verbatim),
+  so `static/site.css` is byte-identical; `.sqlx` metadata is unchanged.
+- `plan.md`/`implement.md` still describe the shot as retired. Those are
+  point-in-time records of the superseded revision, so they were deliberately
+  left untouched rather than rewritten.
+
+Delta review (fresh context, one bounded reviewer): **no blockers, no fixes
+worth doing now**. Noted and declined: adding `width`/`height` to the new `img`
+(the sibling watch cards also omit them, so touching one and not the other would
+be inconsistent — a whole-row change, out of scope). The reviewer's assumption
+that these `.pi/` docs are untracked is wrong for this repo (they are committed
+deliverables), which is why this section exists.
+
+Verified on a live boot: `/singlethread` → 200 with the wrist row rendering
+`watch-list` first then `watch-detail`; `/static/singlethread-watch-list.png` →
+200 `image/png`, `public, max-age=31536000, immutable`, fresh hash
+`bcd52a89e5d2` (distinct from `watch-detail`'s `d33e4fbb2ef1`).
+
 ## Manual items
 
-The app was booted locally (`cargo run`) to close out the blocker:
+The app was booted locally (`cargo run`) to close out the blockers:
 
 - ✅ 1. `/singlethread` renders 200; four phone-row cards incl. the iPad one.
 - ⚠️ 2. Wrapped-card centering at tablet width still needs a human eye.
-- ✅ 3. **On your wrist** shows exactly one card.
-- ✅ 4. `/static/singlethread-watch-list.png` → 404 while `/singlethread` → 200,
-  no panic.
-- ✅ 5. Fresh, distinct 12-hex `?v=` hashes on all six assets
-  (`icon 5dcf8f2d7c29`, `ipad 39907a32fa97`, `main 04e95b2e5d15`,
-  `settings 0ce3c27799b9`, `swipe 7884e3262192`, `watch-detail d33e4fbb2ef1`);
-  the retired asset appears zero times in the served HTML.
-- ✅ `Content-Type` for `singlethread-shot-ipad.jpg` is `image/jpeg`.
+- ✅ 3. **On your wrist** shows exactly two cards, in the requested order:
+  reminder shot first, then the Skip/Reschedule/Delete shot.
+- ✅ 5. Fresh, distinct 12-hex `?v=` hashes on all seven assets (`icon
+  5dcf8f2d7c29`, `ipad 39907a32fa97`, `main 04e95b2e5d15`, `settings
+  0ce3c27799b9`, `swipe 7884e3262192`, `watch-list bcd52a89e5d2`,
+  `watch-detail d33e4fbb2ef1`).
+- ✅ `Content-Type` for `singlethread-shot-ipad.jpg` is `image/jpeg`;
+  `singlethread-watch-list.png` is `image/png`.
+- ️ 4. Superseded: this item originally checked that the retired watch-list
+  asset 404s. It no longer applies — the asset is live again.
 
 Image contents were independently re-verified against the template `alt` text
 during review: `settings.jpg` = Settings list, `swipe.jpg` = "Clean bathroom"
-with complete/mic/skip bar, `ipad.jpg` = landscape action bar, `watch-detail.png`
-= Skip/Reschedule/Delete, `main.jpg` = "Pick up milk". All formats match their
-extensions (iPad JPEG 640x480; main/swipe JPEG 601x1306; settings JPEG 282x612;
-watch-detail PNG 359x440).
+with complete/mic/skip bar, `ipad.jpg` = landscape action bar, `watch-list.png`
+= reminder with Complete/Skip, `watch-detail.png` = Skip/Reschedule/Delete,
+`main.jpg` = "Pick up milk". All formats match their extensions (iPad JPEG
+640x480; main/swipe JPEG 601x1306; settings JPEG 282x612; watch-list PNG
+410x502; watch-detail PNG 359x440).
