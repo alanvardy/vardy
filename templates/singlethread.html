@@ -64,10 +64,10 @@
 </ul>
 
 <h2 class="heading-subsection">Everything you need, nothing you don't</h2>
-{# Two-column: feature list on the left, iPad shot on the right. Mirrors the hero's
-   responsive pattern (md: breakpoint); on narrow screens it stacks with the text first. #}
-<div class="flex flex-col md:flex-row gap-8 md:items-center">
-    <div class="md:flex-1">
+{# Two-column: feature list on the left, iPad shot on the right. Deliberately uses the
+   lg: breakpoint rather than md: so the picture stays stacked under the copy on tablets. #}
+<div class="flex flex-col lg:flex-row gap-8 lg:items-center">
+    <div class="lg:flex-1">
         <p>SingleThread stays out of your way, but it's as full-featured — or as bare — as you want. Every capability can be turned on or off in one simple Settings screen:</p>
         <ul class="list-disc pl-6 marker:text-accent space-y-2">
             <li>Complete, Skip, or Delete each reminder with a tap, a swipe, or the action buttons.</li>
@@ -78,11 +78,12 @@
             <li>Change how it looks: System, Light, or Dark appearance, plus larger text sizes across the whole interface.</li>
         </ul>
     </div>
-    <div class="w-full md:w-2/5 md:flex-none">
-        <div class="card p-3">
+    <div class="w-full lg:w-2/5 lg:flex-none">
+        <figure class="card m-0 p-3">
             <img src="{{ asset_url('singlethread-shot-ipad.jpg') }}" alt="Completing or skipping a reminder on iPad"
                  width="1024" height="768" class="w-full h-auto rounded-lg border border-neutral-700">
-        </div>
+            <figcaption class="text-muted text-sm mt-2 text-center">On iPad</figcaption>
+        </figure>
     </div>
 </div>
 
@@ -94,19 +95,22 @@
 </ul>
 
 <h2 class="heading-subsection">Built for quiet productivity</h2>
-{# Two-column: Apple Watch shots on the left, copy on the right. #}
-<div class="flex flex-col md:flex-row gap-8 md:items-center">
-    <div class="flex justify-center gap-6 w-full md:w-1/2 md:flex-none">
-        <div class="card max-w-[12rem] p-3">
+{# Two-column: Apple Watch shots on the left, copy on the right. Also lg: rather than
+   md: so the pictures stay stacked on tablets instead of sitting side-to-side. #}
+<div class="flex flex-col lg:flex-row gap-8 lg:items-center">
+    <div class="flex justify-center gap-6 w-full lg:w-1/2 lg:flex-none">
+        <figure class="card m-0 max-w-[12rem] p-3">
             <img src="{{ asset_url('singlethread-watch-list.png') }}" alt="Apple Watch showing a reminder with Complete and Skip buttons"
                  class="w-full rounded-lg border border-neutral-700">
-        </div>
-        <div class="card max-w-[12rem] p-3">
+            <figcaption class="text-muted text-sm mt-2 text-center">Complete or skip</figcaption>
+        </figure>
+        <figure class="card m-0 max-w-[12rem] p-3">
             <img src="{{ asset_url('singlethread-watch-detail.png') }}" alt="Apple Watch showing Skip, Reschedule, and Delete actions"
                  class="w-full rounded-lg border border-neutral-700">
-        </div>
+            <figcaption class="text-muted text-sm mt-2 text-center">Skip, reschedule, or delete</figcaption>
+        </figure>
     </div>
-    <div class="md:flex-1">
+    <div class="lg:flex-1">
         <p>Whether your to-do list is a source of anxiety or just a source of clutter, SingleThread gives you a smaller, softer way through it. One item at a time, in an order you choose, at the pace that feels right. Enable the features that help, hide the ones that don't.</p>
         <p>SingleThread works with your existing Apple Reminders and syncs across your devices. Available on iPhone, iPad, and Mac, with a matching Apple Watch app and macOS widget; install on any one to get going. No account to create — your reminders stay in place.</p>
     </div>
