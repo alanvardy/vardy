@@ -125,7 +125,7 @@ const FAQS: &[FaqCategory] = &[
             },
             FaqItem {
                 question: "Where can I find the SingleThread shortcuts?",
-                answer: "Siri understands the phrases above on a physical device (Siri in the simulator is unreliable). In the Shortcuts app, search for \"SingleThread\" and all three shortcuts appear under their short titles. Long-press the SingleThread icon on your Home Screen and the shortcuts appear in the top section, and Spotlight finds them by shortcut name.",
+                answer: "Siri understands the phrases above, and in the Shortcuts app, search for \"SingleThread\" and all three shortcuts appear under their short titles. Long-press the SingleThread icon on your Home Screen and the shortcuts appear in the top section, and Spotlight finds them by shortcut name.",
             },
             FaqItem {
                 question: "Why can't my shortcuts see my reminders?",
