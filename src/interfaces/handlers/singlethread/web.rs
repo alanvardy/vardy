@@ -365,10 +365,7 @@ mod tests {
         // The Apple Shortcuts (App Intents) additions render: the "Shortcuts"
         // category heading, one of its questions, and one of its answers.
         let heading = "<h3 class=\"heading-subsection\">Shortcuts</h3>";
-        assert!(
-            body.contains(&heading),
-            "Shortcuts category heading missing"
-        );
+        assert!(body.contains(heading), "Shortcuts category heading missing");
         let question = html_escape("What does the \"What's Next\" shortcut do?");
         assert!(
             body.contains(&question),
