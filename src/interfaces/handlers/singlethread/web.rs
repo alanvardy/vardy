@@ -104,6 +104,39 @@ const FAQS: &[FaqCategory] = &[
             },
         ],
     },
+    FaqCategory {
+        title: "Shortcuts",
+        items: &[
+            FaqItem {
+                question: "Does SingleThread support Apple Shortcuts?",
+                answer: "Yes! SingleThread ships with three shortcuts you can invoke with Siri, from the Shortcuts app, from your Home Screen, or via Spotlight: What's Next, Complete Current Task, and Skip Current Task.",
+            },
+            FaqItem {
+                question: "What does the \"What's Next\" shortcut do?",
+                answer: "It speaks (and returns) the title of your current next task. Ask Siri \"What's next in SingleThread\" or \"What is next in SingleThread\".",
+            },
+            FaqItem {
+                question: "What does the \"Complete Current Task\" shortcut do?",
+                answer: "It completes the first visible task. Say \"Complete the current task in SingleThread\" or \"Mark my current task done in SingleThread\".",
+            },
+            FaqItem {
+                question: "What does the \"Skip Current Task\" shortcut do?",
+                answer: "It skips the first visible task, and the skip is durable — it survives relaunching the app. Say \"Skip the current task in SingleThread\" or \"Skip my current task in SingleThread\".",
+            },
+            FaqItem {
+                question: "Where can I find the SingleThread shortcuts?",
+                answer: "Siri understands the phrases above on a physical device (Siri in the simulator is unreliable). In the Shortcuts app, search for \"SingleThread\" and all three shortcuts appear under their short titles. Long-press the SingleThread icon on your Home Screen and the shortcuts appear in the top section, and Spotlight finds them by shortcut name.",
+            },
+            FaqItem {
+                question: "Why can't my shortcuts see my reminders?",
+                answer: "The shortcuts never ask for Reminders access themselves — they only act when SingleThread already has permission to see your Reminders. Open SingleThread and grant Reminders access in Settings first.",
+            },
+            FaqItem {
+                question: "What do the shortcut responses mean?",
+                answer: "No access to Reminders means \"Enable access in Settings to see your reminders.\" A genuinely empty list means \"There's nothing to do right now.\" Everything being skipped, excluded, or hidden means \"Everything is skipped for now.\" Reaching the free tier's limit means \"You've reached the free limit. Upgrade to keep going.\" A failed update means \"Couldn't update that task. Please try again.\"",
+            },
+        ],
+    },
 ];
 
 pub async fn index(State(state): State<AppState>) -> Result<Html<String>, WebError> {
@@ -316,6 +349,36 @@ mod tests {
                 &item.answer[..item.answer.len().min(60)],
             );
         }
+    }
+
+    #[tokio::test]
+    async fn faq_app_intents_documented() {
+        let addr = start_app().await;
+        let body = test_client()
+            .get(format!("http://{addr}/singlethread"))
+            .send()
+            .await
+            .expect("request failed")
+            .text()
+            .await
+            .expect("body");
+        // The Apple Shortcuts (App Intents) additions render: the "Shortcuts"
+        // category heading, one of its questions, and one of its answers.
+        let heading = "<h3 class=\"heading-subsection\">Shortcuts</h3>";
+        assert!(
+            body.contains(&heading),
+            "Shortcuts category heading missing"
+        );
+        let question = html_escape("What does the \"What's Next\" shortcut do?");
+        assert!(
+            body.contains(&question),
+            "shortcut question missing from rendered page"
+        );
+        let answer = html_escape("The shortcuts never ask for Reminders access themselves");
+        assert!(
+            body.contains(&answer),
+            "shortcut reminder-access note missing from rendered page"
+        );
     }
 
     #[tokio::test]
