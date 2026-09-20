@@ -33,6 +33,15 @@
   `templates/checkstitch.html`, with the exact-substring assertion at
   `src/interfaces/handlers/checkstitch/web.rs:157` updated to match. Full
   `./scripts/test.sh` gate re-run green after the change.
+- **Post-review copy fix (user-requested)**: corrected the inaccurate feature
+  bullet "Choose an interface style and, if you like, a background wallpaper"
+  to "Choose a system, light, or dark appearance and, if you like, a random
+  nature wallpaper that refreshes regularly or on demand." Ground-truthed
+  against the CheckStitch app source (`InterfaceSettingsView.swift`:
+  system/light/dark appearance; `BackgroundSettingsView.swift` +
+  `BackgroundImageStore.swift`: optional wallpaper, 24h auto-refresh unless
+  pinned, manual Refresh button) and the site's Unsplash query (`nature`). No
+  test asserted this bullet; full gate re-run green after the change.
 - **Remaining manual items** (browser/visual, not automatable here — from
   `implement.md`): open `/checkstitch` and confirm hero icon, four platform
   badges, no App Store button, legible phone/iPad/watch screenshot cards and
