@@ -154,7 +154,7 @@ mod tests {
         let body = res.text().await.unwrap();
         assert!(body.contains("<title>CheckStitch</title>"));
         assert!(body.contains("<h1>CheckStitch</h1>"));
-        assert!(body.contains("Your list is how you think")); // hero tagline
+        assert!(body.contains("Write the checklist once")); // hero tagline
         assert!(body.contains("One checklist in. A list of reminders out.")); // closing CTA
         assert!(body.contains(r#"<a href="/checkstitch" class="active">CheckStitch</a>"#));
         // screenshot gallery + feature section headings
