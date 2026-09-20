@@ -247,6 +247,52 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn checkstitch_screenshots_are_served_with_immutable_caching() {
+        let addr = start_app().await;
+        let client = test_client();
+        let cases = [
+            ("/static/checkstitch-shot-main.jpg", "image/jpeg"),
+            ("/static/checkstitch-shot-edit.jpg", "image/jpeg"),
+            ("/static/checkstitch-shot-settings.jpg", "image/jpeg"),
+            ("/static/checkstitch-shot-ipad.jpg", "image/jpeg"),
+            ("/static/checkstitch-shot-ipad-edit.jpg", "image/jpeg"),
+            ("/static/checkstitch-watch-list.png", "image/png"),
+            ("/static/checkstitch-watch-create.png", "image/png"),
+        ];
+        for (path, content_type) in cases {
+            let res = client
+                .get(format!("http://{addr}{path}"))
+                .send()
+                .await
+                .unwrap_or_else(|_| panic!("request failed for {path}"));
+            assert_eq!(res.status(), StatusCode::OK, "{path}");
+            assert!(
+                res.headers()
+                    .get("content-type")
+                    .is_some_and(|v| v.to_str().unwrap().contains(content_type)),
+                "{path}"
+            );
+            assert!(
+                res.headers()
+                    .get("cache-control")
+                    .is_some_and(|v| v.to_str().unwrap().contains("max-age=31536000")),
+                "{path}"
+            );
+        }
+    }
+
+    #[tokio::test]
+    async fn missing_checkstitch_screenshot_is_not_found() {
+        let addr = start_app().await;
+        let res = test_client()
+            .get(format!("http://{addr}/static/checkstitch-shot-nope.jpg"))
+            .send()
+            .await
+            .expect("request failed");
+        assert_eq!(res.status(), StatusCode::NOT_FOUND);
+    }
+
+    #[tokio::test]
     async fn static_homepage_image_is_served() {
         let addr = start_app().await;
         let client = test_client();

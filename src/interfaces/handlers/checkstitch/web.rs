@@ -45,6 +45,21 @@ mod tests {
         assert!(body.contains("Your list is how you think")); // hero tagline
         assert!(body.contains("One checklist in. A list of reminders out.")); // closing CTA
         assert!(body.contains(r#"<a href="/checkstitch" class="active">CheckStitch</a>"#));
+        // screenshot gallery + feature section headings
+        assert!(body.contains("Why it helps"));
+        assert!(body.contains("Everything you need, nothing you don't"));
+        assert!(body.contains("Thoughtful by design"));
+        assert!(body.contains("Built for quiet productivity"));
+        assert!(body.contains(r#"<img src="/static/checkstitch-shot-main.jpg?v="#));
+        assert!(body.contains(r#"<img src="/static/checkstitch-shot-edit.jpg?v="#));
+        assert!(body.contains(r#"<img src="/static/checkstitch-shot-settings.jpg?v="#));
+        assert!(body.contains(r#"<img src="/static/checkstitch-shot-ipad.jpg?v="#));
+        assert!(body.contains(r#"<img src="/static/checkstitch-shot-ipad-edit.jpg?v="#));
+        assert!(body.contains(r#"<img src="/static/checkstitch-watch-list.png?v="#));
+        assert!(body.contains(r#"<img src="/static/checkstitch-watch-create.png?v="#));
+        assert!(body.contains("Apple Watch showing the Create reminders button"));
+        // every asset_url reference must resolve — a missing file panics the handler
+        assert_eq!(body.matches("app-store.svg").count(), 0);
         // No App Store badge: CheckStitch has no App Store presence yet.
         assert!(!body.contains("apps.apple.com"));
         assert!(!body.contains("app-store.svg"));
