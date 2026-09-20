@@ -27,6 +27,12 @@
     reviewed/merged reference; changing CheckStitch alone would diverge the two
     templates for no behavior gain); serde_json marshalling comment verified
     accurate against `src/test/arkitect.rs` allowed interface deps.
+- **Post-review copy change (user-requested)**: hero tagline replaced from
+  "Your list is how you think. Reminders is where you act." (unclear) with
+  "Write the checklist once. Get every reminder in one tap." in
+  `templates/checkstitch.html`, with the exact-substring assertion at
+  `src/interfaces/handlers/checkstitch/web.rs:157` updated to match. Full
+  `./scripts/test.sh` gate re-run green after the change.
 - **Remaining manual items** (browser/visual, not automatable here — from
   `implement.md`): open `/checkstitch` and confirm hero icon, four platform
   badges, no App Store button, legible phone/iPad/watch screenshot cards and
