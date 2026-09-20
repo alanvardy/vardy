@@ -251,6 +251,7 @@ mod tests {
         let addr = start_app().await;
         let client = test_client();
         let cases = [
+            ("/static/checkstitch-icon.png", "image/png"),
             ("/static/checkstitch-shot-main.jpg", "image/jpeg"),
             ("/static/checkstitch-shot-edit.jpg", "image/jpeg"),
             ("/static/checkstitch-shot-settings.jpg", "image/jpeg"),
