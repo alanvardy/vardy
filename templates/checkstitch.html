@@ -30,5 +30,90 @@
 <h2 class="heading-section">Write the list once. Run it as reminders.</h2>
 <p>CheckStitch is the missing bridge between the list you wrote and the reminders you actually need. Name a checklist, add your items, and run it: each item becomes its own Apple Reminder, in the list you choose. No more typing the same thing ten times, and no more half-finished lists lost in Notes. Stitch the two together and get on with your day.</p>
 
+<div class="flex flex-wrap justify-center gap-6">
+    <figure class="card m-0 flex-1 basis-[10rem] max-w-[14rem] p-3">
+        <img src="{{ asset_url('checkstitch-shot-main.jpg') }}" alt="A list of checklists on iPhone"
+             class="w-full rounded-lg border border-neutral-700">
+        <figcaption class="text-muted text-sm mt-2 text-center">Your checklists</figcaption>
+    </figure>
+    <figure class="card m-0 flex-1 basis-[10rem] max-w-[14rem] p-3">
+        <img src="{{ asset_url('checkstitch-shot-edit.jpg') }}" alt="Editing a checklist's items on iPhone"
+             class="w-full rounded-lg border border-neutral-700">
+        <figcaption class="text-muted text-sm mt-2 text-center">Edit any checklist</figcaption>
+    </figure>
+    <figure class="card m-0 flex-1 basis-[10rem] max-w-[14rem] p-3">
+        <img src="{{ asset_url('checkstitch-shot-settings.jpg') }}" alt="The CheckStitch settings screen"
+             class="w-full rounded-lg border border-neutral-700">
+        <figcaption class="text-muted text-sm mt-2 text-center">Settings</figcaption>
+    </figure>
+</div>
+
+<h2 class="heading-subsection">Why it helps</h2>
+<ul class="list-disc pl-6 marker:text-accent space-y-2">
+    <li><strong>One tap, a whole list.</strong> Running a checklist creates a reminder for every item at once, so the typing is finished before you start.</li>
+    <li><strong>Your order survives.</strong> Number Reminders prefixes each title with its position — "1. Buy milk", "2. Call the plumber" — so the sequence you wrote is the sequence you see in Reminders.</li>
+    <li><strong>Notes come along.</strong> Anything you type under an item rides into the reminder's notes, so the details stay attached to the task.</li>
+</ul>
+
+<h2 class="heading-subsection">Everything you need, nothing you don't</h2>
+{# Two-column: feature list on the left, both iPad shots on the right. Deliberately uses the
+   lg: breakpoint rather than md: so the pictures stay stacked under the copy on tablets. #}
+<div class="flex flex-col lg:flex-row gap-8 lg:items-center">
+    <div class="lg:flex-1">
+        <p>CheckStitch does one job properly. Write a checklist, decide where it goes, and run it — as often as you like:</p>
+        <ul class="list-disc pl-6 marker:text-accent space-y-2">
+            <li>One checklist, many items. Each item becomes exactly one reminder, with the item's name as the title.</li>
+            <li>Pick the destination. Send a checklist's reminders to your Reminders inbox or to any list you already have.</li>
+            <li>Number Reminders, optionally. Prefix each title with its position when the order matters.</li>
+            <li>Notes carry over. Anything you type under an item becomes the reminder's note.</li>
+            <li>Duplicate and reuse. Turn a routine into a checklist and run it again next week, with no retyping.</li>
+            <li>Export and import. Back up your checklists or move them between devices from Settings.</li>
+            <li>Make it yours. Choose an interface style and, if you like, a background wallpaper.</li>
+        </ul>
+    </div>
+    <div class="flex flex-wrap justify-center gap-6 lg:w-1/2 lg:flex-none">
+        <figure class="card m-0 flex-1 basis-[10rem] max-w-[14rem] p-3">
+            <img src="{{ asset_url('checkstitch-shot-ipad.jpg') }}" alt="Checklists with a background image on iPad"
+                 class="w-full rounded-lg border border-neutral-700">
+            <figcaption class="text-muted text-sm mt-2 text-center">On iPad</figcaption>
+        </figure>
+        <figure class="card m-0 flex-1 basis-[10rem] max-w-[14rem] p-3">
+            <img src="{{ asset_url('checkstitch-shot-ipad-edit.jpg') }}" alt="Editing a checklist on iPad"
+                 class="w-full rounded-lg border border-neutral-700">
+            <figcaption class="text-muted text-sm mt-2 text-center">Editing a checklist</figcaption>
+        </figure>
+    </div>
+</div>
+
+<h2 class="heading-subsection">Thoughtful by design</h2>
+<ul class="list-disc pl-6 marker:text-accent space-y-2">
+    <li>Reminders are created through Apple Reminders and stay on your device or in your own iCloud account. They are never sent to the author or to any third party.</li>
+    <li>CheckStitch only ever creates reminders. It never reads, edits, completes, or deletes them afterwards.</li>
+    <li>Your checklists live on your device and sync through your own iCloud — no account to create, nothing to sign in to.</li>
+    <li>No analytics, no tracking, and no advertising. The only network traffic is the optional background wallpaper.</li>
+</ul>
+
+<h2 class="heading-subsection">Built for quiet productivity</h2>
+{# Two-column: Apple Watch shots on the left, copy on the right. Also lg: rather than
+   md: so the pictures stay stacked on tablets instead of sitting side-to-side. #}
+<div class="flex flex-col lg:flex-row gap-8 lg:items-center">
+    <div class="flex justify-center gap-6 w-full lg:w-1/2 lg:flex-none">
+        <figure class="card m-0 max-w-[12rem] p-3">
+            <img src="{{ asset_url('checkstitch-watch-list.png') }}" alt="Apple Watch showing a list of checklists"
+                 class="w-full rounded-lg border border-neutral-700">
+            <figcaption class="text-muted text-sm mt-2 text-center">Your checklists</figcaption>
+        </figure>
+        <figure class="card m-0 max-w-[12rem] p-3">
+            <img src="{{ asset_url('checkstitch-watch-create.png') }}" alt="Apple Watch showing the Create reminders button"
+                 class="w-full rounded-lg border border-neutral-700">
+            <figcaption class="text-muted text-sm mt-2 text-center">Create reminders</figcaption>
+        </figure>
+    </div>
+    <div class="lg:flex-1">
+        <p>CheckStitch works the same way everywhere. Build a checklist on your iPhone or iPad, review it on your Mac, and run it from your wrist when your hands are full — the checklist is there, waiting.</p>
+        <p>Routines, packing lists, opening and closing procedures: anything you do more than once belongs in a checklist. Write it once, then let CheckStitch do the typing.</p>
+    </div>
+</div>
+
 <p class="text-2xl text-accent text-center mt-12">One checklist in. A list of reminders out.</p>
 {% endblock %}
