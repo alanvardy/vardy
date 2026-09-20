@@ -47,6 +47,7 @@ pub fn routes() -> Router<AppState> {
     Router::new()
         .route("/", get(handlers::home::web::index))
         .route("/singlethread", get(handlers::singlethread::web::index))
+        .route("/checkstitch", get(handlers::checkstitch::web::index))
         .route("/contact", get(handlers::contact::web::index))
         .route("/dump/{key}", get(handlers::dump::web::index)) // global budget only
         .merge(dump_tier)

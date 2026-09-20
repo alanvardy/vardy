@@ -1,3 +1,4 @@
+pub mod checkstitch;
 pub mod contact;
 pub mod dump;
 pub mod home;

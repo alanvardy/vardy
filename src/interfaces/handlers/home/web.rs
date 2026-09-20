@@ -59,6 +59,7 @@ mod tests {
         // nav chrome unchanged
         assert!(body.contains(r#"<a href="/" class="active">Home</a>"#));
         assert!(body.contains(r#"<a href="/singlethread">SingleThread</a>"#));
+        assert!(body.contains(r#"<a href="/checkstitch">CheckStitch</a>"#));
         assert!(body.contains("/static/site.css?v="));
         assert!(!body.contains("<style>"));
         // credit line appears with linked photographer name
