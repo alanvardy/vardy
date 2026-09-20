@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+{% block title %}CheckStitch{% endblock %}
+{% block heading %}CheckStitch{% endblock %}
+{% block content %}
+<div class="hero">
+    {# Icon hero: two-column asymmetrical flex — left has tagline + explanation, right has the app icon badge #}
+    <div class="flex flex-col md:flex-row gap-8 items-center">
+        <div class="space-y-4 md:flex-1">
+            <p class="heading-hero">Your list is how you think. Reminders is where you act.</p>
+            <p class="text-muted">CheckStitch turns a checklist into Apple Reminders — one reminder per item, in one tap.</p>
+        </div>
+        <div class="order-first md:order-none md:flex-none">
+            <img src="{{ asset_url('checkstitch-icon.png') }}" alt="CheckStitch app icon"
+                 width="96" height="96" class="rounded-2xl">
+        </div>
+    </div>
+
+    {# Platform badges #}
+    <div class="flex flex-wrap gap-2 justify-center mt-6">
+        <span class="badge">iPhone</span>
+        <span class="badge">iPad</span>
+        <span class="badge">Mac</span>
+        <span class="badge">Watch</span>
+    </div>
+    {# No App Store badge: CheckStitch has no App Store presence yet. #}
+</div>
+
+<div class="divider"></div>
+
+<h2 class="heading-section">Write the list once. Run it as reminders.</h2>
+<p>CheckStitch is the missing bridge between the list you wrote and the reminders you actually need. Name a checklist, add your items, and run it: each item becomes its own Apple Reminder, in the list you choose. No more typing the same thing ten times, and no more half-finished lists lost in Notes. Stitch the two together and get on with your day.</p>
+
+<p class="text-2xl text-accent text-center mt-12">One checklist in. A list of reminders out.</p>
+{% endblock %}

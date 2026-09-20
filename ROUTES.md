@@ -38,6 +38,24 @@ fails.
 
 ---
 
+### GET /checkstitch
+
+Renders the CheckStitch page with an app-icon hero (icon badge + tagline),
+platform badges (iPhone, iPad, Mac, Watch), a gradient decorative divider,
+screenshot and watch-image cards with hover transitions, feature lists, an
+FAQ section with collapsible Q&A pairs (native <details>/<summary> widgets), and a
+closing CTA line. There is no App Store download badge. Includes a random
+Unsplash wallpaper and photographer credit (linked name when a profile URL is
+available, plain text otherwise). The wallpaper and credit gracefully degrade
+to hidden when the Unsplash fetch fails.
+
+- Response: `200 OK` — `text/html` (minijinja `templates/checkstitch.html`)
+- Errors: `500` via `WebError` (template render failure)
+- Rate limit: global per-IP GCRA limiter. Over limit → `429 Too Many Requests`,
+  plain-text body `too many requests`, with `Retry-After` and `X-RateLimit-*` headers.
+
+---
+
 ### GET /contact
 
 Renders a two-column contact page: introductory copy about Alan in the left
