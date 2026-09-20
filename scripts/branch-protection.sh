@@ -19,7 +19,6 @@ REQUIRED_CONTEXTS=(
   "CI / Rust-fmt (Cargo Format)"
   "CI / Clippy (Cargo Clippy Lint Check)"
   "CI / CSS Drift Check"
-  "Dependabot Auto Merge / auto-merge"
 )
 
 [ ${#REQUIRED_CONTEXTS[@]} -gt 0 ] || die "REQUIRED_CONTEXTS is empty"
