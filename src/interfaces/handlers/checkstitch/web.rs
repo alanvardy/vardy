@@ -169,6 +169,7 @@ mod tests {
         assert!(body.contains(r#"<img src="/static/checkstitch-shot-ipad-edit.jpg?v="#));
         assert!(body.contains(r#"<img src="/static/checkstitch-watch-list.png?v="#));
         assert!(body.contains(r#"<img src="/static/checkstitch-watch-create.png?v="#));
+        assert!(body.contains(r#"<img src="/static/checkstitch-icon.png?v="#));
         assert!(body.contains("Apple Watch showing the Create reminders button"));
         // every asset_url reference must resolve — a missing file panics the handler
         assert_eq!(body.matches("app-store.svg").count(), 0);
@@ -182,7 +183,6 @@ mod tests {
         assert!(body.contains("Photo by"));
         // responsive: wallpaper and credit are hidden on mobile breakpoints
         assert!(body.contains(r#"class="wallpaper hidden md:block""#));
-        assert!(body.contains("hidden md:block"));
         assert!(body.contains("bg-black/50"));
     }
 
@@ -365,8 +365,8 @@ mod tests {
         for item in all_faq_items() {
             let question = html_escape(item.question);
             assert!(
-                body.contains(&format!("</span>{question}")),
-                "chevron missing before question: {}",
+                body.contains(&format!(r#"</svg></span>{question}"#)),
+                "chevron svg missing before question: {}",
                 item.question,
             );
         }
