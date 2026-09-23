@@ -48,11 +48,19 @@ mod tests {
         assert!(body.contains("You are invited to"));
         assert!(body.contains(r#"href="https://github.com/alanvardy""#));
         assert!(body.contains(r#"href="https://www.linkedin.com/in/alanvardy/""#));
+        // the apps section appears after the LinkedIn entry, listing both app pages
+        assert!(body.contains("Look at my apps"));
+        assert!(body.contains(r#"href="/singlethread""#));
+        assert!(body.contains(r#"href="/checkstitch""#));
+        assert!(body.contains("SingleThread"));
+        assert!(body.contains("CheckStitch"));
         // all images versioned
         assert!(body.contains(r#"src="/static/wave.svg?v="#));
         assert!(body.contains(r#"src="/static/alanvardy.jpg?v="#));
         assert!(body.contains(r#"src="/static/github.svg?v="#));
         assert!(body.contains(r#"src="/static/linkedin.svg?v="#));
+        assert!(body.contains(r#"src="/static/singlethread-icon.png?v="#));
+        assert!(body.contains(r#"src="/static/checkstitch-icon.png?v="#));
         // no legacy component classes remain on this page
         assert!(!body.contains("home-columns"));
         assert!(!body.contains("invite-list"));
