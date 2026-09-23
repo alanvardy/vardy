@@ -1,0 +1,7 @@
+# Done
+
+- **What was built**: Added a "Look at my apps" section to `templates/home.html` directly under the "Check out my LinkedIn" entry, listing SingleThread (`/singlethread`) and CheckStitch (`/checkstitch`) using the existing GitHub/LinkedIn list-item markup (icon `asset_url(...)`, `flex items-center gap-2 py-2`, `target="_blank" rel="noopener noreferrer"`). Extended `index_serves_ok_html` in `src/interfaces/handlers/home/web.rs` to assert the new heading, both links/text, and versioned icon srcs (`/static/singlethread-icon.png?v=`, `/static/checkstitch-icon.png?v=`).
+- **Commit SHA(s)**: `b89c4d2` (pushed to PR #74).
+- **Verification**: `cargo nextest run home` — 5/5 pass (including `index_serves_ok_html` with the new assertions). `cargo fmt --check --all` clean. No `static/site.css` change needed — all Tailwind classes used (`flex`, `items-center`, `gap-2`, `py-2`, `list-none`, `ml-0`, `pl-4`, `border-l-4`) were already generated.
+- **Reviewer findings**: None. Self-review confirmed routes `/singlethread` & `/checkstitch` exist, both icon PNGs are present in `static/`, and the markup mirrors the existing list pattern. No blockers, no nits.
+- **Remaining manual items**: None. PR #74 is still a draft and ready for the user to mark ready / merge via `--rebase`.
