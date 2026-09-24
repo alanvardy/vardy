@@ -27,8 +27,9 @@ fn hash_dir(dir: &Path, prefix_len: usize, map: &mut HashMap<String, String>) {
                 panic!("failed to hash static asset {}: {err}", path.display())
             });
             let digest = Sha256::digest(&bytes);
+            let hex: String = digest.iter().map(|b| format!("{b:02x}")).collect();
             let rel = path.to_string_lossy()[prefix_len..].to_string();
-            map.insert(rel, format!("{digest:x}")[..12].to_string());
+            map.insert(rel, hex[..12].to_string());
         }
     }
 }
