@@ -2,6 +2,10 @@
 # Load DATABASE_URL from .env.
 set -a; source .env; set +a
 
+# Reclaim age-expired build/test caches before building. No-op when the shared
+# helper is not installed, so CI and other machines are unaffected.
+command -v disk-clean >/dev/null 2>&1 && disk-clean || true
+
 echo "🎨  FORMAT" &&
 cargo fmt --all &&
 echo "📦  UPDATE MIGRATIONS" &&
