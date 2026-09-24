@@ -13,12 +13,14 @@ command -v gh >/dev/null || die "gh CLI (with repo scope) is required — see ht
 command -v jq >/dev/null || die "jq is required"
 
 # ── Constants ───────────────────────────────────────────────────────────────
+# Contexts must match the check run `name` exactly (the workflow prefix
+# "CI / " is a UI grouping artifact and is NOT part of the check run name).
 REQUIRED_CONTEXTS=(
-  "CI / Cargo CI Tests"
-  "CI / TODO and FIXME"
-  "CI / Rust-fmt (Cargo Format)"
-  "CI / Clippy (Cargo Clippy Lint Check)"
-  "CI / CSS Drift Check"
+  "Cargo CI Tests"
+  "TODO and FIXME"
+  "Rust-fmt (Cargo Format)"
+  "Clippy (Cargo Clippy Lint Check)"
+  "CSS Drift Check"
 )
 
 [ ${#REQUIRED_CONTEXTS[@]} -gt 0 ] || die "REQUIRED_CONTEXTS is empty"
