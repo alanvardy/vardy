@@ -22,7 +22,14 @@
         <span class="badge">Mac</span>
         <span class="badge">Watch</span>
     </div>
-    {# No App Store badge: CheckStitch has no App Store presence yet. #}
+    {# App Store download badge #}
+    <div class="flex justify-center mt-6">
+        <a href="https://apps.apple.com/ca/app/checkstitch/id6811602356"
+           target="_blank" rel="noopener noreferrer">
+            <img src="{{ asset_url('app-store.svg') }}"
+                 alt="Download CheckStitch on the App Store" width="180" height="60">
+        </a>
+    </div>
 </div>
 
 <div class="divider"></div>
@@ -129,4 +136,13 @@
 {% endfor %}
 
 <p class="text-2xl text-accent text-center mt-12">One checklist in. A list of reminders out.</p>
+
+{# App Store download badge #}
+<div class="flex justify-center mt-6">
+    <a href="https://apps.apple.com/ca/app/checkstitch/id6811602356"
+       target="_blank" rel="noopener noreferrer">
+        <img src="{{ asset_url('app-store.svg') }}"
+             alt="Download CheckStitch on the App Store" width="180" height="60">
+    </a>
+</div>
 {% endblock %}
