@@ -21,7 +21,7 @@ const FAQS: &[FaqCategory] = &[
         items: &[
             FaqItem {
                 question: "How do I get CheckStitch?",
-                answer: "CheckStitch is being prepared for its App Store release on iPhone, iPad, and Mac, with a matching Apple Watch app included. There is no account and no setup: install it, open it, and tap + to name your first checklist.",
+                answer: "CheckStitch is available now on the App Store for iPhone, iPad, and Mac, with a matching Apple Watch app included. There is no account and no setup: install it, open it, and tap + to name your first checklist.",
             },
             FaqItem {
                 question: "How do I run my first checklist?",
@@ -171,11 +171,14 @@ mod tests {
         assert!(body.contains(r#"<img src="/static/checkstitch-watch-create.png?v="#));
         assert!(body.contains(r#"<img src="/static/checkstitch-icon.png?v="#));
         assert!(body.contains("Apple Watch showing the Create reminders button"));
-        // every asset_url reference must resolve — a missing file panics the handler
-        assert_eq!(body.matches("app-store.svg").count(), 0);
-        // No App Store badge: CheckStitch has no App Store presence yet.
-        assert!(!body.contains("apps.apple.com"));
-        assert!(!body.contains("app-store.svg"));
+        // App Store download badge, top (hero) and bottom (CTA). These hrefs
+        // are static template text (not context variables), so minijinja does
+        // not autoescape them — slashes stay literal. Both the URL and the
+        // badge asset must appear exactly twice (once per spot).
+        let app_store_href = "https://apps.apple.com/ca/app/checkstitch/id6811602356";
+        assert_eq!(body.matches(app_store_href).count(), 2);
+        assert_eq!(body.matches(r#"/static/app-store.svg?v="#).count(), 2);
+        assert!(body.contains(r#"target="_blank""#));
         // server-rendered wallpaper from the seeded cache row; minijinja
         // escapes `/` in attribute context, browsers decode it back
         assert!(body.contains("url('https:&#x2f;&#x2f;example.com&#x2f;wallpaper.jpg')"));
