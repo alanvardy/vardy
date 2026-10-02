@@ -63,7 +63,7 @@ const FAQS: &[FaqCategory] = &[
         items: &[
             FaqItem {
                 question: "Do you collect my data?",
-                answer: "No. CheckStitch has no analytics, no tracking, and no advertising. Your reminders and checklists are never sent to the author or to any third party.",
+                answer: "No. CheckStitch has no analytics, no tracking, and no advertising. Your reminders and checklists are never sent to the author or to any third party. The only data that leaves your device is anonymous crash-report information, which goes to Sentry and is used only to fix bugs.",
             },
             FaqItem {
                 question: "Does CheckStitch read or change my existing reminders?",
@@ -71,7 +71,7 @@ const FAQS: &[FaqCategory] = &[
             },
             FaqItem {
                 question: "Why does the app use the network at all?",
-                answer: "Only for the optional background. The wallpaper and artist credit are fetched through a proxy at vardy.cc, and that request never includes any reminder, checklist, or preference data. With the background switched off, CheckStitch makes no network requests at all.",
+                answer: "Only for two things: the optional background, and crash reports. The wallpaper and artist credit are fetched through a proxy at vardy.cc, and that request never includes any reminder, checklist, or preference data. If the app crashes, anonymous diagnostic information is sent to Sentry, and I only use it to fix bugs. With the background switched off, the only network requests that remain are anonymous crash reports.",
             },
         ],
     },
@@ -302,7 +302,9 @@ mod tests {
             body.contains(&question),
             "privacy question missing from rendered page"
         );
-        let answer = html_escape("no analytics, no tracking, and no advertising");
+        let answer = html_escape(
+            "anonymous crash-report information, which goes to Sentry and is used only to fix bugs",
+        );
         assert!(
             body.contains(&answer),
             "privacy answer missing from rendered page"
