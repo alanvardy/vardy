@@ -71,11 +71,11 @@ const FAQS: &[FaqCategory] = &[
             },
             FaqItem {
                 question: "What network requests does this app make?",
-                answer: "I only have the app perform network requests to fetch new wallpapers.",
+                answer: "I only have the app perform network requests to fetch new wallpapers, and to send anonymous crash-report data to Sentry when the app crashes — which I only use to fix bugs.",
             },
             FaqItem {
                 question: "Do you collect or sell my data?",
-                answer: "Absolutely not. I do not retain, store, use, or sell any information about you.",
+                answer: "Absolutely not. I do not retain, store, use, or sell any of your Reminders or personal information. The only data that leaves your device is anonymous crash-report information, which goes to Sentry and is only ever used to fix bugs.",
             },
         ],
     },
