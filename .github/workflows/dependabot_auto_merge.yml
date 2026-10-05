@@ -12,6 +12,11 @@
 # events from Dependabot receive a read-only token).
 # SECURITY: never check out the PR head and never run PR code in this workflow
 # (RCE risk under pull_request_target). This job uses the GitHub API only.
+#
+# Known limitation: with strict status checks, an armed PR that falls BEHIND
+# waits for Dependabot's next scheduled rebase. If stalls are observed, the
+# escalation is a deferred `push: main` workflow running `gh pr update-branch`
+# (or a merge queue). Not enabled here.
 
 name: Dependabot Auto Merge
 
