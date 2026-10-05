@@ -3,6 +3,8 @@
 # Arms GitHub native auto-merge for Dependabot-authored PRs. Once armed, GitHub
 # merges the PR itself as soon as the branch-protection required status checks
 # pass and the branch is current — no human command, no `@dependabot merge`.
+# An already-CLEAN PR (nothing left to wait for) is merged directly, since
+# GitHub rejects enabling auto-merge in that state.
 #
 # Prerequisite: the repository "Allow auto-merge" setting must be enabled.
 # scripts/branch-protection.sh verifies/enforces allow_auto_merge=true.
