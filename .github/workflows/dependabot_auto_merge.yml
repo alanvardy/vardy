@@ -22,6 +22,10 @@ permissions:
   pull-requests: write  # enable auto-merge (API)
   contents: write       # required for the enablePullRequestAutoMerge GraphQL mutation
 
+concurrency:
+  group: dependabot-auto-merge-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   auto-merge:
     if: ${{ github.actor == 'dependabot[bot]' }}
@@ -36,6 +40,7 @@ jobs:
 
           resp=$(gh pr view "$PR" --json state,mergeStateStatus,autoMergeRequest)
           state=$(jq -r '.state' <<<"$resp")
+          merge_state=$(jq -r '.mergeStateStatus' <<<"$resp")
           armed=$(jq -r '.autoMergeRequest != null' <<<"$resp")
 
           if [ "$state" = "MERGED" ] || [ "$armed" = "true" ]; then
@@ -43,4 +48,21 @@ jobs:
             exit 0
           fi
 
-          gh pr merge "$PR" --auto --rebase
+          case "$merge_state" in
+            CLEAN)
+              # GitHub rejects enablePullRequestAutoMerge on an already-clean PR
+              # ("Pull request is in clean status"), so merge directly.
+              echo "PR #$PR is CLEAN — merging directly (rebase)."
+              gh pr merge "$PR" --rebase
+              ;;
+            BLOCKED|UNSTABLE|BEHIND|DIRTY)
+              echo "PR #$PR is $merge_state — arming auto-merge (rebase)."
+              gh pr merge "$PR" --auto --rebase
+              ;;
+            *)
+              # DRAFT / HAS_HOOKS / UNKNOWN / anything new: arm and let GitHub
+              # decide. Surface the unexpected value for observability.
+              echo "PR #$PR has mergeStateStatus '$merge_state' — arming auto-merge (rebase)."
+              gh pr merge "$PR" --auto --rebase
+              ;;
+          esac
