@@ -54,6 +54,11 @@
   `plan.md` and the Linear ticket before keeping or reverting
 - Merge PRs only with `--rebase` (`gh pr merge <n> --rebase --delete-branch`);
   merge-commit and squash merges are disabled repo-wide
+- Dependabot PRs merge via GitHub native auto-merge: the
+  `.github/workflows/dependabot_auto_merge.yml` workflow (`pull_request_target`)
+  arms auto-merge for `dependabot[bot]` PRs, and `main` merges them once the
+  required checks pass. This needs the repo "Allow auto-merge" setting, enforced
+  by `scripts/branch-protection.sh verify` (`allow_auto_merge=true`).
 - Branch protection on `main` is managed by `scripts/branch-protection.sh` —
   after any CI job `name:` change, update `REQUIRED_CONTEXTS` in the script
   and run `./scripts/branch-protection.sh apply` (default `verify` is
