@@ -17,22 +17,28 @@ name: Dependabot Auto Merge
 
 on:
   pull_request_target:
+  workflow_dispatch:
+    inputs:
+      pr-number:
+        description: 'Pull request number to re-arm/observe Dependabot auto-merge'
+        required: true
+        type: string
 
 permissions:
   pull-requests: write  # enable auto-merge (API)
   contents: write       # required for the enablePullRequestAutoMerge GraphQL mutation
 
 concurrency:
-  group: dependabot-auto-merge-${{ github.event.pull_request.number }}
+  group: dependabot-auto-merge-${{ github.event.pull_request.number || inputs.pr-number }}
   cancel-in-progress: true
 
 jobs:
   auto-merge:
-    if: ${{ github.actor == 'dependabot[bot]' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.actor == 'dependabot[bot]' }}
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      PR: ${{ github.event.pull_request.number }}
+      PR: ${{ github.event.pull_request.number || inputs.pr-number }}
     steps:
       - name: Arm native auto-merge
         run: |
