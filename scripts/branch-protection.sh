@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
-# Verify and apply GitHub branch protection and repo merge settings for main.
+# Verify and apply GitHub branch protection, repo merge settings, and the
+# "Allow auto-merge" toggle for main.
 #   verify  (default) — read-only check that protection + merge settings match
 #   apply   — PUT protection + PATCH merge settings, then re-verify
 # Requires: gh CLI (authenticated with repo/admin scope), jq (apply path only).
+# allow_auto_merge=true is enforced here because Dependabot native auto-merge
+# (see .github/workflows/dependabot_auto_merge.yml) cannot arm without it.
 # The REQUIRED_CONTEXTS array below is the canonical list of required CI check
 # contexts. After any CI job name: change in .github/workflows/, update
 # REQUIRED_CONTEXTS and re-run `apply`.
@@ -39,8 +42,9 @@ usage() {
 Usage: scripts/branch-protection.sh [verify|apply|--yes]
 
   verify  (default) read-only check that main protection + repo merge
-          settings match REQUIRED_CONTEXTS
-  apply   PUT protection + PATCH merge settings, then re-verify
+          settings + allow_auto_merge match expected values
+  apply   PUT protection + PATCH merge settings (incl. allow_auto_merge),
+          then re-verify
           (interactive unless --yes)
   --yes   non-interactive skip of the apply confirmation prompt
 
@@ -147,10 +151,11 @@ verify_protection() {
 verify_repo_settings() {
   local mismatches=0
 
-  local merge_commit squash_merge rebase_merge
+  local merge_commit squash_merge rebase_merge auto_merge
   merge_commit=$(gh api "repos/$OWNER/$REPO_NAME" --jq '.allow_merge_commit')
   squash_merge=$(gh api "repos/$OWNER/$REPO_NAME" --jq '.allow_squash_merge')
   rebase_merge=$(gh api "repos/$OWNER/$REPO_NAME" --jq '.allow_rebase_merge')
+  auto_merge=$(gh api "repos/$OWNER/$REPO_NAME" --jq '.allow_auto_merge')
 
   if [ "$merge_commit" != "false" ]; then
     echo "FAIL: allow_merge_commit = $merge_commit (expected false)"
@@ -164,11 +169,15 @@ verify_repo_settings() {
     echo "FAIL: allow_rebase_merge = $rebase_merge (expected true)"
     mismatches=$((mismatches + 1))
   fi
+  if [ "$auto_merge" != "true" ]; then
+    echo "FAIL: allow_auto_merge = $auto_merge (expected true — required for Dependabot native auto-merge)"
+    mismatches=$((mismatches + 1))
+  fi
 
   if [ "$mismatches" -gt 0 ]; then
     die "repo merge settings verification FAILED — $mismatches mismatch(es)"
   fi
-  echo "OK: repo merge settings match expected config (rebase-only)"
+  echo "OK: repo merge settings match expected config (rebase-only, auto-merge enabled)"
 }
 
 # ── Apply: branch protection ────────────────────────────────────────────────
@@ -204,7 +213,8 @@ apply_repo_settings() {
 {
   "allow_merge_commit": false,
   "allow_squash_merge": false,
-  "allow_rebase_merge": true
+  "allow_rebase_merge": true,
+  "allow_auto_merge": true
 }
 EOF
   echo "OK: repo merge settings applied"
@@ -240,6 +250,7 @@ main() {
       echo "  - Enable stale review dismissal (0 required approvals)"
       echo "  - Disable merge-commit and squash-merge at the repo level"
       echo "  - Allow rebase merges only"
+      echo "  - Enable auto-merge (required for Dependabot native auto-merge)"
       echo ""
       if [ "$yes_flag" != true ]; then
         read -r -p "Continue? [y/N] " answer || { echo "Aborted (no stdin). Re-run with --yes for non-interactive apply."; exit 0; }
@@ -275,6 +286,7 @@ main() {
       echo "  - Enable stale review dismissal (0 required approvals)"
       echo "  - Disable merge-commit and squash-merge at the repo level"
       echo "  - Allow rebase merges only"
+      echo "  - Enable auto-merge (required for Dependabot native auto-merge)"
       echo ""
 
       apply_protection || die "protection apply failed — branch may be partially configured; fix and re-run apply (idempotent)"
