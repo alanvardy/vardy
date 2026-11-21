@@ -47,6 +47,16 @@ impl ContactForm {
         Ok(())
     }
 
+    /// Bot signal: a CR or LF in `name` or `email`.
+    ///
+    /// Both fields render as single-line inputs, so a line break is never
+    /// legitimate there, and CRLF is the classic SMTP header-injection probe.
+    /// `message` is deliberately excluded because multi-line messages are
+    /// legitimate.
+    pub fn looks_like_bot(&self) -> bool {
+        self.name.contains(['\r', '\n']) || self.email.contains(['\r', '\n'])
+    }
+
     /// Build the email subject line.
     ///
     /// `name` and `email` are user-supplied, so strip any control characters
@@ -168,6 +178,26 @@ mod tests {
     fn message_at_boundary_accepted() {
         let max = "a".repeat(10_000);
         assert!(form("Alan", "a@b.cc", &max).validate().is_ok());
+    }
+
+    #[test]
+    fn clean_input_does_not_look_like_bot() {
+        assert!(!form("Alan", "a@b.cc", "hi").looks_like_bot());
+    }
+
+    #[test]
+    fn newline_in_name_looks_like_bot() {
+        assert!(form("Alan\nVardy", "a@b.cc", "hi").looks_like_bot());
+    }
+
+    #[test]
+    fn carriage_return_in_email_looks_like_bot() {
+        assert!(form("Alan", "a@b.cc\rX-Injected: 1", "hi").looks_like_bot());
+    }
+
+    #[test]
+    fn newline_in_message_is_not_a_bot_signal() {
+        assert!(!form("Alan", "a@b.cc", "line one\nline two").looks_like_bot());
     }
 
     #[test]
