@@ -57,6 +57,14 @@ pub async fn create(
         return render(&state, true, None, "", "", "").await; // silently accept, send nothing
     }
 
+    // A CR/LF in the single-line name/email fields is a bot header-injection
+    // probe. Drop it silently like the honeypot rather than surfacing an error
+    // to the bot. The subject sanitizer stays as defense-in-depth for the
+    // other control characters and for any future non-handler caller.
+    if form.looks_like_bot() {
+        return render(&state, true, None, "", "", "").await; // silently accept, send nothing
+    }
+
     // Validate before touching Resend — bad input re-renders the form.
     if let Err(msg) = form.validate() {
         return render(
@@ -150,6 +158,46 @@ mod tests {
             .expect("request failed");
         assert_eq!(res.status(), StatusCode::OK);
         assert_eq!(stub.call_count.load(Ordering::SeqCst), 0);
+    }
+
+    #[tokio::test]
+    async fn post_newline_in_name_skips_email() {
+        let stub = start_resend_stub(StatusCode::OK).await;
+        let (addr, _) = start_app_with_resend(&stub.base_url).await;
+        let res = test_client()
+            .post(format!("http://{addr}/contact"))
+            .form(&[
+                ("name", "Alan\nVardy"),
+                ("email", "a@b.cc"),
+                ("message", "hi"),
+            ])
+            .send()
+            .await
+            .expect("request failed");
+        assert_eq!(res.status(), StatusCode::OK);
+        assert_eq!(stub.call_count.load(Ordering::SeqCst), 0);
+        let body = res.text().await.unwrap();
+        assert!(body.contains("Thank you — I'll get back to you soon."));
+    }
+
+    #[tokio::test]
+    async fn post_carriage_return_in_email_skips_email() {
+        let stub = start_resend_stub(StatusCode::OK).await;
+        let (addr, _) = start_app_with_resend(&stub.base_url).await;
+        let res = test_client()
+            .post(format!("http://{addr}/contact"))
+            .form(&[
+                ("name", "Alan"),
+                ("email", "a@b.cc\rX-Injected: 1"),
+                ("message", "hi"),
+            ])
+            .send()
+            .await
+            .expect("request failed");
+        assert_eq!(res.status(), StatusCode::OK);
+        assert_eq!(stub.call_count.load(Ordering::SeqCst), 0);
+        let body = res.text().await.unwrap();
+        assert!(body.contains("Thank you — I'll get back to you soon."));
     }
 
     #[tokio::test]
