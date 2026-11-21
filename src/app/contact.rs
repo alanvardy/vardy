@@ -48,8 +48,16 @@ impl ContactForm {
     }
 
     /// Build the email subject line.
+    ///
+    /// `name` and `email` are user-supplied, so strip any control characters
+    /// (including CR/LF) before interpolating: a bare newline in the subject
+    /// makes Resend reject the send with HTTP 422. Clean input is unchanged.
     pub fn subject(&self) -> String {
-        format!("New contact message from {} <{}>", self.name, self.email)
+        format!(
+            "New contact message from {} <{}>",
+            strip_control_chars(&self.name),
+            strip_control_chars(&self.email)
+        )
     }
 
     /// Build the email body text.
@@ -59,6 +67,13 @@ impl ContactForm {
             self.name, self.email, self.message
         )
     }
+}
+
+/// Remove control characters (CR, LF, NUL, etc.) so a value can be embedded in
+/// a single-line email header. Non-control characters, including spaces and
+/// Unicode, are preserved byte-for-byte.
+fn strip_control_chars(value: &str) -> String {
+    value.chars().filter(|c| !c.is_control()).collect()
 }
 
 /// Send a contact email using the shared HTTP client and Resend config
@@ -153,5 +168,51 @@ mod tests {
     fn message_at_boundary_accepted() {
         let max = "a".repeat(10_000);
         assert!(form("Alan", "a@b.cc", &max).validate().is_ok());
+    }
+
+    #[test]
+    fn subject_keeps_clean_input_unchanged() {
+        assert_eq!(
+            form("Alan", "a@b.cc", "hi").subject(),
+            "New contact message from Alan <a@b.cc>"
+        );
+    }
+
+    #[test]
+    fn subject_strips_newlines_from_name() {
+        let subject = form("Alan\nVardy", "a@b.cc", "hi").subject();
+        assert_eq!(subject, "New contact message from AlanVardy <a@b.cc>");
+        assert!(!subject.chars().any(char::is_control));
+    }
+
+    #[test]
+    fn subject_strips_carriage_returns_from_name() {
+        let subject = form("Alan\rVardy", "a@b.cc", "hi").subject();
+        assert_eq!(subject, "New contact message from AlanVardy <a@b.cc>");
+        assert!(!subject.chars().any(char::is_control));
+    }
+
+    #[test]
+    fn subject_strips_newlines_from_email() {
+        let subject = form("Alan", "a@b.cc\nX-Injected: 1", "hi").subject();
+        assert_eq!(
+            subject,
+            "New contact message from Alan <a@b.ccX-Injected: 1>"
+        );
+        assert!(!subject.chars().any(char::is_control));
+    }
+
+    #[test]
+    fn subject_strips_crlf_from_name_and_email() {
+        let subject = form("Alan\r\nVardy", "a@b.cc\r\n", "hi").subject();
+        assert_eq!(subject, "New contact message from AlanVardy <a@b.cc>");
+        assert!(!subject.chars().any(char::is_control));
+    }
+
+    #[test]
+    fn subject_strips_other_control_chars() {
+        let subject = form("Alan\u{0}\u{7}Vardy", "a@b.cc", "hi").subject();
+        assert_eq!(subject, "New contact message from AlanVardy <a@b.cc>");
+        assert!(!subject.chars().any(char::is_control));
     }
 }
